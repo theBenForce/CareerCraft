@@ -36,7 +36,7 @@ This application follows a comprehensive design system built with **shadcn/ui** 
 - **Layout**: Card-based design with consistent spacing and shadows
 - **Components**: Button, Card, Input, Badge, Avatar, and more
 
-For detailed design guidelines, see [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+For detailed design guidelines, see [Design System Documentation](./design/DESIGN_SYSTEM.md).
 
 ### Available shadcn/ui Components
 
@@ -200,6 +200,28 @@ personal-crm/
 ├── docker-compose.yml       # Docker composition
 ├── Dockerfile               # Docker configuration
 └── README.md
+```
+
+## Folder Structure
+
+```
+personal-crm/
+├── design/                     # Design documentation and assets
+│   ├── DESIGN_SYSTEM.md       # Complete design system documentation
+│   ├── README.md              # Design folder overview
+│   ├── user-flows/            # User flow documentation
+│   │   └── README.md          # User flows guide and templates
+│   └── reference-images/      # Design references and mockups
+│       ├── components/        # Component design references
+│       ├── pages/            # Page layout references
+│       ├── mobile/           # Mobile-specific designs
+│       ├── wireframes/       # Low-fidelity wireframes
+│       ├── mockups/          # High-fidelity mockups
+│       └── README.md         # Reference images guide
+├── src/                       # Application source code
+├── prisma/                    # Database schema and migrations
+├── public/                    # Static assets
+└── ...                       # Other project files
 ```
 
 ## Available Scripts

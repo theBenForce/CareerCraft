@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function Header() {
   const pathname = usePathname()
@@ -23,26 +24,29 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white shadow">
+    <header className="bg-background border-b border-border shadow-sm">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-foreground hover:text-muted-foreground">
             Personal CRM
           </Link>
-          <nav className="flex space-x-4">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${isActivePage(item.href)
-                    ? 'text-gray-900 font-medium border-b-2 border-blue-500 pb-1'
-                    : 'text-gray-600 hover:text-gray-900'
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center space-x-6">
+            <nav className="flex space-x-4">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${isActivePage(item.href)
+                    ? 'text-foreground font-medium border-b-2 border-primary pb-1'
+                    : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

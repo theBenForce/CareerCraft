@@ -4,6 +4,8 @@
 
 This document outlines the design system, styles, and UI patterns used throughout the Personal CRM application. The application is built with Next.js 14, React 18, TypeScript, and Tailwind CSS, focusing on a clean, professional interface suitable for job search and networking management.
 
+**📸 Visual References**: Implementation examples and design patterns are illustrated with reference images in `/design/reference-images/`. These images demonstrate real-world application of the design system patterns documented below.
+
 ## Core Technologies
 
 - **Framework**: Next.js 14 with App Router
@@ -423,6 +425,8 @@ Consider implementing a design token system for:
 
 ## Tables
 
+*Reference: See `pages/contacts/contacts-page.png` and `pages/applications/list-applications-page.png` for implementation examples*
+
 #### Data Table Structure
 ```css
 .data-table {
@@ -480,6 +484,8 @@ Consider implementing a design token system for:
 
 ## Search & Filter Controls
 
+*Reference: See `pages/contacts/contacts-page.png` for search bar and filter implementation*
+
 #### Search Bar
 ```css
 .search-bar {
@@ -508,6 +514,8 @@ Consider implementing a design token system for:
 ---
 
 ## Tag System
+
+*Reference: See tag implementations in `pages/contacts/contacts-page.png` and `pages/applications/list-applications-page.png`*
 
 #### Tag Colors & Variants
 ```css
@@ -564,6 +572,8 @@ Consider implementing a design token system for:
 
 ## Layout Patterns
 
+*Reference: Layout patterns demonstrated in all reference images*
+
 #### List/Table Page Structure
 ```
 ┌─────────────────────────────────────────┐
@@ -582,6 +592,25 @@ Consider implementing a design token system for:
 │ │ - Rows with avatars & data          │ │
 │ ├─────────────────────────────────────┤ │
 │ │ Pagination                          │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+#### Detail Page Structure
+```
+┌─────────────────────────────────────────┐
+│ Header (bg-white shadow)                │
+├─────────────────────────────────────────┤
+│ Main Content (bg-gray-50)               │
+│ ┌─────────────────────────────────────┐ │
+│ │ Page Header (title + actions)       │ │
+│ ├─────────────────────────────────────┤ │
+│ │ ┌─────────────┐ ┌─────────────────┐ │ │
+│ │ │ Primary     │ │ Secondary Info  │ │ │
+│ │ │ Information │ │ & Actions       │ │ │
+│ │ │ Card        │ │ Card            │ │ │
+│ │ │ (2/3 width) │ │ (1/3 width)     │ │ │
+│ │ └─────────────┘ └─────────────────┘ │ │
 │ └─────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
@@ -642,4 +671,173 @@ export default async function ListPage() {
 ```
 ---
 
-This design system ensures consistency, accessibility, and maintainability across the Personal CRM application. Regular updates to this document should reflect any changes or additions to the design patterns.
+## Reference Images & Implementation Examples
+
+This design system is informed by and illustrated with reference images located in `/design/reference-images/`. These images demonstrate the practical application of design patterns and serve as implementation guides.
+
+### Available Reference Images
+
+#### Page Layouts
+- **Contacts Pages**:
+  - `pages/contacts/contacts-page.png` - Table-based contacts listing with search and filters
+  - `pages/contacts/contact-details-page.png` - Individual contact detail view
+- **Applications Pages**:
+  - `pages/applications/list-applications-page.png` - Job applications listing page
+  - `pages/applications/application-details-page.png` - Individual application detail view
+
+### Design Pattern Documentation
+
+The reference images demonstrate several key design patterns that are documented throughout this system:
+
+#### Table-Based Data Display
+The contacts and applications listing pages show the implementation of:
+- Clean table layouts with proper spacing
+- Search bars with icon positioning
+- Filter dropdown buttons
+- Avatar displays with fallback initials
+- Tag systems with status-based color coding
+- Pagination controls
+
+#### Detail Page Layouts
+The individual detail pages demonstrate:
+- Card-based information organization
+- Consistent spacing and typography
+- Action button placement
+- Image handling and display
+
+---
+
+### Avatar Component Pattern
+
+*Reference: See avatar implementations in table rows in `pages/contacts/contacts-page.png`*
+
+#### Contact Avatar with Fallback
+```jsx
+{contact.image ? (
+  <Image 
+    className="h-10 w-10 rounded-full" 
+    src={contact.image} 
+    alt={`${contact.firstName} ${contact.lastName}`}
+    width={40}
+    height={40}
+  />
+) : (
+  <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
+    <span className="text-sm font-medium text-white">
+      {contact.firstName.charAt(0)}{contact.lastName.charAt(0)}
+    </span>
+  </div>
+)}
+```
+
+#### Avatar Sizes
+- **Small**: `h-8 w-8` (32px) with `text-xs`
+- **Medium**: `h-10 w-10` (40px) with `text-sm` 
+- **Large**: `h-12 w-12` (48px) with `text-base`
+- **Extra Large**: `h-16 w-16` (64px) with `text-lg`
+
+---
+
+## Detail Page Layouts
+
+*Reference: See `pages/contacts/contact-details-page.png` and `pages/applications/application-details-page.png` for detail page patterns*
+
+### Card-Based Information Display
+Detail pages use a card-based layout to organize information into logical sections:
+
+#### Detail Page Structure
+```jsx
+<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  {/* Page Header with Title and Actions */}
+  <div className="mb-6">
+    <div className="flex justify-between items-start">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          Entity Name
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Subtitle or description
+        </p>
+      </div>
+      <div className="flex gap-3">
+        <Button variant="outline">Edit</Button>
+        <Button>Action</Button>
+      </div>
+    </div>
+  </div>
+
+  {/* Main Content Cards */}
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {/* Primary Information Card */}
+    <div className="lg:col-span-2">
+      <div className="bg-white shadow rounded-lg p-6">
+        {/* Primary content */}
+      </div>
+    </div>
+    
+    {/* Secondary Information Card */}
+    <div className="lg:col-span-1">
+      <div className="bg-white shadow rounded-lg p-6">
+        {/* Secondary content */}
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+#### Information Section Patterns
+- **Primary Card**: Main entity information, largest content area
+- **Secondary Card**: Related information, metadata, actions
+- **Responsive Layout**: Stacks on mobile, side-by-side on desktop
+- **Consistent Spacing**: Use `p-6` for card padding, `gap-6` between cards
+
+---
+
+## Page Layout Patterns
+
+*Reference: All page layouts follow patterns shown in reference images*
+
+### List/Table Pages
+- **Header**: Fixed navigation with consistent branding
+- **Page Title**: Left-aligned with primary action button on right
+- **Search Section**: Full-width search bar with icon
+- **Filters**: Horizontal filter buttons below search
+- **Content**: Table with hover states and proper spacing
+- **Pagination**: Bottom-aligned with count information
+
+### Detail Pages  
+- **Header**: Consistent with list pages
+- **Page Title**: Entity name with edit/action buttons
+- **Content Grid**: Responsive card layout (2/3 + 1/3 split on desktop)
+- **Information Cards**: Organized by importance and relationship
+- **Actions**: Primary actions in header, secondary in cards
+
+---
+
+## Visual Design Principles
+
+Based on the reference images, the application follows these key visual principles:
+
+#### Information Hierarchy
+- **Page Titles**: Large, bold typography establishes clear page context
+- **Section Headers**: Medium weight typography for content organization  
+- **Data Labels**: Small, muted text for field labels and metadata
+- **Primary Actions**: Prominent button styling for main user actions
+
+#### Visual Consistency
+- **Spacing**: Consistent 24px (`gap-6`) spacing between major elements
+- **Card Shadows**: Subtle shadows (`shadow`) for depth without distraction
+- **Border Radius**: Consistent rounded corners (`rounded-lg`) for modern feel
+- **Color Usage**: Blue accents for interactive elements, gray scale for content
+
+#### Professional Appearance
+- **Clean Lines**: Minimal borders and clean separation between content areas
+- **Readable Typography**: Sufficient contrast and font sizes for professional use
+- **Organized Layout**: Logical content grouping and clear visual relationships
+- **Accessible Design**: High contrast ratios and clear interactive states
+
+#### Responsive Behavior
+- **Mobile-First**: Content stacks vertically on smaller screens
+- **Progressive Enhancement**: Additional features and layout complexity on larger screens
+- **Touch-Friendly**: Adequate tap targets and spacing for mobile interaction
+- **Content Priority**: Most important information remains visible across all screen sizes

@@ -18,6 +18,15 @@ module.exports = {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
+				// Custom theme-aware colors
+				'bg-primary': 'rgb(var(--bg-primary))',
+				'bg-secondary': 'rgb(var(--bg-secondary))',
+				'bg-card': 'rgb(var(--bg-card))',
+				'text-primary': 'rgb(var(--text-primary))',
+				'text-secondary': 'rgb(var(--text-secondary))',
+				'text-muted': 'rgb(var(--text-muted))',
+				'border-custom': 'rgb(var(--border))',
+				// Existing shadcn/ui colors
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				card: {

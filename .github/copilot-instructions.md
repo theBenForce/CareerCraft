@@ -17,7 +17,7 @@ This is a Personal CRM application built for job search and networking managemen
 ## Key Files & References
 
 - **Database Schema**: See `#file:../prisma/schema.prisma` for all data models and relationships
-- **Design System**: Follow guidelines in `#file:../DESIGN_SYSTEM.md` for all UI/UX decisions
+- **Design System**: Follow guidelines in `#file:../design/DESIGN_SYSTEM.md` for all UI/UX decisions
 - **Components**: Located in `src/components/` with existing patterns to follow
 
 ## Database Schema Overview
@@ -40,7 +40,7 @@ Refer to `#file:../prisma/schema.prisma` for complete details. Key models includ
 
 ## Design System Guidelines
 
-Follow the design system documented in `#file:../DESIGN_SYSTEM.md`:
+Follow the design system documented in `#file:../design/DESIGN_SYSTEM.md`:
 
 ### Colors
 - **Primary**: Blue color palette (`bg-blue-600`, `text-blue-600`, etc.)
