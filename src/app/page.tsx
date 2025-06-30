@@ -11,13 +11,130 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Header from '@/components/layout/Header'
+import { prisma } from '@/lib/db'
 
-export default function Dashboard() {
+interface DashboardStats {
+  activeApplications: number;
+  companies: number;
+  contacts: number;
+  recentActivities: number;
+}
+
+async function getDashboardStats(): Promise<DashboardStats> {
+  try {
+    // Get all stats in parallel for better performance
+    const [
+      activeApplicationsCount,
+      companiesCount,
+      contactsCount,
+      recentActivitiesCount,
+    ] = await Promise.all([
+      // Count active applications (not rejected or closed)
+      prisma.jobApplication.count({
+        where: {
+          status: {
+            notIn: ["rejected", "closed", "withdrawn"],
+          },
+        },
+      }),
+      // Count total companies
+      prisma.company.count(),
+      // Count total contacts
+      prisma.contact.count(),
+      // Count activities from the last 30 days
+      prisma.activity.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+          },
+        },
+      }),
+    ]);
+
+    return {
+      activeApplications: activeApplicationsCount,
+      companies: companiesCount,
+      contacts: contactsCount,
+      recentActivities: recentActivitiesCount,
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    // Return default values if DB query fails
+    return {
+      activeApplications: 0,
+      companies: 0,
+      contacts: 0,
+      recentActivities: 0,
+    };
+  }
+}
+
+async function getRecentApplications() {
+  try {
+    const applications = await prisma.jobApplication.findMany({
+      take: 3, // Get latest 3 applications
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        company: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return applications;
+  } catch (error) {
+    console.error('Error fetching recent applications:', error);
+    return [];
+  }
+}
+
+async function getUpcomingActivities() {
+  try {
+    const activities = await prisma.activity.findMany({
+      take: 3, // Get next 3 activities
+      where: {
+        date: {
+          gte: new Date(), // Future activities only
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
+      include: {
+        company: {
+          select: {
+            name: true,
+          },
+        },
+        jobApplication: {
+          select: {
+            position: true,
+          },
+        },
+      },
+    });
+    return activities;
+  } catch (error) {
+    console.error('Error fetching upcoming activities:', error);
+    return [];
+  }
+}
+
+export default async function Dashboard() {
+  const [dashboardStats, recentApplications, upcomingActivities] = await Promise.all([
+    getDashboardStats(),
+    getRecentApplications(),
+    getUpcomingActivities(),
+  ]);
+
   const stats = [
-    { name: 'Active Applications', value: '12', icon: BriefcaseIcon, href: '/applications' },
-    { name: 'Companies', value: '8', icon: BuildingOfficeIcon, href: '/companies' },
-    { name: 'Contacts', value: '24', icon: UserGroupIcon, href: '/contacts' },
-    { name: 'Recent Activities', value: '6', icon: ClockIcon, href: '/activities' },
+    { name: 'Active Applications', value: dashboardStats.activeApplications.toString(), icon: BriefcaseIcon, href: '/applications' },
+    { name: 'Companies', value: dashboardStats.companies.toString(), icon: BuildingOfficeIcon, href: '/companies' },
+    { name: 'Contacts', value: dashboardStats.contacts.toString(), icon: UserGroupIcon, href: '/contacts' },
+    { name: 'Recent Activities', value: dashboardStats.recentActivities.toString(), icon: ClockIcon, href: '/activities' },
   ]
 
   const quickActions = [
@@ -85,20 +202,28 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium text-foreground">Senior Developer</p>
-                    <p className="text-sm text-muted-foreground">TechCorp Inc.</p>
+                {recentApplications.length > 0 ? (
+                  recentApplications.map((application) => (
+                    <div key={application.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">{application.position}</p>
+                        <p className="text-sm text-muted-foreground">{application.company.name}</p>
+                      </div>
+                      <Badge variant={
+                        application.status === 'interview_scheduled' ? 'secondary' :
+                          application.status === 'applied' ? 'default' :
+                            application.status === 'offer' ? 'default' :
+                              'outline'
+                      }>
+                        {application.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">No recent applications found</p>
                   </div>
-                  <Badge variant="secondary">Interview Scheduled</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium text-foreground">Product Manager</p>
-                    <p className="text-sm text-muted-foreground">StartupXYZ</p>
-                  </div>
-                  <Badge>Applied</Badge>
-                </div>
+                )}
               </div>
               <div className="mt-4">
                 <Button variant="link" asChild className="p-0">
@@ -114,20 +239,29 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium text-foreground">Interview with TechCorp</p>
-                    <p className="text-sm text-muted-foreground">Tomorrow, 2:00 PM</p>
+                {upcomingActivities.length > 0 ? (
+                  upcomingActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium text-foreground">{activity.subject}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(activity.date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">No upcoming activities found</p>
                   </div>
-                  <ClockIcon className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div>
-                    <p className="font-medium text-foreground">Follow up with John Doe</p>
-                    <p className="text-sm text-muted-foreground">Friday, 10:00 AM</p>
-                  </div>
-                  <ClockIcon className="h-5 w-5 text-muted-foreground" />
-                </div>
+                )}
               </div>
               <div className="mt-4">
                 <Button variant="link" asChild className="p-0">

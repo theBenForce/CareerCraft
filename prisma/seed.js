@@ -3,6 +3,18 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 async function main() {
+  // Check if database has already been seeded
+  const existingUser = await prisma.user.findUnique({
+    where: { email: 'demo@example.com' },
+  })
+
+  if (existingUser) {
+    console.log('Database has already been seeded. Skipping...')
+    return
+  }
+
+  console.log('Starting database seeding...')
+
   // Create a demo user
   const user = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
@@ -14,6 +26,8 @@ async function main() {
       lastName: 'User',
     },
   })
+
+  console.log('Created demo user')
 
   // Create demo companies
   const companies = await Promise.all([
@@ -53,6 +67,8 @@ async function main() {
       },
     }),
   ])
+
+  console.log('Created demo companies')
 
   // Create demo contacts
   const contacts = await Promise.all([
@@ -103,6 +119,8 @@ async function main() {
     }),
   ])
 
+  console.log('Created demo contacts')
+
   // Create demo job applications
   await Promise.all([
     prisma.jobApplication.create({
@@ -150,6 +168,8 @@ async function main() {
       },
     }),
   ])
+
+  console.log('Created demo job applications')
 
   // Create demo activities with multiple contacts
   const activity1 = await prisma.activity.create({
@@ -225,6 +245,8 @@ async function main() {
     }),
   ])
 
+  console.log('Created demo activities')
+
   // Create demo notes
   await prisma.note.create({
     data: {
@@ -235,12 +257,17 @@ async function main() {
     },
   })
 
+  console.log('Created demo notes')
   console.log('Database seeded successfully!')
 }
 
 main()
+  .then(() => {
+    console.log('Seed process completed successfully')
+    process.exit(0)
+  })
   .catch((e) => {
-    console.error(e)
+    console.error('Error during seeding:', e)
     process.exit(1)
   })
   .finally(async () => {
