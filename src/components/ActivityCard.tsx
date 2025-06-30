@@ -7,9 +7,12 @@ import {
   ChatBubbleLeftEllipsisIcon,
   CalendarDaysIcon,
   BuildingOfficeIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ClockIcon,
+  UserIcon
 } from '@heroicons/react/24/outline'
 import { TagList } from './TagComponent'
+import { EntityCard } from './EntityCard'
 
 interface Contact {
   id: number
@@ -91,7 +94,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
       case 'call':
         return <PhoneArrowUpRightIcon className="w-5 h-5" />
       case 'meeting':
-        return <VideoCameraIcon className="w-5 h-5" />
+        return <CalendarDaysIcon className="w-5 h-5" />
       case 'note':
         return <DocumentTextIcon className="w-5 h-5" />
       case 'application':
@@ -272,129 +275,78 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     return null
   }
 
+  // Prepare properties for EntityCard
+  const properties = []
+
+  // Date and time
+  properties.push({
+    icon: <CalendarDaysIcon className="w-4 h-4" />,
+    text: `${new Date(displayDate).toLocaleDateString()} at ${new Date(displayDate).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    })}`
+  })
+
+  // Duration
+  if (item.duration) {
+    properties.push({
+      icon: <ClockIcon className="w-4 h-4" />,
+      text: `${item.duration} minutes`
+    })
+  }
+
+  // Company
+  if (item.company) {
+    properties.push({
+      icon: <BuildingOfficeIcon className="w-4 h-4" />,
+      text: item.company.name,
+      href: `/companies/${item.company.id}`
+    })
+  }
+
+  // Contacts
+  if (item.contacts && item.contacts.length > 0) {
+    const contactsText = item.contacts.map(contact => `${contact.firstName} ${contact.lastName}`).join(', ')
+    properties.push({
+      icon: <UserGroupIcon className="w-4 h-4" />,
+      text: `Contacts: ${contactsText}`
+    })
+  }
+
+  // Outcome
+  if (item.outcome) {
+    properties.push({
+      text: `Outcome: ${item.outcome}`
+    })
+  }
+
+  // Follow up date
+  if (item.followUpDate) {
+    properties.push({
+      icon: <CalendarDaysIcon className="w-4 h-4" />,
+      text: `Follow up: ${new Date(item.followUpDate).toLocaleDateString()}`
+    })
+  }
+
+  // Job application
+  if (item.jobApplication) {
+    properties.push({
+      text: `Related to: ${item.jobApplication.position}`
+    })
+  }
+
   return (
-    <li>
-      <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center">
-              <span
-                className={`h-8 w-8 rounded-full flex items-center justify-center ${getActivityIconColor(
-                  displayType
-                )}`}
-              >
-                {getActivityIcon(displayType)}
-              </span>
-              <div className="ml-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getActivityIconColor(displayType).replace('bg-', 'bg-').replace('text-', 'text-')}`}>
-                  {displayType}
-                </span>
-                <Link
-                  href={`/activities/${item.id}`}
-                  className="ml-2 text-lg font-medium text-gray-900 hover:text-blue-600 hover:underline inline"
-                >
-                  {displaySubject}
-                </Link>
-              </div>
-            </div>
-
-            {displayDescription && (
-              <p className="mt-2 text-sm text-gray-600">{displayDescription}</p>
-            )}
-
-            <div className="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-              <div className="flex items-center">
-                <CalendarDaysIcon className="w-4 h-4 mr-1" />
-                {new Date(displayDate).toLocaleDateString()}
-                <span className="ml-2">
-                  {new Date(displayDate).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-
-              {item.duration && (
-                <div className="flex items-center">
-                  <span>{item.duration} min</span>
-                </div>
-              )}
-
-              {item.company && (
-                <div className="flex items-center">
-                  <BuildingOfficeIcon className="w-4 h-4 mr-1" />
-                  <Link
-                    href={`/companies/${item.company.id}`}
-                    className="text-blue-600 hover:text-blue-500"
-                  >
-                    {item.company.name}
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Contacts */}
-            {item.contacts && item.contacts.length > 0 && (
-              <div className="mt-2 flex items-center text-sm text-gray-500">
-                <UserGroupIcon className="w-4 h-4 mr-1" />
-                <span className="mr-1">Contacts:</span>
-                <div className="flex flex-wrap gap-1">
-                  {item.contacts.map((contact, index) => (
-                    <span key={contact.id}>
-                      <Link
-                        href={`/contacts/${contact.id}`}
-                        className="text-blue-600 hover:text-blue-500"
-                      >
-                        {contact.firstName} {contact.lastName}
-                      </Link>
-                      {index < (item.contacts?.length || 0) - 1 && ', '}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {item.outcome && (
-              <div className="mt-2">
-                <span className="text-sm font-medium text-gray-600">Outcome: </span>
-                <span className="text-sm text-gray-600">{item.outcome}</span>
-              </div>
-            )}
-
-            {item.followUpDate && (
-              <div className="mt-2 text-sm text-amber-600">
-                <CalendarDaysIcon className="w-4 h-4 inline mr-1" />
-                Follow up: {new Date(item.followUpDate).toLocaleDateString()}
-              </div>
-            )}
-
-            {item.jobApplication && (
-              <div className="mt-2 text-sm text-gray-500">
-                Related to: {item.jobApplication.position}
-              </div>
-            )}
-
-            {/* Activity Tags */}
-            {item.activityTags && item.activityTags.length > 0 && (
-              <div className="mt-3">
-                <TagList
-                  tags={item.activityTags.map(at => at.tag)}
-                  maxDisplay={5}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="ml-4 flex-shrink-0">
-            <Link
-              href={`/activities/${item.id}`}
-              className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-            >
-              View Details
-            </Link>
-          </div>
-        </div>
-      </div>
-    </li>
+    <EntityCard
+      id={item.id!}
+      name={displaySubject}
+      subtitle={displayDescription}
+      fallbackIcon={getActivityIcon(displayType)}
+      fallbackText={formatActivityType(displayType)}
+      properties={properties}
+      tags={item.activityTags?.map(at => at.tag) || []}
+      viewPath={`/activities/${item.id}`}
+      editPath={`/activities/${item.id}/edit`}
+      imageType="logo"
+    />
   )
 }

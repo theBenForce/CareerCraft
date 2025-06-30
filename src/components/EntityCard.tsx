@@ -26,6 +26,7 @@ interface EntityCardProps {
   viewPath: string
   editPath: string
   imageType?: 'avatar' | 'logo'
+  children?: React.ReactNode
 }
 
 export function EntityCard({
@@ -40,7 +41,8 @@ export function EntityCard({
   tags = [],
   viewPath,
   editPath,
-  imageType = 'avatar'
+  imageType = 'avatar',
+  children
 }: EntityCardProps) {
   const renderImage = () => {
     if (imageType === 'avatar') {
@@ -124,7 +126,7 @@ export function EntityCard({
 
         {/* Properties */}
         {properties.length > 0 && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
             {properties.map((property, index) => (
               <div key={index} className="flex items-center text-sm text-muted-foreground">
                 {property.icon && (
@@ -146,6 +148,13 @@ export function EntityCard({
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Children Content */}
+        {children && (
+          <div className="mt-4">
+            {children}
           </div>
         )}
 

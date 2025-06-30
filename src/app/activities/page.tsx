@@ -84,6 +84,52 @@ export default function ActivitiesPage() {
     }
   }
 
+  // Group activities by date
+  const groupActivitiesByDate = (activities: Activity[]) => {
+    const grouped = activities.reduce((acc, activity) => {
+      const date = new Date(activity.date).toDateString()
+      if (!acc[date]) {
+        acc[date] = []
+      }
+      acc[date].push(activity)
+      return acc
+    }, {} as Record<string, Activity[]>)
+
+    // Sort dates in descending order (newest first)
+    const sortedDates = Object.keys(grouped).sort((a, b) =>
+      new Date(b).getTime() - new Date(a).getTime()
+    )
+
+    return sortedDates.map(date => ({
+      date,
+      activities: grouped[date].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    }))
+  }
+
+  const formatDateHeader = (dateString: string) => {
+    const date = new Date(dateString)
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today'
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday'
+    } else {
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
+  }
+
+  const groupedActivities = groupActivitiesByDate(activities)
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -92,10 +138,48 @@ export default function ActivitiesPage() {
         <div className="max-w-7xl mx-auto p-6">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
+
+            {/* Vertical timeline skeleton */}
+            <div className="relative">
+              {/* Vertical line skeleton */}
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300" aria-hidden="true" />
+
+              <div className="space-y-8">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="relative">
+                    {/* Date circle and label skeleton */}
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-full relative z-10"></div>
+                      <div className="ml-4">
+                        <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                      </div>
+                    </div>
+
+                    {/* Activities skeleton */}
+                    <div className="ml-16 mt-4 space-y-4">
+                      {[...Array(2)].map((_, j) => (
+                        <div key={j} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-2">
+                                <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                <div className="ml-3">
+                                  <div className="h-4 bg-gray-200 rounded w-20 mb-1"></div>
+                                  <div className="h-5 bg-gray-200 rounded w-48"></div>
+                                </div>
+                              </div>
+                              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                            <div className="h-4 bg-gray-200 rounded w-20"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -123,7 +207,7 @@ export default function ActivitiesPage() {
           </Link>
         </div>
 
-        {/* Activities List */}
+        {/* Activities Timeline */}
         {activities.length === 0 ? (
           <div className="text-center py-12">
             <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -140,16 +224,45 @@ export default function ActivitiesPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {activities.map((activity) => (
-                <ActivityCard
-                  key={activity.id}
-                  item={{ ...activity, itemType: 'activity' as const }}
-                  showTimeline={false}
-                />
+          <div className="relative">
+            {/* Vertical timeline line */}
+            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300" aria-hidden="true" />
+
+            <div className="space-y-8">
+              {groupedActivities.map((group, groupIndex) => (
+                <div key={group.date} className="relative">
+                  {/* Date circle and label */}
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 w-12 h-12 bg-white border-4 border-blue-500 rounded-full flex items-center justify-center relative z-10">
+                      <CalendarIcon className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {formatDateHeader(group.date)}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {new Date(group.date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Activities for this date */}
+                  <div className="ml-16 mt-4 space-y-4">
+                    {group.activities.map((activity, activityIndex) => (
+                      <ActivityCard
+                        key={activity.id}
+                        item={{ ...activity, itemType: 'activity' as const }}
+                        showTimeline={false}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>
