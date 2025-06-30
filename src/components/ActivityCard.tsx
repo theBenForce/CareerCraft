@@ -61,23 +61,8 @@ interface Activity {
   createdAt: string
   updatedAt: string
 }
-
-interface Note {
-  id: number
-  title: string
-  content: string
-  tags?: string
-  createdAt: string
-  updatedAt: string
-  userId: number
-}
-
-interface TimelineItem extends Partial<Activity>, Partial<Note> {
-  itemType: 'activity' | 'note'
-}
-
 interface ActivityCardProps {
-  item: TimelineItem
+  item: Activity
   showTimeline?: boolean
   isLast?: boolean
 }
@@ -118,11 +103,11 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
   }
 
   // Get display properties based on item type
-  const isNote = item.itemType === 'note'
+  const isNote = item.type === 'NOTE'
   const displayDate = isNote ? item.createdAt! : item.date!
   const displayType = isNote ? 'NOTE' : item.type!
   const displaySubject = isNote ? item.title! : item.subject!
-  const displayDescription = isNote ? item.content! : item.description
+  const displayDescription = isNote ? item.note! : item.description
 
   if (showTimeline) {
     // Timeline format for contact detail page
@@ -206,11 +191,6 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                       maxDisplay={3}
                     />
                   </div>
-                )}
-                {isNote && item.tags && (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Tags: {item.tags}
-                  </p>
                 )}
               </div>
               <div className="text-right text-sm whitespace-nowrap text-muted-foreground">

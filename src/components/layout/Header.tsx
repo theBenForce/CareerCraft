@@ -9,11 +9,10 @@ export default function Header() {
   const pathname = usePathname()
 
   const navigationItems = [
-    { href: '/applications', label: 'Applications' },
-    { href: '/companies', label: 'Companies' },
     { href: '/contacts', label: 'Contacts' },
-    { href: '/activities', label: 'Activities' },
-    { href: '/notes', label: 'Notes' }
+    { href: '/companies', label: 'Companies' },
+    { href: '/applications', label: 'Applications' },
+    { href: '/activities', label: 'Activities' }
   ]
 
   const isActivePage = (href: string) => {

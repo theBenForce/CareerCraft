@@ -14,14 +14,12 @@ import {
   PhoneIcon,
   UserIcon,
   BuildingOfficeIcon,
-  ClockIcon,
-  CalendarDaysIcon,
   CheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
-import ActivityCard from '@/components/ActivityCard'
 import { TagList } from '@/components/TagComponent'
+import { ActivityTimeline } from '@/components/ActivityTimeline'
 
 interface Tag {
   id: number
@@ -59,50 +57,11 @@ interface Contact {
   updatedAt: string
 }
 
-interface Activity {
-  id: number
-  type: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  outcome?: string
-  followUpDate?: string
-  company?: {
-    id: number
-    name: string
-  }
-  jobApplication?: {
-    id: number
-    position: string
-  }
-  createdAt: string
-  updatedAt: string
-}
-
-interface Note {
-  id: number
-  title: string
-  content: string
-  tags?: string
-  createdAt: string
-  updatedAt: string
-  userId: number
-}
-
-interface TimelineItem extends Partial<Activity>, Partial<Note> {
-  itemType: 'activity' | 'note'
-}
-
 export default function ContactDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const [contact, setContact] = useState<Contact | null>(null)
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [notes, setNotes] = useState<Note[]>([])
-  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [activitiesLoading, setActivitiesLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [editingSummary, setEditingSummary] = useState(false)
   const [editedSummary, setEditedSummary] = useState('')
@@ -124,67 +83,9 @@ export default function ContactDetailPage() {
     }
   }, [id])
 
-  const fetchActivities = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/contacts/${id}/activities`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch activities')
-      }
-      const data = await response.json()
-      setActivities(data)
-    } catch (error) {
-      console.error('Error fetching activities:', error)
-      toast.error('Failed to load activities')
-    }
-  }, [id])
-
-  const fetchNotes = useCallback(async () => {
-    try {
-      const response = await fetch('/api/activities?type=NOTE')
-      if (!response.ok) {
-        throw new Error('Failed to fetch notes')
-      }
-      const data = await response.json()
-      setNotes(data)
-    } catch (error) {
-      console.error('Error fetching notes:', error)
-      toast.error('Failed to load notes')
-    }
-  }, [])
-
-  const combineTimelineItems = useCallback(() => {
-    const activityItems: TimelineItem[] = activities.map(activity => ({
-      ...activity,
-      itemType: 'activity' as const
-    }))
-
-    const noteItems: TimelineItem[] = notes.map(note => ({
-      ...note,
-      itemType: 'note' as const
-    }))
-
-    const combined = [...activityItems, ...noteItems]
-
-    // Sort by date (activities use 'date', notes use 'createdAt')
-    combined.sort((a, b) => {
-      const dateA = new Date(a.itemType === 'activity' ? a.date! : a.createdAt!)
-      const dateB = new Date(b.itemType === 'activity' ? b.date! : b.createdAt!)
-      return dateB.getTime() - dateA.getTime()
-    })
-
-    setTimelineItems(combined)
-    setActivitiesLoading(false)
-  }, [activities, notes])
-
-  useEffect(() => {
-    combineTimelineItems()
-  }, [combineTimelineItems])
-
   useEffect(() => {
     fetchContact()
-    fetchActivities()
-    fetchNotes()
-  }, [fetchContact, fetchActivities, fetchNotes])
+  }, [fetchContact])
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this contact?')) {
@@ -491,64 +392,12 @@ export default function ContactDetailPage() {
             </div>
 
             {/* Timeline Section */}
-            <div className="bg-card shadow rounded-lg">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <div className="flex items-center">
-                  <ClockIcon className="w-5 h-5 text-primary mr-2" />
-                  <h2 className="text-lg font-semibold text-foreground">Timeline</h2>
-                </div>
-                <Link
-                  href="/activities/new"
-                  className="bg-primary text-primary-foreground px-3 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium"
-                >
-                  <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                  Add Activity
-                </Link>
-              </div>
-              <div className="p-6">
-                {activitiesLoading ? (
-                  <div className="space-y-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="animate-pulse flex space-x-4">
-                        <div className="w-10 h-10 bg-muted rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
-                          <div className="h-3 bg-muted rounded w-1/2"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : timelineItems.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ClockIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-2 text-sm font-medium text-foreground">No activities or notes yet</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">Activities and notes will appear here.</p>
-                    <div className="mt-6">
-                      <Link
-                        href="/activities/new"
-                        className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium mx-auto"
-                      >
-                        <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                        Add Activity
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <ul className="space-y-0">
-                      {timelineItems.map((item, itemIdx) => (
-                        <ActivityCard
-                          key={`${item.itemType}-${item.id}`}
-                          item={item}
-                          showTimeline={true}
-                          isLast={itemIdx === timelineItems.length - 1}
-                        />
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ActivityTimeline
+              entityType="contact"
+              entityId={contact.id}
+              title="Timeline"
+              addActivityHref={`/activities/new?contactId=${contact.id}`}
+            />
           </div>
         </div>
       </div>
