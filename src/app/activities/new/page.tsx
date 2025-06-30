@@ -30,7 +30,7 @@ export default function NewActivityPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
-    type: 'meeting',
+    type: 'MEETING',
     subject: '',
     description: '',
     date: '',
@@ -163,11 +163,19 @@ export default function NewActivityPage() {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="meeting">Meeting</option>
-              <option value="call">Call</option>
-              <option value="email">Email</option>
-              <option value="interview">Interview</option>
-              <option value="note">Note</option>
+              <option value="EMAIL">Email</option>
+              <option value="PHONE_CALL">Phone Call</option>
+              <option value="MEETING">Meeting</option>
+              <option value="INTERVIEW">Interview</option>
+              <option value="NETWORKING_EVENT">Networking Event</option>
+              <option value="COFFEE_CHAT">Coffee Chat</option>
+              <option value="FOLLOW_UP">Follow Up</option>
+              <option value="APPLICATION">Application</option>
+              <option value="REFERRAL">Referral</option>
+              <option value="LINKEDIN_MESSAGE">LinkedIn Message</option>
+              <option value="NOTE">Note</option>
+              <option value="RESEARCH">Research</option>
+              <option value="OTHER">Other</option>
             </select>
           </div>
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Personal CRM Startup Script
-echo "🚀 Starting Personal CRM..."
+# Career Craft Startup Script
+echo "🚀 Starting Career Craft..."
 
 # Check if this is the first run
 if [ ! -f "prisma/dev.db" ] && [ "$DATABASE_PROVIDER" = "sqlite" ]; then

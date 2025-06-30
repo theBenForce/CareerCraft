@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+// GET /api/activities - Get all activities (including notes) for the current user
 export async function GET() {
   try {
     // For demo purposes, using userId = 1. In a real app, get from session/JWT
     const userId = 1;
-
-    const notes = await prisma.note.findMany({
+    const activities = await prisma.activity.findMany({
       where: { userId },
-      orderBy: {
-        createdAt: "desc",
+      orderBy: { createdAt: "desc" },
+      include: {
+        activityTags: { include: { tag: true } },
       },
     });
 
-    return NextResponse.json(notes);
+    return NextResponse.json(activities);
   } catch (error) {
-    console.error("Error fetching notes:", error);
+    console.error("Error fetching activities:", error);
     return NextResponse.json(
-      { error: "Failed to fetch notes" },
+      { error: "Failed to fetch activities" },
       { status: 500 }
     );
   }
@@ -39,20 +40,32 @@ export async function POST(request: NextRequest) {
     // For demo purposes, using userId = 1. In a real app, get from session/JWT
     const userId = 1;
 
-    const note = await prisma.note.create({
+    // Create a new activity
+    const activity = await prisma.activity.create({
       data: {
         title: title.trim(),
-        content: content.trim(),
-        tags: tags?.trim(),
+        subject: title.trim(),
+        note: content.trim(),
         userId,
+        date: new Date(),
+        activityTags: tags
+          ? {
+              create: tags.split(",").map((tag: string) => ({
+                tag: { connect: { name: tag.trim() } },
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        activityTags: { include: { tag: true } },
       },
     });
 
-    return NextResponse.json(note, { status: 201 });
+    return NextResponse.json(activity, { status: 201 });
   } catch (error) {
-    console.error("Error creating note:", error);
+    console.error("Error creating activity:", error);
     return NextResponse.json(
-      { error: "Failed to create note" },
+      { error: "Failed to create activity" },
       { status: 500 }
     );
   }

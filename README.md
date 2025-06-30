@@ -1,4 +1,4 @@
-# Personal CRM - Job Search & Professional Networking Tracker
+# Career Craft - Job Search & Professional Networking Tracker
 
 A self-hostable Next.js application for tracking job applications, managing professional contacts, and organizing networking activities. Built with modern web technologies and designed for easy deployment with Docker.
 
@@ -36,7 +36,7 @@ This application follows a comprehensive design system built with **shadcn/ui** 
 - **Layout**: Card-based design with consistent spacing and shadows
 - **Components**: Button, Card, Input, Badge, Avatar, and more
 
-For detailed design guidelines, see [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+For detailed design guidelines, see [Design System Documentation](./design/DESIGN_SYSTEM.md).
 
 ### Available shadcn/ui Components
 
@@ -72,7 +72,7 @@ This application supports both SQLite and PostgreSQL:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd personal-crm
+   cd career-craft
    ```
 
 2. **Install dependencies**
@@ -107,7 +107,7 @@ This application supports both SQLite and PostgreSQL:
 #### Option 1: SQLite (Simple Setup)
 
 ```bash
-docker-compose up personal-crm-sqlite
+docker-compose up career-craft-sqlite
 ```
 
 The application will be available at [http://localhost:3000](http://localhost:3000)
@@ -115,7 +115,7 @@ The application will be available at [http://localhost:3000](http://localhost:30
 #### Option 2: PostgreSQL (Production Setup)
 
 ```bash
-docker-compose up personal-crm-postgres postgres
+docker-compose up career-craft-postgres postgres
 ```
 
 The application will be available at [http://localhost:3001](http://localhost:3001)
@@ -202,6 +202,28 @@ personal-crm/
 └── README.md
 ```
 
+## Folder Structure
+
+```
+personal-crm/
+├── design/                     # Design documentation and assets
+│   ├── DESIGN_SYSTEM.md       # Complete design system documentation
+│   ├── README.md              # Design folder overview
+│   ├── user-flows/            # User flow documentation
+│   │   └── README.md          # User flows guide and templates
+│   └── reference-images/      # Design references and mockups
+│       ├── components/        # Component design references
+│       ├── pages/            # Page layout references
+│       ├── mobile/           # Mobile-specific designs
+│       ├── wireframes/       # Low-fidelity wireframes
+│       ├── mockups/          # High-fidelity mockups
+│       └── README.md         # Reference images guide
+├── src/                       # Application source code
+├── prisma/                    # Database schema and migrations
+├── public/                    # Static assets
+└── ...                       # Other project files
+```
+
 ## Available Scripts
 
 - `npm run dev`: Start development server
@@ -235,12 +257,12 @@ To modify the database schema:
 
 1. **Build the Docker image**
    ```bash
-   docker build -t personal-crm .
+   docker build -t career-craft .
    ```
 
 2. **Run with Docker Compose**
    ```bash
-   docker-compose up -d personal-crm-postgres postgres
+   docker-compose up -d career-craft-postgres postgres
    ```
 
 ### Manual Deployment

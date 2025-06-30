@@ -12,15 +12,15 @@ export default function ApplicationsError({
   reset: () => void
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Error content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="text-center py-12">
           <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Something went wrong!</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-foreground">Something went wrong!</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             Unable to load job applications. Please try again.
           </p>
           <div className="mt-6 flex justify-center space-x-4">
@@ -36,8 +36,8 @@ export default function ApplicationsError({
           </div>
           {process.env.NODE_ENV === 'development' && (
             <details className="mt-4 text-left max-w-md mx-auto">
-              <summary className="text-sm text-gray-500 cursor-pointer">Error details</summary>
-              <pre className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded overflow-auto">
+              <summary className="text-sm text-muted-foreground cursor-pointer">Error details</summary>
+              <pre className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded overflow-auto">
                 {error.message}
               </pre>
             </details>

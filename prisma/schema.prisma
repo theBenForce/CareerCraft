@@ -19,7 +19,6 @@ model User {
   companies       Company[]
   contacts        Contact[]
   jobApplications JobApplication[]
-  notes           Note[]
   tags            Tag[]
 }
 
@@ -91,12 +90,13 @@ model JobApplication {
 
 model Activity {
   id               Int               @id @default(autoincrement())
-  type             String
+  type             String            // ActivityType: EMAIL, PHONE_CALL, MEETING, INTERVIEW, NETWORKING_EVENT, COFFEE_CHAT, FOLLOW_UP, APPLICATION, REFERRAL, LINKEDIN_MESSAGE, NOTE, RESEARCH, OTHER
+  title            String?
   subject          String
   description      String?
   date             DateTime
   duration         Int?
-  outcome          String?
+  note             String?
   followUpDate     DateTime?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -119,17 +119,6 @@ model ActivityContact {
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 
   @@unique([activityId, contactId])
-}
-
-model Note {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  tags      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Tag {

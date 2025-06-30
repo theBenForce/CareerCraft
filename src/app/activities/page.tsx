@@ -43,11 +43,12 @@ interface ActivityTag {
 interface Activity {
   id: number
   type: string
+  title?: string
   subject: string
   description?: string
   date: string
   duration?: number
-  outcome?: string
+  note?: string
   followUpDate?: string
   company?: Company
   jobApplication?: {
@@ -132,47 +133,47 @@ export default function ActivitiesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
 
         <div className="max-w-7xl mx-auto p-6">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
 
             {/* Vertical timeline skeleton */}
             <div className="relative">
               {/* Vertical line skeleton */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300" aria-hidden="true" />
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" aria-hidden="true" />
 
               <div className="space-y-8">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="relative">
                     {/* Date circle and label skeleton */}
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-full relative z-10"></div>
+                      <div className="flex-shrink-0 w-12 h-12 bg-muted rounded-full relative z-10"></div>
                       <div className="ml-4">
-                        <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
-                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                        <div className="h-5 bg-muted rounded w-32 mb-2"></div>
+                        <div className="h-4 bg-muted rounded w-24"></div>
                       </div>
                     </div>
 
                     {/* Activities skeleton */}
                     <div className="ml-16 mt-4 space-y-4">
                       {[...Array(2)].map((_, j) => (
-                        <div key={j} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div key={j} className="bg-card rounded-lg shadow-sm border border-border p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center mb-2">
-                                <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                <div className="h-8 w-8 bg-muted rounded-full"></div>
                                 <div className="ml-3">
-                                  <div className="h-4 bg-gray-200 rounded w-20 mb-1"></div>
-                                  <div className="h-5 bg-gray-200 rounded w-48"></div>
+                                  <div className="h-4 bg-muted rounded w-20 mb-1"></div>
+                                  <div className="h-5 bg-muted rounded w-48"></div>
                                 </div>
                               </div>
-                              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-                              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                              <div className="h-3 bg-muted rounded w-3/4 mb-2"></div>
+                              <div className="h-3 bg-muted rounded w-1/2"></div>
                             </div>
-                            <div className="h-4 bg-gray-200 rounded w-20"></div>
+                            <div className="h-4 bg-muted rounded w-20"></div>
                           </div>
                         </div>
                       ))}
@@ -188,19 +189,19 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Activities</h1>
-            <p className="text-gray-600 mt-1">Track meetings, calls, and interactions</p>
+            <h1 className="text-3xl font-bold text-foreground">Activities</h1>
+            <p className="text-muted-foreground mt-1">Track meetings, calls, and interactions</p>
           </div>
           <Link
             href="/activities/new"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="btn-primary"
           >
             <PlusIcon className="w-4 h-4 mr-2" />
             Add Activity
@@ -210,13 +211,13 @@ export default function ActivitiesPage() {
         {/* Activities Timeline */}
         {activities.length === 0 ? (
           <div className="text-center py-12">
-            <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No activities</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating a new activity.</p>
+            <CalendarIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-2 text-sm font-medium text-foreground">No activities</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new activity.</p>
             <div className="mt-6">
               <Link
                 href="/activities/new"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="btn-primary"
               >
                 <PlusIcon className="w-4 h-4 mr-2" />
                 Add Activity
@@ -226,21 +227,21 @@ export default function ActivitiesPage() {
         ) : (
           <div className="relative">
             {/* Vertical timeline line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300" aria-hidden="true" />
+            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" aria-hidden="true" />
 
             <div className="space-y-8">
               {groupedActivities.map((group, groupIndex) => (
                 <div key={group.date} className="relative">
                   {/* Date circle and label */}
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 w-12 h-12 bg-white border-4 border-blue-500 rounded-full flex items-center justify-center relative z-10">
-                      <CalendarIcon className="w-5 h-5 text-blue-500" />
+                    <div className="flex-shrink-0 w-12 h-12 bg-card border-4 border-primary rounded-full flex items-center justify-center relative z-10">
+                      <CalendarIcon className="w-5 h-5 text-primary" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-foreground">
                         {formatDateHeader(group.date)}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(group.date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           month: 'short',

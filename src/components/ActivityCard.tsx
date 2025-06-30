@@ -1,18 +1,13 @@
 import Link from 'next/link'
 import {
-  EnvelopeIcon,
-  PhoneArrowUpRightIcon,
-  VideoCameraIcon,
-  DocumentTextIcon,
-  ChatBubbleLeftEllipsisIcon,
   CalendarDaysIcon,
   BuildingOfficeIcon,
   UserGroupIcon,
-  ClockIcon,
-  UserIcon
+  ClockIcon
 } from '@heroicons/react/24/outline'
 import { TagList } from './TagComponent'
 import { EntityCard } from './EntityCard'
+import ActivityIcon from './ActivityIcon'
 
 interface Contact {
   id: number
@@ -52,11 +47,12 @@ interface ActivityTag {
 interface Activity {
   id: number
   type: string
+  title?: string
   subject: string
   description?: string
   date: string
   duration?: number
-  outcome?: string
+  note?: string
   followUpDate?: string
   company?: Company
   jobApplication?: JobApplication
@@ -65,68 +61,30 @@ interface Activity {
   createdAt: string
   updatedAt: string
 }
-
-interface Note {
-  id: number
-  title: string
-  content: string
-  tags?: string
-  createdAt: string
-  updatedAt: string
-  userId: number
-}
-
-interface TimelineItem extends Partial<Activity>, Partial<Note> {
-  itemType: 'activity' | 'note'
-}
-
 interface ActivityCardProps {
-  item: TimelineItem
+  item: Activity
   showTimeline?: boolean
   isLast?: boolean
 }
 
 export default function ActivityCard({ item, showTimeline = false, isLast = false }: ActivityCardProps) {
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'email':
-        return <EnvelopeIcon className="w-5 h-5" />
-      case 'call':
-        return <PhoneArrowUpRightIcon className="w-5 h-5" />
-      case 'meeting':
-        return <CalendarDaysIcon className="w-5 h-5" />
-      case 'note':
-        return <DocumentTextIcon className="w-5 h-5" />
-      case 'application':
-        return <DocumentTextIcon className="w-5 h-5" />
-      case 'interview':
-        return <VideoCameraIcon className="w-5 h-5" />
-      default:
-        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
-    }
-  }
-
-  const getActivityIconColor = (type: string) => {
-    switch (type) {
-      case 'email':
-        return 'text-blue-600 bg-blue-100'
-      case 'call':
-        return 'text-green-600 bg-green-100'
-      case 'meeting':
-        return 'text-purple-600 bg-purple-100'
-      case 'note':
-        return 'text-gray-600 bg-gray-100'
-      case 'application':
-        return 'text-orange-600 bg-orange-100'
-      case 'interview':
-        return 'text-indigo-600 bg-indigo-100'
-      default:
-        return 'text-gray-600 bg-gray-100'
-    }
-  }
-
   const formatActivityType = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1)
+    const upperType = type.toUpperCase()
+    switch (upperType) {
+      case 'PHONE_CALL':
+        return 'Phone Call'
+      case 'NETWORKING_EVENT':
+        return 'Networking Event'
+      case 'COFFEE_CHAT':
+        return 'Coffee Chat'
+      case 'FOLLOW_UP':
+        return 'Follow Up'
+      case 'LINKEDIN_MESSAGE':
+        return 'LinkedIn Message'
+      default:
+        // Convert underscores to spaces and capitalize each word
+        return upperType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -145,11 +103,11 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
   }
 
   // Get display properties based on item type
-  const isNote = item.itemType === 'note'
+  const isNote = item.type === 'NOTE'
   const displayDate = isNote ? item.createdAt! : item.date!
-  const displayType = isNote ? 'note' : item.type!
+  const displayType = isNote ? 'NOTE' : item.type!
   const displaySubject = isNote ? item.title! : item.subject!
-  const displayDescription = isNote ? item.content! : item.description
+  const displayDescription = isNote ? item.note! : item.description
 
   if (showTimeline) {
     // Timeline format for contact detail page
@@ -158,49 +116,38 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
         <div className="relative pb-8">
           {!isLast && (
             <span
-              className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+              className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-border"
               aria-hidden="true"
             />
           )}
           <div className="relative flex space-x-3">
-            <div>
-              <span
-                className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${getActivityIconColor(
-                  displayType
-                )}`}
-              >
-                {getActivityIcon(displayType)}
-              </span>
+            <div className="relative z-20">
+              <div className="h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-background bg-background">
+                <ActivityIcon type={displayType} size="md" withBackground={true} />
+              </div>
             </div>
             <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
               <div>
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">
-                    {formatActivityType(displayType)}:
-                  </span>{' '}
-                  {isNote ? (
-                    <span>{displaySubject}</span>
-                  ) : (
-                    <Link
-                      href={`/activities/${item.id}`}
-                      className="text-blue-600 hover:text-blue-500 hover:underline"
-                    >
-                      {displaySubject}
-                    </Link>
-                  )}
+                <p className="text-sm text-foreground">
+                  <Link
+                    href={`/activities/${item.id}`}
+                    className="text-primary hover:text-primary/80 hover:underline font-medium"
+                  >
+                    {displaySubject}
+                  </Link>
                 </p>
                 {displayDescription && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {displayDescription}
                   </p>
                 )}
-                {!isNote && item.outcome && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    <span className="font-medium">Outcome:</span> {item.outcome}
+                {!isNote && item.note && (
+                  <p className="mt-1 text-sm text-foreground">
+                    <span className="font-medium">Note:</span> {item.note}
                   </p>
                 )}
                 {!isNote && item.duration && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Duration: {item.duration} minutes
                   </p>
                 )}
@@ -211,24 +158,24 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                   </p>
                 )}
                 {!isNote && item.company && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     <BuildingOfficeIcon className="w-4 h-4 inline mr-1" />
                     {item.company.name}
                   </p>
                 )}
                 {!isNote && item.jobApplication && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Related to: {item.jobApplication.position}
                   </p>
                 )}
                 {!isNote && item.contacts && item.contacts.length > 0 && (
-                  <div className="mt-1 text-sm text-gray-500">
+                  <div className="mt-1 text-sm text-muted-foreground">
                     <UserGroupIcon className="w-4 h-4 inline mr-1" />
                     {item.contacts.map((contact, index) => (
                       <span key={contact.id}>
                         <Link
                           href={`/contacts/${contact.id}`}
-                          className="text-blue-600 hover:text-blue-500"
+                          className="text-primary hover:text-primary/80"
                         >
                           {contact.firstName} {contact.lastName}
                         </Link>
@@ -245,13 +192,8 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                     />
                   </div>
                 )}
-                {isNote && item.tags && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    Tags: {item.tags}
-                  </p>
-                )}
               </div>
-              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+              <div className="text-right text-sm whitespace-nowrap text-muted-foreground">
                 <time dateTime={displayDate}>
                   {formatDate(displayDate)}
                 </time>
@@ -313,10 +255,10 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     })
   }
 
-  // Outcome
-  if (item.outcome) {
+  // Note
+  if (item.note) {
     properties.push({
-      text: `Outcome: ${item.outcome}`
+      text: `Note: ${item.note}`
     })
   }
 
@@ -340,7 +282,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
       id={item.id!}
       name={displaySubject}
       subtitle={displayDescription}
-      fallbackIcon={getActivityIcon(displayType)}
+      fallbackIcon={<ActivityIcon type={displayType} size="md" />}
       fallbackText={formatActivityType(displayType)}
       properties={properties}
       tags={item.activityTags?.map(at => at.tag) || []}
