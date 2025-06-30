@@ -13,6 +13,7 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline'
 import { prisma } from '@/lib/db'
+import Header from '@/components/layout/Header'
 
 interface CompanyPageProps {
   params: {
@@ -98,69 +99,71 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link
-                href="/companies"
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600"
-              >
-                <ArrowLeftIcon className="h-5 w-5" />
-              </Link>
+      <Header />
 
-              {/* Company Logo and Info */}
-              <div className="flex items-center space-x-4">
-                {(company as any).logo ? (
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <Image
-                      src={(company as any).logo}
-                      alt={`${company.name} logo`}
-                      width={64}
-                      height={64}
-                      className="object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <BuildingOfficeIcon className="w-8 h-8 text-gray-400" />
-                  </div>
-                )}
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Company Header */}
+        <div className="bg-white shadow rounded-lg mb-6">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Link
+                  href="/companies"
+                  className="mr-4 p-2 text-gray-400 hover:text-gray-600"
+                >
+                  <ArrowLeftIcon className="h-5 w-5" />
+                </Link>
 
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                    {company.name}
-                  </h1>
-                  {company.industry && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      {company.industry}
-                    </p>
+                {/* Company Logo and Info */}
+                <div className="flex items-center space-x-4">
+                  {(company as any).logo ? (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                      <Image
+                        src={(company as any).logo}
+                        alt={`${company.name} logo`}
+                        width={64}
+                        height={64}
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <BuildingOfficeIcon className="w-8 h-8 text-gray-400" />
+                    </div>
                   )}
+
+                  <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                      {company.name}
+                    </h1>
+                    {company.industry && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        {company.industry}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Link
-                href={`/companies/${company.id}/edit`}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <PencilIcon className="-ml-1 mr-2 h-4 w-4" />
-                Edit
-              </Link>
-              <Link
-                href={`/applications/new?companyId=${company.id}`}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-                Add Application
-              </Link>
+              <div className="flex items-center space-x-3">
+                <Link
+                  href={`/companies/${company.id}/edit`}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <PencilIcon className="-ml-1 mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+                <Link
+                  href={`/applications/new?companyId=${company.id}`}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                  Add Application
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Company Details */}
           <div className="lg:col-span-2 space-y-6">

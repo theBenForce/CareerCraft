@@ -13,6 +13,7 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
 import ImageUpload from '@/components/ImageUpload'
+import Header from '@/components/layout/Header'
 
 interface CompanyFormData {
   name: string
@@ -133,33 +134,27 @@ export default function NewCompanyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link
-                href="/companies"
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600"
-              >
-                <ArrowLeftIcon className="h-5 w-5" />
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                  Add New Company
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Add a company to track applications and contacts
-                </p>
-              </div>
-            </div>
-            <BuildingOfficeIcon className="h-8 w-8 text-gray-400" />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center mb-6">
+          <Link
+            href="/companies"
+            className="mr-4 p-2 text-gray-400 hover:text-gray-600"
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+              Add New Company
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Add a company to track applications and contacts
+            </p>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white shadow rounded-lg">
             <div className="px-6 py-4 border-b border-gray-200">

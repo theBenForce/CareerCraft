@@ -51,6 +51,7 @@ model Contact {
   position         String?
   department       String?
   linkedinUrl      String?
+  summary          String?
   notes            String?
   lastContactDate  DateTime?
   createdAt        DateTime         @default(now())

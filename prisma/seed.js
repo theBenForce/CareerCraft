@@ -55,7 +55,7 @@ async function main() {
   ])
 
   // Create demo contacts
-  await Promise.all([
+  const contacts = await Promise.all([
     prisma.contact.create({
       data: {
         firstName: 'John',
@@ -65,6 +65,8 @@ async function main() {
         position: 'Engineering Manager',
         department: 'Engineering',
         linkedinUrl: 'https://linkedin.com/in/johndoe',
+        image: '/uploads/contacts/john-smith.svg',
+        summary: '**Key Contact** at TechCorp\n\n- 8+ years of engineering experience\n- Decision maker for technical hiring\n- Very responsive to emails\n- Interested in *full-stack developers* with React expertise\n\n> "Always looking for talented engineers who can scale our platform"',
         userId: user.id,
         companyId: companies[0].id,
       },
@@ -78,8 +80,25 @@ async function main() {
         position: 'Product Manager',
         department: 'Product',
         linkedinUrl: 'https://linkedin.com/in/janesmith',
+        image: '/uploads/contacts/sarah-johnson.svg',
+        summary: '**Product Strategy Leader**\n\n- Former Google PM with 6 years experience\n- Leading StartupXYZ\'s product roadmap\n- **Hot connection** - referred by mutual friend Sarah\n- Scheduled follow-up for *next quarter*\n\n*Next steps:* Send quarterly product updates',
         userId: user.id,
         companyId: companies[1].id,
+      },
+    }),
+    prisma.contact.create({
+      data: {
+        firstName: 'Mike',
+        lastName: 'Johnson',
+        email: 'mike.johnson@digitalagency.com',
+        phone: '+1-555-0789',
+        position: 'Creative Director',
+        department: 'Creative',
+        linkedinUrl: 'https://linkedin.com/in/mikejohnson',
+        image: '/uploads/contacts/mike-wilson.svg',
+        summary: '**Creative Visionary** at Digital Agency\n\n- Award-winning designer (Webby Awards 2023)\n- Looking for **freelance developers** for client projects\n- Prefers weekend communication\n- Interested in:\n  - Modern web technologies\n  - UX/UI collaboration\n  - Long-term partnerships\n\n📅 *Next meeting: July 15th*',
+        userId: user.id,
+        companyId: companies[2].id,
       },
     }),
   ])
@@ -132,18 +151,79 @@ async function main() {
     }),
   ])
 
-  // Create demo activities
-  await prisma.activity.create({
+  // Create demo activities with multiple contacts
+  const activity1 = await prisma.activity.create({
+    data: {
+      type: 'meeting',
+      subject: 'Product Strategy Webinar',
+      description: 'Webinar discussing product strategy and roadmap for Q4',
+      date: new Date('2024-07-02T14:00:00Z'),
+      duration: 90,
+      userId: user.id,
+      companyId: companies[1].id,
+    },
+  })
+
+  const activity2 = await prisma.activity.create({
     data: {
       type: 'interview',
-      subject: 'Technical Interview - TechCorp',
-      description: 'Technical interview with the engineering team',
-      date: new Date('2024-07-02T14:00:00Z'),
+      subject: 'Technical Interview Panel',
+      description: 'Technical interview with multiple team members',
+      date: new Date('2024-07-05T10:00:00Z'),
       duration: 60,
       userId: user.id,
       companyId: companies[0].id,
     },
   })
+
+  const activity3 = await prisma.activity.create({
+    data: {
+      type: 'call',
+      subject: 'Creative Review Meeting',
+      description: 'Review of creative concepts with the team',
+      date: new Date('2024-07-08T15:30:00Z'),
+      duration: 45,
+      userId: user.id,
+      companyId: companies[2].id,
+    },
+  })
+
+  // Connect activities to multiple contacts
+  await Promise.all([
+    // Activity 1 (Product Strategy Webinar) with Jane and John
+    prisma.activityContact.create({
+      data: {
+        activityId: activity1.id,
+        contactId: contacts[1].id, // Jane Smith
+      },
+    }),
+    prisma.activityContact.create({
+      data: {
+        activityId: activity1.id,
+        contactId: contacts[0].id, // John Doe
+      },
+    }),
+    // Activity 2 (Technical Interview) with John only
+    prisma.activityContact.create({
+      data: {
+        activityId: activity2.id,
+        contactId: contacts[0].id, // John Doe
+      },
+    }),
+    // Activity 3 (Creative Review) with Mike and Jane
+    prisma.activityContact.create({
+      data: {
+        activityId: activity3.id,
+        contactId: contacts[2].id, // Mike Johnson
+      },
+    }),
+    prisma.activityContact.create({
+      data: {
+        activityId: activity3.id,
+        contactId: contacts[1].id, // Jane Smith
+      },
+    }),
+  ])
 
   // Create demo notes
   await prisma.note.create({

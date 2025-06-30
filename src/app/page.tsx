@@ -1,12 +1,16 @@
 import Link from 'next/link'
-import { 
-  BriefcaseIcon, 
-  BuildingOfficeIcon, 
-  UserGroupIcon, 
+import {
+  BriefcaseIcon,
+  BuildingOfficeIcon,
+  UserGroupIcon,
   ClockIcon,
   DocumentTextIcon,
   PlusIcon
 } from '@heroicons/react/24/outline'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import Header from '@/components/layout/Header'
 
 export default function Dashboard() {
   const stats = [
@@ -25,33 +29,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Personal CRM Dashboard
-            </h1>
-            <nav className="flex space-x-4">
-              <Link href="/applications" className="text-gray-600 hover:text-gray-900">
-                Applications
-              </Link>
-              <Link href="/companies" className="text-gray-600 hover:text-gray-900">
-                Companies
-              </Link>
-              <Link href="/contacts" className="text-gray-600 hover:text-gray-900">
-                Contacts
-              </Link>
-              <Link href="/activities" className="text-gray-600 hover:text-gray-900">
-                Activities
-              </Link>
-              <Link href="/notes" className="text-gray-600 hover:text-gray-900">
-                Notes
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main content */}
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -59,37 +37,41 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           {stats.map((stat) => (
             <Link key={stat.name} href={stat.href}>
-              <div className="card hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <stat.icon className="h-8 w-8 text-primary-600" />
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <stat.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-muted-foreground truncate">
+                          {stat.name}
+                        </dt>
+                        <dd className="text-3xl font-semibold text-foreground">
+                          {stat.value}
+                        </dd>
+                      </dl>
+                    </div>
                   </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        {stat.name}
-                      </dt>
-                      <dd className="text-3xl font-semibold text-gray-900">
-                        {stat.value}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-medium text-foreground mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {quickActions.map((action) => (
               <Link key={action.name} href={action.href}>
-                <div className="card hover:shadow-lg transition-shadow cursor-pointer text-center">
-                  <action.icon className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-900">{action.name}</p>
-                </div>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <action.icon className="h-8 w-8 text-primary mx-auto mb-2" />
+                    <p className="text-sm font-medium text-foreground">{action.name}</p>
+                  </CardContent>
+                </Card>
               </Link>
             ))}
           </div>
@@ -97,59 +79,63 @@ export default function Dashboard() {
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="card">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Applications</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Senior Developer</p>
-                  <p className="text-sm text-gray-600">TechCorp Inc.</p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Applications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium text-foreground">Senior Developer</p>
+                    <p className="text-sm text-muted-foreground">TechCorp Inc.</p>
+                  </div>
+                  <Badge variant="secondary">Interview Scheduled</Badge>
                 </div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  Interview Scheduled
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Product Manager</p>
-                  <p className="text-sm text-gray-600">StartupXYZ</p>
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium text-foreground">Product Manager</p>
+                    <p className="text-sm text-muted-foreground">StartupXYZ</p>
+                  </div>
+                  <Badge>Applied</Badge>
                 </div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Applied
-                </span>
               </div>
-            </div>
-            <div className="mt-4">
-              <Link href="/applications" className="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                View all applications →
-              </Link>
-            </div>
-          </div>
+              <div className="mt-4">
+                <Button variant="link" asChild className="p-0">
+                  <Link href="/applications">View all applications →</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="card">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Upcoming Activities</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Interview with TechCorp</p>
-                  <p className="text-sm text-gray-600">Tomorrow, 2:00 PM</p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Activities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium text-foreground">Interview with TechCorp</p>
+                    <p className="text-sm text-muted-foreground">Tomorrow, 2:00 PM</p>
+                  </div>
+                  <ClockIcon className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <ClockIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">Follow up with John Doe</p>
-                  <p className="text-sm text-gray-600">Friday, 10:00 AM</p>
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <p className="font-medium text-foreground">Follow up with John Doe</p>
+                    <p className="text-sm text-muted-foreground">Friday, 10:00 AM</p>
+                  </div>
+                  <ClockIcon className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <ClockIcon className="h-5 w-5 text-gray-400" />
               </div>
-            </div>
-            <div className="mt-4">
-              <Link href="/activities" className="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                View all activities →
-              </Link>
-            </div>
-          </div>
+              <div className="mt-4">
+                <Button variant="link" asChild className="p-0">
+                  <Link href="/activities">View all activities →</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

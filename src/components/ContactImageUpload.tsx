@@ -3,23 +3,21 @@
 import { useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
-import { CloudArrowUpIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
-interface ImageUploadProps {
+interface ContactImageUploadProps {
   currentImage?: string | null
   onImageUpload: (imageUrl: string) => void
   onImageRemove?: () => void
-  category?: 'logos' | 'contacts'
   className?: string
 }
 
-export default function ImageUpload({
+export default function ContactImageUpload({
   currentImage,
   onImageUpload,
   onImageRemove,
-  category = 'logos',
   className = ''
-}: ImageUploadProps) {
+}: ContactImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -44,7 +42,7 @@ export default function ImageUpload({
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('category', category)
+      formData.append('category', 'contacts') // Specify contacts category
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -58,15 +56,14 @@ export default function ImageUpload({
 
       const result = await response.json()
       onImageUpload(result.filePath)
-      const itemType = category === 'logos' ? 'Logo' : 'Image'
-      toast.success(`${itemType} uploaded successfully!`)
+      toast.success('Contact image uploaded successfully!')
     } catch (error) {
       console.error('Upload error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to upload image')
     } finally {
       setIsUploading(false)
     }
-  }, [onImageUpload, category])
+  }, [onImageUpload])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -98,8 +95,7 @@ export default function ImageUpload({
   const handleRemoveImage = () => {
     if (onImageRemove) {
       onImageRemove()
-      const itemType = category === 'logos' ? 'Logo' : 'Image'
-      toast.success(`${itemType} removed`)
+      toast.success('Contact image removed')
     }
   }
 
@@ -107,31 +103,28 @@ export default function ImageUpload({
     fileInputRef.current?.click()
   }
 
-  const itemType = category === 'logos' ? 'logo' : 'photo'
-  const itemTypeCapitalized = category === 'logos' ? 'Logo' : 'Photo'
-
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        {category === 'logos' ? 'Company Logo' : 'Contact Photo'}
+        Contact Photo
       </label>
 
       {currentImage ? (
         // Show current image with remove option
         <div className="relative group">
-          <div className="w-32 h-32 border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+          <div className="w-32 h-32 border-2 border-gray-300 rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
             <Image
               src={currentImage}
-              alt={`${category === 'logos' ? 'Company logo' : 'Contact photo'}`}
+              alt="Contact photo"
               width={128}
               height={128}
-              className="object-contain"
+              className="object-cover w-full h-full"
             />
           </div>
           <button
             type="button"
             onClick={handleRemoveImage}
-            title={`Remove ${itemType}`}
+            title="Remove photo"
             className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <XMarkIcon className="w-4 h-4" />
@@ -141,7 +134,7 @@ export default function ImageUpload({
             onClick={openFileDialog}
             className="mt-2 text-sm text-blue-600 hover:text-blue-500"
           >
-            Change {itemType}
+            Change photo
           </button>
         </div>
       ) : (
@@ -152,7 +145,7 @@ export default function ImageUpload({
           onDrop={handleDrop}
           onClick={openFileDialog}
           className={`
-            w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200
+            w-32 h-32 border-2 border-dashed rounded-full cursor-pointer transition-all duration-200 flex items-center justify-center
             ${isDragging
               ? 'border-blue-500 bg-blue-50 scale-105'
               : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
@@ -160,30 +153,25 @@ export default function ImageUpload({
             ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}
           `}
         >
-          <div className="flex flex-col items-center justify-center h-full p-4">
+          <div className="flex flex-col items-center justify-center p-4">
             {isUploading ? (
               <>
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p className="mt-2 text-sm text-gray-600">Uploading...</p>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <p className="mt-1 text-xs text-gray-600 text-center">Uploading...</p>
               </>
             ) : (
               <>
                 {isDragging ? (
-                  <CloudArrowUpIcon className="w-8 h-8 text-blue-500" />
+                  <CloudArrowUpIcon className="w-6 h-6 text-blue-500" />
                 ) : (
-                  <PhotoIcon className="w-8 h-8 text-gray-400" />
+                  <UserCircleIcon className="w-6 h-6 text-gray-400" />
                 )}
-                <p className="mt-2 text-sm text-gray-600 text-center">
+                <p className="mt-1 text-xs text-gray-600 text-center">
                   {isDragging ? (
-                    'Drop image here'
-                  ) : (<>
-                    Drag & drop a {itemType} here, or{' '}
-                    <span className="text-blue-600 hover:text-blue-500 font-medium">click to select</span>
-                  </>
+                    'Drop here'
+                  ) : (
+                    'Add photo'
                   )}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  PNG, JPG, SVG, WebP up to 5MB
                 </p>
               </>
             )}
@@ -198,7 +186,7 @@ export default function ImageUpload({
         onChange={handleFileSelect}
         className="hidden"
         disabled={isUploading}
-        aria-label={`Upload ${category === 'logos' ? 'company logo' : 'contact photo'}`}
+        aria-label="Upload contact photo"
       />
     </div>
   )

@@ -13,11 +13,46 @@ A self-hostable Next.js application for tracking job applications, managing prof
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 with TypeScript, Tailwind CSS, Headless UI
+- **Frontend**: Next.js 14 with TypeScript, Tailwind CSS, **shadcn/ui**
 - **Backend**: Next.js API routes
 - **Database**: Prisma ORM with SQLite (development) or PostgreSQL (production)
 - **Deployment**: Docker & Docker Compose
-- **UI Components**: React Hook Form, React Hot Toast, Heroicons
+- **UI Components**: shadcn/ui (built on Radix UI), React Hook Form, React Hot Toast, Heroicons
+
+## Design System & UI Components
+
+This application follows a comprehensive design system built with **shadcn/ui** components. The design system ensures:
+
+- **Consistency**: Unified component patterns across the application
+- **Accessibility**: Built on Radix UI primitives for full a11y support  
+- **Customization**: Easy theming with CSS variables and Tailwind CSS
+- **Type Safety**: Full TypeScript support for all components
+- **Performance**: Tree-shakable components, only import what you use
+
+### Key Design Elements
+
+- **Primary Colors**: Blue-based palette (#3b82f6, #2563eb, #1d4ed8)
+- **Typography**: Inter font family with responsive scaling
+- **Layout**: Card-based design with consistent spacing and shadows
+- **Components**: Button, Card, Input, Badge, Avatar, and more
+
+For detailed design guidelines, see [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+
+### Available shadcn/ui Components
+
+Current components integrated:
+- `Button` - Primary, secondary, outline, ghost variants
+- `Card` - Consistent container styling
+- `Input`, `Label`, `Textarea` - Form elements
+- `Select` - Dropdown selection
+- `Badge` - Status and priority indicators  
+- `Avatar` - Profile images with fallbacks
+- `Form` - Form validation and handling
+
+To add new components:
+```bash
+npx shadcn@latest add [component-name]
+```
 
 ## Database Options
 

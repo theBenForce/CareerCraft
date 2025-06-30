@@ -7,9 +7,19 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const category = (formData.get("category") as string) || "logos"; // Default to logos for backwards compatibility
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    // Validate category
+    const allowedCategories = ["logos", "contacts"];
+    if (!allowedCategories.includes(category)) {
+      return NextResponse.json(
+        { error: "Invalid category. Allowed: logos, contacts" },
+        { status: 400 }
+      );
     }
 
     // Validate file type
@@ -46,14 +56,14 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Save file to public/uploads/logos directory
-    const uploadDir = join(process.cwd(), "public/uploads/logos");
+    // Save file to appropriate directory based on category
+    const uploadDir = join(process.cwd(), `public/uploads/${category}`);
     const filePath = join(uploadDir, fileName);
 
     await writeFile(filePath, buffer);
 
     // Return the file path that can be used in img src
-    const publicPath = `/uploads/logos/${fileName}`;
+    const publicPath = `/uploads/${category}/${fileName}`;
 
     return NextResponse.json({
       success: true,
