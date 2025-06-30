@@ -32,6 +32,7 @@ model Company {
   description     String?
   location        String?
   size            String?
+  logo            String?
   notes           String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
