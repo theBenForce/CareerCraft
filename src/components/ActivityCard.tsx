@@ -9,6 +9,7 @@ import {
   BuildingOfficeIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline'
+import { TagList } from './TagComponent'
 
 interface Contact {
   id: number
@@ -28,6 +29,23 @@ interface JobApplication {
   position: string
 }
 
+interface Tag {
+  id: number
+  name: string
+  color?: string
+  description?: string
+  createdAt: Date
+  updatedAt: Date
+  userId: number
+}
+
+interface ActivityTag {
+  id: number
+  activityId: number
+  tagId: number
+  tag: Tag
+}
+
 interface Activity {
   id: number
   type: string
@@ -40,6 +58,7 @@ interface Activity {
   company?: Company
   jobApplication?: JobApplication
   contacts?: Contact[]
+  activityTags?: ActivityTag[]
   createdAt: string
   updatedAt: string
 }
@@ -215,6 +234,14 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                     ))}
                   </div>
                 )}
+                {!isNote && item.activityTags && item.activityTags.length > 0 && (
+                  <div className="mt-2">
+                    <TagList
+                      tags={item.activityTags.map(at => at.tag)}
+                      maxDisplay={3}
+                    />
+                  </div>
+                )}
                 {isNote && item.tags && (
                   <p className="mt-1 text-sm text-gray-500">
                     Tags: {item.tags}
@@ -344,6 +371,16 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
             {item.jobApplication && (
               <div className="mt-2 text-sm text-gray-500">
                 Related to: {item.jobApplication.position}
+              </div>
+            )}
+
+            {/* Activity Tags */}
+            {item.activityTags && item.activityTags.length > 0 && (
+              <div className="mt-3">
+                <TagList
+                  tags={item.activityTags.map(at => at.tag)}
+                  maxDisplay={5}
+                />
               </div>
             )}
           </div>

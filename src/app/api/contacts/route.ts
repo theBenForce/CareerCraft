@@ -3,12 +3,17 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
-    const contacts = await prisma.contact.findMany({
+    const contacts = await (prisma as any).contact.findMany({
       include: {
         company: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        contactTags: {
+          include: {
+            tag: true,
           },
         },
       },

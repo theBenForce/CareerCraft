@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Header from '@/components/layout/Header'
+import { TagList } from '@/components/TagComponent'
 import { prisma } from '@/lib/db'
 
 export const revalidate = 60 // Revalidate every 60 seconds
@@ -13,12 +14,17 @@ export default async function ContactsPage() {
   // Fetch contacts from the database
   let contacts
   try {
-    contacts = await prisma.contact.findMany({
+    contacts = await (prisma as any).contact.findMany({
       include: {
         company: {
           select: {
             id: true,
             name: true
+          }
+        },
+        contactTags: {
+          include: {
+            tag: true
           }
         }
       },
@@ -69,7 +75,7 @@ export default async function ContactsPage() {
         ) : (
           /* Contacts Grid */
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {contacts.map((contact) => (
+            {contacts.map((contact: any) => (
               <Card
                 key={contact.id}
                 className="overflow-hidden hover:shadow-md transition-shadow duration-200"
@@ -140,6 +146,16 @@ export default async function ContactsPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Contact Tags */}
+                  {contact.contactTags && contact.contactTags.length > 0 && (
+                    <div className="mt-3">
+                      <TagList
+                        tags={contact.contactTags.map((ct: any) => ct.tag)}
+                        maxDisplay={3}
+                      />
+                    </div>
+                  )}
 
                   {/* Actions */}
                   <div className="mt-4 flex justify-between">

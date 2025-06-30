@@ -108,3 +108,53 @@ export type ActivityType =
   | "application"
   | "interview"
   | "note";
+
+export interface Tag {
+  id: number;
+  name: string;
+  color?: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: number;
+}
+
+export interface ContactTag {
+  id: number;
+  contactId: number;
+  tagId: number;
+  createdAt: Date;
+  contact: Contact;
+  tag: Tag;
+}
+
+export interface CompanyTag {
+  id: number;
+  companyId: number;
+  tagId: number;
+  createdAt: Date;
+  company: Company;
+  tag: Tag;
+}
+
+export interface ActivityTag {
+  id: number;
+  activityId: number;
+  tagId: number;
+  createdAt: Date;
+  activity: Activity;
+  tag: Tag;
+}
+
+// Extended types with tags included
+export interface ContactWithTags extends Contact {
+  contactTags: ContactTag[];
+}
+
+export interface CompanyWithTags extends Company {
+  companyTags: CompanyTag[];
+}
+
+export interface ActivityWithTags extends Activity {
+  activityTags: ActivityTag[];
+}

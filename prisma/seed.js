@@ -258,6 +258,131 @@ async function main() {
   })
 
   console.log('Created demo notes')
+
+  // Create demo tags
+  const tags = await Promise.all([
+    prisma.tag.create({
+      data: {
+        name: 'Hot Lead',
+        color: '#ef4444', // red
+        description: 'High priority contact or company',
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: 'Technical',
+        color: '#3b82f6', // blue
+        description: 'Technical roles and contacts',
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: 'Decision Maker',
+        color: '#8b5cf6', // purple
+        description: 'Key decision makers',
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: 'Follow Up',
+        color: '#f59e0b', // amber
+        description: 'Requires follow up',
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: 'Startup',
+        color: '#10b981', // green
+        description: 'Startup companies',
+        userId: user.id,
+      },
+    }),
+    prisma.tag.create({
+      data: {
+        name: 'Interview',
+        color: '#ec4899', // pink
+        description: 'Interview related activities',
+        userId: user.id,
+      },
+    }),
+  ])
+
+  console.log('Created demo tags')
+
+  // Create tag relationships
+  await Promise.all([
+    // Tag contacts
+    prisma.contactTag.create({
+      data: {
+        contactId: contacts[0].id, // John Doe
+        tagId: tags[1].id, // Technical
+      },
+    }),
+    prisma.contactTag.create({
+      data: {
+        contactId: contacts[0].id, // John Doe
+        tagId: tags[2].id, // Decision Maker
+      },
+    }),
+    prisma.contactTag.create({
+      data: {
+        contactId: contacts[1].id, // Jane Smith
+        tagId: tags[0].id, // Hot Lead
+      },
+    }),
+    prisma.contactTag.create({
+      data: {
+        contactId: contacts[2].id, // Mike Johnson
+        tagId: tags[3].id, // Follow Up
+      },
+    }),
+
+    // Tag companies
+    prisma.companyTag.create({
+      data: {
+        companyId: companies[1].id, // StartupXYZ
+        tagId: tags[4].id, // Startup
+      },
+    }),
+    prisma.companyTag.create({
+      data: {
+        companyId: companies[1].id, // StartupXYZ
+        tagId: tags[0].id, // Hot Lead
+      },
+    }),
+    prisma.companyTag.create({
+      data: {
+        companyId: companies[0].id, // TechCorp
+        tagId: tags[1].id, // Technical
+      },
+    }),
+
+    // Tag activities
+    prisma.activityTag.create({
+      data: {
+        activityId: activity2.id, // Technical Interview
+        tagId: tags[5].id, // Interview
+      },
+    }),
+    prisma.activityTag.create({
+      data: {
+        activityId: activity2.id, // Technical Interview
+        tagId: tags[1].id, // Technical
+      },
+    }),
+    prisma.activityTag.create({
+      data: {
+        activityId: activity1.id, // Product Strategy Webinar
+        tagId: tags[3].id, // Follow Up
+      },
+    }),
+  ])
+
+  console.log('Created demo tag relationships')
   console.log('Database seeded successfully!')
 }
 

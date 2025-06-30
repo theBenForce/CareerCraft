@@ -20,6 +20,7 @@ model User {
   contacts        Contact[]
   jobApplications JobApplication[]
   notes           Note[]
+  tags            Tag[]
 }
 
 model Company {
@@ -39,6 +40,7 @@ model Company {
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts        Contact[]
   jobApplications JobApplication[]
+  companyTags     CompanyTag[]
 }
 
 model Contact {
@@ -61,6 +63,7 @@ model Contact {
   activityContacts ActivityContact[]
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactTags      ContactTag[]
 }
 
 model JobApplication {
@@ -104,6 +107,7 @@ model Activity {
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   activityContacts ActivityContact[]
+  activityTags     ActivityTag[]
 }
 
 model ActivityContact {
@@ -126,4 +130,51 @@ model Note {
   updatedAt DateTime @updatedAt
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tag {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  color        String?       // Optional color for visual organization
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactTags  ContactTag[]
+  companyTags  CompanyTag[]
+  activityTags ActivityTag[]
+}
+
+model ContactTag {
+  id        Int      @id @default(autoincrement())
+  contactId Int
+  tagId     Int
+  createdAt DateTime @default(now())
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, tagId])
+}
+
+model CompanyTag {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  tagId     Int
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, tagId])
+}
+
+model ActivityTag {
+  id         Int      @id @default(autoincrement())
+  activityId Int
+  tagId      Int
+  createdAt  DateTime @default(now())
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, tagId])
 }

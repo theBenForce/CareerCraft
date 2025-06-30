@@ -23,6 +23,23 @@ interface Company {
   name: string
 }
 
+interface Tag {
+  id: number
+  name: string
+  color?: string
+  description?: string
+  createdAt: Date
+  updatedAt: Date
+  userId: number
+}
+
+interface ActivityTag {
+  id: number
+  activityId: number
+  tagId: number
+  tag: Tag
+}
+
 interface Activity {
   id: number
   type: string
@@ -38,6 +55,7 @@ interface Activity {
     position: string
   }
   contacts: Contact[]
+  activityTags?: ActivityTag[]
   createdAt: string
   updatedAt: string
 }

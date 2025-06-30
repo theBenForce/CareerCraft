@@ -31,6 +31,11 @@ export async function GET(
             position: true,
           },
         },
+        activityTags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
 

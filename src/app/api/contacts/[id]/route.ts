@@ -15,13 +15,18 @@ export async function GET(
       );
     }
 
-    const contact = await prisma.contact.findUnique({
+    const contact = await (prisma as any).contact.findUnique({
       where: { id: contactId },
       include: {
         company: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        contactTags: {
+          include: {
+            tag: true,
           },
         },
       },
