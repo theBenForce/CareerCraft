@@ -6,9 +6,30 @@ This document outlines the design system, styles, and UI patterns used throughou
 
 **📸 Visual References**: Implementation examples and design patterns are illustrated with reference images in `/design/reference-images/`. These images demonstrate real-world application of the design system patterns documented below.
 
-## Core Technologies
-
-- **Framework**: Next.js 14 with App Router
+## Core Tech#### Detail Page Structure (Two-Column Layout)
+```
+┌─────────────────────────────────────────┐
+│ Header (bg-white shadow)                │
+├─────────────────────────────────────────┤
+│ Main Content (bg-gray-50)               │
+│ ┌─────────────────────────────────────┐ │
+│ │ Page Header (title + actions)       │ │
+│ ├─────────────────────────────────────┤ │
+│ │ ┌─────────┐ ┌─────────────────────┐ │ │
+│ │ │ Profile │ │ Main Content        │ │ │
+│ │ │ Card    │ │ ┌─────────────────┐ │ │ │
+│ │ │ - Image │ │ │ Summary Card    │ │ │ │
+│ │ │ - Name  │ │ └─────────────────┘ │ │ │
+│ │ │ - Title │ │ ┌─────────────────┐ │ │ │
+│ │ │ - Info  │ │ │ Timeline Card   │ │ │ │
+│ │ │ (1/3)   │ │ │ - Activities    │ │ │ │
+│ │ └─────────┘ │ │ - Notes         │ │ │ │
+│ │             │ │ (2/3 width)     │ │ │ │
+│ │             │ └─────────────────┘ │ │ │
+│ │             └─────────────────────┘ │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```ework**: Next.js 14 with App Router
 - **Styling**: Tailwind CSS v3.3+
 - **Icons**: Heroicons v2 (Outline style primarily)
 - **Components**: Headless UI for accessible components
@@ -537,6 +558,75 @@ Consider implementing a design token system for:
 
 ---
 
+## Timeline Components
+
+*Reference: See timeline implementation in `pages/contacts/contact-details-page.png`*
+
+Timeline components display chronological activities and notes with visual connection lines and activity icons.
+
+#### Timeline Structure
+```css
+.timeline-container {
+  @apply relative;
+}
+
+.timeline-item {
+  @apply relative pb-8;
+}
+
+.timeline-line {
+  @apply absolute top-5 left-4 -ml-px h-full w-0.5 bg-border;
+}
+
+.timeline-icon-container {
+  @apply relative z-20 h-8 w-8 rounded-full flex items-center justify-center 
+         ring-4 ring-background bg-background;
+}
+```
+
+#### Timeline Item Component
+```jsx
+<li className="timeline-item">
+  <div className="relative pb-8">
+    {/* Timeline connecting line */}
+    {!isLast && (
+      <span className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-border" />
+    )}
+    
+    <div className="relative flex space-x-3">
+      {/* Activity icon with background to hide line */}
+      <div className="relative z-20">
+        <div className="h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-background bg-background">
+          <ActivityIcon type={type} size="md" withBackground={true} />
+        </div>
+      </div>
+      
+      {/* Content */}
+      <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+        {/* Activity details */}
+      </div>
+    </div>
+  </div>
+</li>
+```
+
+#### Activity Icons
+Activity icons use consistent color coding and sizing:
+- **Email**: Blue (`text-blue-700 bg-blue-50`)
+- **Phone Call**: Green (`text-green-700 bg-green-50`)
+- **Meeting**: Purple (`text-purple-700 bg-purple-50`)
+- **Note**: Gray (`text-gray-700 bg-gray-50`)
+- **Application**: Orange (`text-orange-700 bg-orange-50`)
+
+#### Timeline Best Practices
+- Use `z-20` on icon containers to ensure they appear above timeline lines
+- Include `ring-4 ring-background bg-background` to fully hide connecting lines
+- Maintain consistent spacing with `pb-8` between timeline items
+- Start timeline line at `top-5` to align with icon center
+- Use clickable activity titles for navigation to detail pages
+
+---
+
 ## Pagination
 
 #### Standard Pagination
@@ -742,54 +832,103 @@ The individual detail pages demonstrate:
 
 *Reference: See `pages/contacts/contact-details-page.png` and `pages/applications/application-details-page.png` for detail page patterns*
 
-### Card-Based Information Display
-Detail pages use a card-based layout to organize information into logical sections:
+### Two-Column Layout System
+Detail pages use a modern two-column layout that separates profile/entity information from main content:
 
-#### Detail Page Structure
+#### Grid Structure
 ```jsx
-<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  {/* Page Header with Title and Actions */}
-  <div className="mb-6">
-    <div className="flex justify-between items-start">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Entity Name
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Subtitle or description
-        </p>
-      </div>
-      <div className="flex gap-3">
-        <Button variant="outline">Edit</Button>
-        <Button>Action</Button>
-      </div>
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  {/* Left Column: Profile Card (1/3 width) */}
+  <div className="col-span-1">
+    <div className="bg-card shadow rounded-lg p-8 flex flex-col items-center">
+      {/* Profile content */}
     </div>
   </div>
-
-  {/* Main Content Cards */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    {/* Primary Information Card */}
-    <div className="lg:col-span-2">
-      <div className="bg-white shadow rounded-lg p-6">
-        {/* Primary content */}
-      </div>
+  
+  {/* Right Column: Main Content (2/3 width) */}
+  <div className="col-span-2 flex flex-col gap-8">
+    <div className="bg-card shadow rounded-lg">
+      {/* Summary section */}
     </div>
-    
-    {/* Secondary Information Card */}
-    <div className="lg:col-span-1">
-      <div className="bg-white shadow rounded-lg p-6">
-        {/* Secondary content */}
-      </div>
+    <div className="bg-card shadow rounded-lg">
+      {/* Timeline/Activities section */}
     </div>
   </div>
 </div>
 ```
 
+#### Left Column: Profile Card
+The profile card contains essential entity information in a centered layout:
+- **Entity Image/Avatar**: Large circular image with fallback icon
+- **Primary Identity**: Name, title, company
+- **Contact Information**: Email, phone with interactive links
+- **Metadata**: Creation date, last updated
+- **Visual Styling**: Centered content, consistent spacing
+
+```jsx
+<div className="bg-card shadow rounded-lg p-8 flex flex-col items-center">
+  {/* Large circular avatar/image */}
+  <div className="w-32 h-32 rounded-full border-4 border-primary/20 bg-muted overflow-hidden flex items-center justify-center mb-4">
+    {/* Image or fallback icon */}
+  </div>
+  
+  {/* Primary information */}
+  <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1 text-center">
+    {/* Entity name */}
+  </h1>
+  
+  {/* Contact details with interactive links */}
+  <div className="flex flex-col gap-2 mt-2 w-full">
+    <div className="flex items-center text-muted-foreground text-sm justify-center">
+      <EnvelopeIcon className="w-5 h-5 mr-2" />
+      <a href={`mailto:${email}`} className="hover:underline text-primary">{email}</a>
+    </div>
+  </div>
+</div>
+```
+
+#### Right Column: Main Content
+The main content area uses a stacked card layout for different content sections:
+
+##### Summary Card
+- **Header**: Section title with edit button
+- **Content**: Markdown-rendered text with editing capabilities
+- **Empty State**: Encourages users to add content
+
+##### Timeline Card
+- **Header**: Section title with "Add Activity" button
+- **Content**: Chronological list of activities and notes
+- **Timeline Styling**: Connected visual timeline with activity icons
+
+#### Responsive Behavior
+- **Desktop (lg+)**: Two-column layout (1/3 + 2/3 split)
+- **Mobile/Tablet**: Single column, profile card stacks above main content
+- **Spacing**: Consistent `gap-8` between columns and sections
+
+### Card-Based Information Display
+Detail pages organize content into logical card sections:
+
+#### Card Structure
+```css
+.detail-card {
+  @apply bg-card shadow rounded-lg;
+}
+
+.card-header {
+  @apply flex items-center justify-between px-6 py-4 border-b border-border;
+}
+
+.card-content {
+  @apply p-6;
+}
+```
+
 #### Information Section Patterns
-- **Primary Card**: Main entity information, largest content area
-- **Secondary Card**: Related information, metadata, actions
-- **Responsive Layout**: Stacks on mobile, side-by-side on desktop
-- **Consistent Spacing**: Use `p-6` for card padding, `gap-6` between cards
+- **Profile Card**: Entity identity and contact information (left column)
+- **Summary Card**: Editable markdown content with inline editing
+- **Timeline Card**: Chronological activity and note display
+- **Consistent Spacing**: Use `p-6` for card content, `p-8` for profile card
+- **Interactive Elements**: Edit buttons, clickable links, hover states
 
 ---
 
@@ -807,10 +946,12 @@ Detail pages use a card-based layout to organize information into logical sectio
 
 ### Detail Pages  
 - **Header**: Consistent with list pages
-- **Page Title**: Entity name with edit/action buttons
-- **Content Grid**: Responsive card layout (2/3 + 1/3 split on desktop)
-- **Information Cards**: Organized by importance and relationship
-- **Actions**: Primary actions in header, secondary in cards
+- **Page Title**: Back navigation + entity name with edit/action buttons
+- **Two-Column Layout**: Profile card (1/3) + main content (2/3) on desktop
+- **Profile Card**: Centered layout with entity image, name, contact info
+- **Main Content**: Stacked cards for summary, timeline, and other sections
+- **Responsive**: Single column on mobile, two-column on desktop (lg+)
+- **Actions**: Primary actions in header, inline actions in card headers
 
 ---
 

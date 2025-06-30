@@ -1,18 +1,13 @@
 import Link from 'next/link'
 import {
-  EnvelopeIcon,
-  PhoneArrowUpRightIcon,
-  VideoCameraIcon,
-  DocumentTextIcon,
-  ChatBubbleLeftEllipsisIcon,
   CalendarDaysIcon,
   BuildingOfficeIcon,
   UserGroupIcon,
-  ClockIcon,
-  UserIcon
+  ClockIcon
 } from '@heroicons/react/24/outline'
 import { TagList } from './TagComponent'
 import { EntityCard } from './EntityCard'
+import ActivityIcon from './ActivityIcon'
 
 interface Contact {
   id: number
@@ -88,68 +83,6 @@ interface ActivityCardProps {
 }
 
 export default function ActivityCard({ item, showTimeline = false, isLast = false }: ActivityCardProps) {
-  const getActivityIcon = (type: string) => {
-    switch (type.toUpperCase()) {
-      case 'EMAIL':
-        return <EnvelopeIcon className="w-5 h-5" />
-      case 'PHONE_CALL':
-        return <PhoneArrowUpRightIcon className="w-5 h-5" />
-      case 'MEETING':
-        return <CalendarDaysIcon className="w-5 h-5" />
-      case 'NOTE':
-        return <DocumentTextIcon className="w-5 h-5" />
-      case 'APPLICATION':
-        return <DocumentTextIcon className="w-5 h-5" />
-      case 'INTERVIEW':
-        return <VideoCameraIcon className="w-5 h-5" />
-      case 'NETWORKING_EVENT':
-        return <UserGroupIcon className="w-5 h-5" />
-      case 'COFFEE_CHAT':
-        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
-      case 'FOLLOW_UP':
-        return <ClockIcon className="w-5 h-5" />
-      case 'REFERRAL':
-        return <UserIcon className="w-5 h-5" />
-      case 'LINKEDIN_MESSAGE':
-        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
-      case 'RESEARCH':
-        return <DocumentTextIcon className="w-5 h-5" />
-      default:
-        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
-    }
-  }
-
-  const getActivityIconColor = (type: string) => {
-    switch (type.toUpperCase()) {
-      case 'EMAIL':
-        return 'text-blue-600 bg-blue-100'
-      case 'PHONE_CALL':
-        return 'text-green-600 bg-green-100'
-      case 'MEETING':
-        return 'text-purple-600 bg-purple-100'
-      case 'NOTE':
-        return 'text-gray-600 bg-gray-100'
-      case 'APPLICATION':
-        return 'text-orange-600 bg-orange-100'
-      case 'INTERVIEW':
-        return 'text-indigo-600 bg-indigo-100'
-      case 'NETWORKING_EVENT':
-        return 'text-pink-600 bg-pink-100'
-      case 'COFFEE_CHAT':
-        return 'text-amber-600 bg-amber-100'
-      case 'FOLLOW_UP':
-        return 'text-yellow-600 bg-yellow-100'
-      case 'REFERRAL':
-        return 'text-emerald-600 bg-emerald-100'
-      case 'LINKEDIN_MESSAGE':
-        return 'text-cyan-600 bg-cyan-100'
-      case 'RESEARCH':
-        return 'text-slate-600 bg-slate-100'
-      default:
-        return 'text-gray-600 bg-gray-100'
-    }
-  }
-
   const formatActivityType = (type: string) => {
     const upperType = type.toUpperCase()
     switch (upperType) {
@@ -198,49 +131,38 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
         <div className="relative pb-8">
           {!isLast && (
             <span
-              className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+              className="absolute top-5 left-4 -ml-px h-full w-0.5 bg-border"
               aria-hidden="true"
             />
           )}
           <div className="relative flex space-x-3">
-            <div>
-              <span
-                className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${getActivityIconColor(
-                  displayType
-                )}`}
-              >
-                {getActivityIcon(displayType)}
-              </span>
+            <div className="relative z-20">
+              <div className="h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-background bg-background">
+                <ActivityIcon type={displayType} size="md" withBackground={true} />
+              </div>
             </div>
             <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
               <div>
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">
-                    {formatActivityType(displayType)}:
-                  </span>{' '}
-                  {isNote ? (
-                    <span>{displaySubject}</span>
-                  ) : (
-                    <Link
-                      href={`/activities/${item.id}`}
-                      className="text-blue-600 hover:text-blue-500 hover:underline"
-                    >
-                      {displaySubject}
-                    </Link>
-                  )}
+                <p className="text-sm text-foreground">
+                  <Link
+                    href={`/activities/${item.id}`}
+                    className="text-primary hover:text-primary/80 hover:underline font-medium"
+                  >
+                    {displaySubject}
+                  </Link>
                 </p>
                 {displayDescription && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {displayDescription}
                   </p>
                 )}
                 {!isNote && item.note && (
-                  <p className="mt-1 text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-foreground">
                     <span className="font-medium">Note:</span> {item.note}
                   </p>
                 )}
                 {!isNote && item.duration && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Duration: {item.duration} minutes
                   </p>
                 )}
@@ -251,24 +173,24 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                   </p>
                 )}
                 {!isNote && item.company && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     <BuildingOfficeIcon className="w-4 h-4 inline mr-1" />
                     {item.company.name}
                   </p>
                 )}
                 {!isNote && item.jobApplication && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Related to: {item.jobApplication.position}
                   </p>
                 )}
                 {!isNote && item.contacts && item.contacts.length > 0 && (
-                  <div className="mt-1 text-sm text-gray-500">
+                  <div className="mt-1 text-sm text-muted-foreground">
                     <UserGroupIcon className="w-4 h-4 inline mr-1" />
                     {item.contacts.map((contact, index) => (
                       <span key={contact.id}>
                         <Link
                           href={`/contacts/${contact.id}`}
-                          className="text-blue-600 hover:text-blue-500"
+                          className="text-primary hover:text-primary/80"
                         >
                           {contact.firstName} {contact.lastName}
                         </Link>
@@ -286,12 +208,12 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                   </div>
                 )}
                 {isNote && item.tags && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Tags: {item.tags}
                   </p>
                 )}
               </div>
-              <div className="text-right text-sm whitespace-nowrap text-gray-500">
+              <div className="text-right text-sm whitespace-nowrap text-muted-foreground">
                 <time dateTime={displayDate}>
                   {formatDate(displayDate)}
                 </time>
@@ -380,7 +302,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
       id={item.id!}
       name={displaySubject}
       subtitle={displayDescription}
-      fallbackIcon={getActivityIcon(displayType)}
+      fallbackIcon={<ActivityIcon type={displayType} size="md" />}
       fallbackText={formatActivityType(displayType)}
       properties={properties}
       tags={item.activityTags?.map(at => at.tag) || []}
