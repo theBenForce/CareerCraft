@@ -1,8 +1,8 @@
-# GitHub Copilot Instructions - Personal CRM
+# GitHub Copilot Instructions - Career Craft
 
 ## Project Overview
 
-This is a Personal CRM application built for job search and networking management. The application helps users track contacts, companies, job applications, activities, and notes in a professional, organized manner.
+This is a Career Craft application built for job search and networking management. The application helps users track contacts, companies, job applications, activities, and notes in a professional, organized manner.
 
 ## Tech Stack
 

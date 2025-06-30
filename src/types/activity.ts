@@ -1,4 +1,4 @@
-// Activity Types for Personal CRM
+// Activity Types for Career Craft
 export const ACTIVITY_TYPES = {
   EMAIL: "EMAIL",
   PHONE_CALL: "PHONE_CALL",

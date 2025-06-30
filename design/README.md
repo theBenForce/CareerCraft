@@ -1,6 +1,6 @@
 # Design Documentation
 
-This folder contains all design-related documentation and assets for the Personal CRM application.
+This folder contains all design-related documentation and assets for the Career Craft application.
 
 ## Folder Structure
 
@@ -36,7 +36,7 @@ Contains reference images, mockups, and design inspiration:
 
 ## Design System Overview
 
-The Personal CRM uses a professional, clean design system built with:
+The Career Craft uses a professional, clean design system built with:
 - **Framework**: Next.js 14 with App Router
 - **Styling**: Tailwind CSS v3.3+
 - **Icons**: Heroicons v2 (Outline style)

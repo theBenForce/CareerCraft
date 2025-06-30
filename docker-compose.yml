@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # SQLite version (default - simpler setup)
-  personal-crm-sqlite:
+  career-craft-sqlite:
     build: .
     ports:
       - "3000:3000"
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   # PostgreSQL version (recommended for production)
-  personal-crm-postgres:
+  career-craft-postgres:
     build: .
     ports:
       - "3001:3000"

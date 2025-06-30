@@ -1,8 +1,8 @@
-# Personal CRM - Design System & Style Guide
+# Career Craft - Design System & Style Guide
 
 ## Overview
 
-This document outlines the design system, styles, and UI patterns used throughout the Personal CRM application. The application is built with Next.js 14, React 18, TypeScript, and Tailwind CSS, focusing on a clean, professional interface suitable for job search and networking management.
+This document outlines the design system, styles, and UI patterns used throughout the Career Craft application. The application is built with Next.js 14, React 18, TypeScript, and Tailwind CSS, focusing on a clean, professional interface suitable for job search and networking management.
 
 **📸 Visual References**: Implementation examples and design patterns are illustrated with reference images in `/design/reference-images/`. These images demonstrate real-world application of the design system patterns documented below.
 

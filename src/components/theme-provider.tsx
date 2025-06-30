@@ -28,7 +28,7 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "personal-crm-theme",
+  storageKey = "career-craft-theme",
   attribute = "class",
   enableSystem = true,
   disableTransitionOnChange = false,

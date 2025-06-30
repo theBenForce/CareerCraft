@@ -1,6 +1,6 @@
 # Reference Images
 
-This folder contains reference images, design mockups, and visual inspiration for the Personal CRM application.
+This folder contains reference images, design mockups, and visual inspiration for the Career Craft application.
 
 ## Purpose
 

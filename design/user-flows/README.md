@@ -1,6 +1,6 @@
 # User Flows Documentation
 
-This folder contains documentation for user flows, interaction patterns, and user journey maps for the Personal CRM application.
+This folder contains documentation for user flows, interaction patterns, and user journey maps for the Career Craft application.
 
 ## Purpose
 

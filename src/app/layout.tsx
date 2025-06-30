@@ -7,8 +7,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Personal CRM - Job Search & Networking Tracker',
-  description: 'Track your job applications, network contacts, and professional activities',
+  title: 'Career Craft - Job Search & Networking Tracker',
+  description: 'Track your job applications, network contacts, and professional activities with Career Craft',
 }
 
 export default function RootLayout({
