@@ -100,11 +100,6 @@ export default async function CompaniesPage() {
                   icon: <MapPinIcon className="h-4 w-4" />,
                   text: company.location
                 }] : []),
-                ...(company.website ? [{
-                  icon: <GlobeAltIcon className="h-4 w-4" />,
-                  text: company.website.replace(/^https?:\/\//, ''),
-                  href: company.website
-                }] : []),
                 {
                   text: `${stats.totalApplications} applications • ${stats.activeApplications} active • ${stats.totalContacts} contacts`
                 }

@@ -256,7 +256,7 @@ export default function ActivitiesPage() {
                     {group.activities.map((activity, activityIndex) => (
                       <ActivityCard
                         key={activity.id}
-                        item={{ ...activity, itemType: 'activity' as const }}
+                        item={activity}
                         showTimeline={false}
                       />
                     ))}

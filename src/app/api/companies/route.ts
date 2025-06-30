@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
-    const companies = await prisma.company.findMany({
+    const companies = await (prisma as any).company.findMany({
       include: {
         jobApplications: {
           select: {
@@ -14,6 +14,11 @@ export async function GET() {
         contacts: {
           select: {
             id: true,
+          },
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -38,7 +43,6 @@ export async function POST(request: NextRequest) {
     const {
       name,
       industry,
-      website,
       description,
       location,
       size,
@@ -57,11 +61,10 @@ export async function POST(request: NextRequest) {
     // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
     const userId = 1;
 
-    const company = await prisma.company.create({
+    const company = await (prisma as any).company.create({
       data: {
         name: name.trim(),
         industry,
-        website,
         description,
         location,
         size,

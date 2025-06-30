@@ -3,12 +3,17 @@ import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
-    const applications = await prisma.jobApplication.findMany({
+    const applications = await (prisma as any).jobApplication.findMany({
       include: {
         company: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -41,7 +46,6 @@ export async function POST(request: NextRequest) {
       interviewDate,
       offerDate,
       notes,
-      jobUrl,
       source,
       companyId,
       userId = 1, // Default user ID for now
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const application = await prisma.jobApplication.create({
+    const application = await (prisma as any).jobApplication.create({
       data: {
         position: position.trim(),
         status: status.trim(),
@@ -88,7 +92,6 @@ export async function POST(request: NextRequest) {
         interviewDate: interviewDate ? new Date(interviewDate) : null,
         offerDate: offerDate ? new Date(offerDate) : null,
         notes,
-        jobUrl,
         source,
         companyId: parseInt(companyId),
         userId,

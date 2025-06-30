@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const company = await prisma.company.findUnique({
+    const company = await (prisma as any).company.findUnique({
       where: { id: companyId },
       include: {
         jobApplications: {
@@ -37,9 +37,14 @@ export async function GET(
         },
         activities: {
           orderBy: {
-            createdAt: "desc",
+            date: "desc",
           },
           take: 5,
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
+          },
         },
       },
     });
@@ -76,7 +81,6 @@ export async function PUT(
     const {
       name,
       industry,
-      website,
       description,
       location,
       size,
@@ -93,7 +97,7 @@ export async function PUT(
     }
 
     // Check if company exists
-    const existingCompany = await prisma.company.findUnique({
+    const existingCompany = await (prisma as any).company.findUnique({
       where: { id: companyId },
     });
 
@@ -101,12 +105,11 @@ export async function PUT(
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
-    const updatedCompany = await prisma.company.update({
+    const updatedCompany = await (prisma as any).company.update({
       where: { id: companyId },
       data: {
         name: name.trim(),
         industry,
-        website,
         description,
         location,
         size,

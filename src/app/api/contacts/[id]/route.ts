@@ -29,6 +29,11 @@ export async function GET(
             tag: true,
           },
         },
+        links: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
 
@@ -68,7 +73,6 @@ export async function PUT(
       phone,
       position,
       department,
-      linkedinUrl,
       image,
       summary,
       notes,
@@ -84,7 +88,7 @@ export async function PUT(
     }
 
     // Check if contact exists
-    const existingContact = await prisma.contact.findUnique({
+    const existingContact = await (prisma as any).contact.findUnique({
       where: { id: contactId },
     });
 
@@ -92,7 +96,7 @@ export async function PUT(
       return NextResponse.json({ error: "Contact not found" }, { status: 404 });
     }
 
-    const updatedContact = await prisma.contact.update({
+    const updatedContact = await (prisma as any).contact.update({
       where: { id: contactId },
       data: {
         firstName: firstName.trim(),
@@ -101,7 +105,6 @@ export async function PUT(
         phone,
         position,
         department,
-        linkedinUrl,
         ...(image !== undefined && { image }),
         ...(summary !== undefined && { summary }),
         notes,

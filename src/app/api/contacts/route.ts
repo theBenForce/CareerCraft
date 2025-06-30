@@ -16,6 +16,11 @@ export async function GET() {
             tag: true,
           },
         },
+        links: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -42,7 +47,6 @@ export async function POST(request: NextRequest) {
       phone,
       position,
       department,
-      linkedinUrl,
       image,
       summary,
       notes,
@@ -60,7 +64,7 @@ export async function POST(request: NextRequest) {
     // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
     const userId = 1;
 
-    const contact = await prisma.contact.create({
+    const contact = await (prisma as any).contact.create({
       data: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -68,7 +72,6 @@ export async function POST(request: NextRequest) {
         phone,
         position,
         department,
-        linkedinUrl,
         ...(image && { image }),
         ...(summary && { summary }),
         notes,

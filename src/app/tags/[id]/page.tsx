@@ -341,11 +341,7 @@ export default function TagDetailPage() {
                   {activities.map((activity) => (
                     <ActivityCard
                       key={activity.id}
-                      item={{
-                        ...activity,
-                        itemType: 'activity' as const,
-                        contacts: activity.contacts || []
-                      }}
+                      item={activity}
                     />
                   ))}
                 </ul>

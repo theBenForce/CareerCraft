@@ -324,3 +324,4 @@ When suggesting code, always:
 8. **Verify all changes work correctly after implementation**
 9. **Fix any errors or issues that arise during verification**
 10. **Test the functionality thoroughly before marking complete**
+11. Use theme colors and avoid hard-coding color values
