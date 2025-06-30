@@ -36,8 +36,8 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`${isActivePage(item.href)
-                    ? 'text-foreground font-medium border-b-2 border-primary pb-1'
+                  className={`transition-colors pb-1 ${isActivePage(item.href)
+                    ? 'text-foreground font-medium border-b-2 border-primary'
                     : 'text-muted-foreground hover:text-foreground'
                     }`}
                 >
