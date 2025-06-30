@@ -1,11 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { PlusIcon, UserGroupIcon, EnvelopeIcon, PhoneIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Header from '@/components/layout/Header'
-import { TagList } from '@/components/TagComponent'
+import { EntityCard } from '@/components/EntityCard'
 import { prisma } from '@/lib/db'
 
 export const revalidate = 60 // Revalidate every 60 seconds
@@ -75,104 +72,44 @@ export default async function ContactsPage() {
         ) : (
           /* Contacts Grid */
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {contacts.map((contact: any) => (
-              <Card
-                key={contact.id}
-                className="overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    {/* Contact Photo */}
-                    <div className="flex-shrink-0">
-                      <Avatar className="w-16 h-16">
-                        <AvatarImage
-                          src={(contact as any).image || undefined}
-                          alt={`${contact.firstName} ${contact.lastName}`}
-                        />
-                        <AvatarFallback>
-                          {contact.firstName.charAt(0)}{contact.lastName.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
+            {contacts.map((contact: any) => {
+              const properties = [
+                ...(contact.company ? [{
+                  icon: <BuildingOfficeIcon className="h-4 w-4" />,
+                  text: contact.company.name
+                }] : []),
+                ...(contact.email ? [{
+                  icon: <EnvelopeIcon className="h-4 w-4" />,
+                  text: contact.email,
+                  href: `mailto:${contact.email}`
+                }] : []),
+                ...(contact.phone ? [{
+                  icon: <PhoneIcon className="h-4 w-4" />,
+                  text: contact.phone,
+                  href: `tel:${contact.phone}`
+                }] : []),
+                ...(contact.department ? [{
+                  icon: <BuildingOfficeIcon className="h-4 w-4" />,
+                  text: contact.department
+                }] : [])
+              ].filter(prop => prop.text)
 
-                    {/* Contact Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-medium text-foreground truncate">
-                        {contact.firstName} {contact.lastName}
-                      </h3>
-                      {contact.position && (
-                        <p className="mt-1 text-sm text-muted-foreground truncate">
-                          {contact.position}
-                        </p>
-                      )}
-                      {contact.company && (
-                        <p className="mt-1 text-sm text-primary truncate">
-                          {contact.company.name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Contact Details */}
-                  <div className="mt-4 space-y-2">
-                    {contact.email && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <EnvelopeIcon className="flex-shrink-0 mr-2 h-4 w-4" />
-                        <a
-                          href={`mailto:${contact.email}`}
-                          className="text-primary hover:underline truncate"
-                        >
-                          {contact.email}
-                        </a>
-                      </div>
-                    )}
-
-                    {contact.phone && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <PhoneIcon className="flex-shrink-0 mr-2 h-4 w-4" />
-                        <a
-                          href={`tel:${contact.phone}`}
-                          className="text-primary hover:underline"
-                        >
-                          {contact.phone}
-                        </a>
-                      </div>
-                    )}
-
-                    {contact.department && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <BuildingOfficeIcon className="flex-shrink-0 mr-2 h-4 w-4" />
-                        <span className="truncate">{contact.department}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Contact Tags */}
-                  {contact.contactTags && contact.contactTags.length > 0 && (
-                    <div className="mt-3">
-                      <TagList
-                        tags={contact.contactTags.map((ct: any) => ct.tag)}
-                        maxDisplay={3}
-                      />
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="mt-4 flex justify-between">
-                    <Button variant="link" asChild className="p-0">
-                      <Link href={`/contacts/${contact.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/contacts/${contact.id}/edit`}>
-                        Edit
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+              return (
+                <EntityCard
+                  key={contact.id}
+                  id={contact.id}
+                  name={`${contact.firstName} ${contact.lastName}`}
+                  subtitle={contact.position || undefined}
+                  image={(contact as any).image}
+                  imageType="avatar"
+                  fallbackText={`${contact.firstName.charAt(0)}${contact.lastName.charAt(0)}`}
+                  properties={properties}
+                  tags={contact.contactTags?.map((ct: any) => ct.tag) || []}
+                  viewPath={`/contacts/${contact.id}`}
+                  editPath={`/contacts/${contact.id}/edit`}
+                />
+              )
+            })}
           </div>
         )}
       </div>

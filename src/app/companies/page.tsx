@@ -1,10 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { PlusIcon, BuildingOfficeIcon, GlobeAltIcon, MapPinIcon } from '@heroicons/react/24/outline'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import Header from '@/components/layout/Header'
+import { EntityCard } from '@/components/EntityCard'
 import { prisma } from '@/lib/db'
 
 export const revalidate = 60 // Revalidate every 60 seconds
@@ -92,111 +90,40 @@ export default async function CompaniesPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {companies.map((company) => {
               const stats = getCompanyStats(company)
+
+              const properties = [
+                ...(company.industry ? [{
+                  icon: <BuildingOfficeIcon className="h-4 w-4" />,
+                  text: company.industry
+                }] : []),
+                ...(company.location ? [{
+                  icon: <MapPinIcon className="h-4 w-4" />,
+                  text: company.location
+                }] : []),
+                ...(company.website ? [{
+                  icon: <GlobeAltIcon className="h-4 w-4" />,
+                  text: company.website.replace(/^https?:\/\//, ''),
+                  href: company.website
+                }] : []),
+                {
+                  text: `${stats.totalApplications} applications • ${stats.activeApplications} active • ${stats.totalContacts} contacts`
+                }
+              ].filter(prop => prop.text)
+
               return (
-                <Card
+                <EntityCard
                   key={company.id}
-                  className="overflow-hidden hover:shadow-md transition-shadow duration-200"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3 flex-1 min-w-0">
-                        {/* Logo */}
-                        <div className="flex-shrink-0">
-                          {(company as any).logo ? (
-                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                              <Image
-                                src={(company as any).logo}
-                                alt={`${company.name} logo`}
-                                width={48}
-                                height={48}
-                                className="object-contain"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                              <BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Company Info */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-medium text-foreground truncate">
-                            {company.name}
-                          </h3>
-                          {company.industry && (
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {company.industry}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {company.location && (
-                      <div className="mt-2 flex items-center text-sm text-muted-foreground">
-                        <MapPinIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                        {company.location}
-                      </div>
-                    )}
-
-                    {company.website && (
-                      <div className="mt-1 flex items-center text-sm text-muted-foreground">
-                        <GlobeAltIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                        <a
-                          href={company.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline truncate"
-                        >
-                          {company.website.replace(/^https?:\/\//, '')}
-                        </a>
-                      </div>
-                    )}
-
-                    {company.description && (
-                      <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
-                        {company.description}
-                      </p>
-                    )}
-
-                    {/* Stats */}
-                    <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-lg font-semibold text-foreground">
-                          {stats.totalApplications}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Applications</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold text-green-600">
-                          {stats.activeApplications}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Active</p>
-                      </div>
-                      <div>
-                        <p className="text-lg font-semibold text-primary">
-                          {stats.totalContacts}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Contacts</p>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="mt-4 flex justify-between">
-                      <Button variant="link" asChild className="p-0">
-                        <Link href={`/companies/${company.id}`}>
-                          View Details
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/companies/${company.id}/edit`}>
-                          Edit
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                  id={company.id}
+                  name={company.name}
+                  subtitle={company.description || undefined}
+                  image={(company as any).logo}
+                  imageType="logo"
+                  fallbackIcon={<BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />}
+                  properties={properties}
+                  tags={(company as any).companyTags?.map((ct: any) => ct.tag) || []}
+                  viewPath={`/companies/${company.id}`}
+                  editPath={`/companies/${company.id}/edit`}
+                />
               )
             })}
           </div>
