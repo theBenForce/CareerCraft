@@ -43,11 +43,12 @@ interface ActivityTag {
 interface Activity {
   id: number
   type: string
+  title?: string
   subject: string
   description?: string
   date: string
   duration?: number
-  outcome?: string
+  note?: string
   followUpDate?: string
   company?: Company
   jobApplication?: {

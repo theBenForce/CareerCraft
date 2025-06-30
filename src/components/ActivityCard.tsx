@@ -52,11 +52,12 @@ interface ActivityTag {
 interface Activity {
   id: number
   type: string
+  title?: string
   subject: string
   description?: string
   date: string
   duration?: number
-  outcome?: string
+  note?: string
   followUpDate?: string
   company?: Company
   jobApplication?: JobApplication
@@ -88,45 +89,84 @@ interface ActivityCardProps {
 
 export default function ActivityCard({ item, showTimeline = false, isLast = false }: ActivityCardProps) {
   const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'email':
+    switch (type.toUpperCase()) {
+      case 'EMAIL':
         return <EnvelopeIcon className="w-5 h-5" />
-      case 'call':
+      case 'PHONE_CALL':
         return <PhoneArrowUpRightIcon className="w-5 h-5" />
-      case 'meeting':
+      case 'MEETING':
         return <CalendarDaysIcon className="w-5 h-5" />
-      case 'note':
+      case 'NOTE':
         return <DocumentTextIcon className="w-5 h-5" />
-      case 'application':
+      case 'APPLICATION':
         return <DocumentTextIcon className="w-5 h-5" />
-      case 'interview':
+      case 'INTERVIEW':
         return <VideoCameraIcon className="w-5 h-5" />
+      case 'NETWORKING_EVENT':
+        return <UserGroupIcon className="w-5 h-5" />
+      case 'COFFEE_CHAT':
+        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
+      case 'FOLLOW_UP':
+        return <ClockIcon className="w-5 h-5" />
+      case 'REFERRAL':
+        return <UserIcon className="w-5 h-5" />
+      case 'LINKEDIN_MESSAGE':
+        return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
+      case 'RESEARCH':
+        return <DocumentTextIcon className="w-5 h-5" />
       default:
         return <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
     }
   }
 
   const getActivityIconColor = (type: string) => {
-    switch (type) {
-      case 'email':
+    switch (type.toUpperCase()) {
+      case 'EMAIL':
         return 'text-blue-600 bg-blue-100'
-      case 'call':
+      case 'PHONE_CALL':
         return 'text-green-600 bg-green-100'
-      case 'meeting':
+      case 'MEETING':
         return 'text-purple-600 bg-purple-100'
-      case 'note':
+      case 'NOTE':
         return 'text-gray-600 bg-gray-100'
-      case 'application':
+      case 'APPLICATION':
         return 'text-orange-600 bg-orange-100'
-      case 'interview':
+      case 'INTERVIEW':
         return 'text-indigo-600 bg-indigo-100'
+      case 'NETWORKING_EVENT':
+        return 'text-pink-600 bg-pink-100'
+      case 'COFFEE_CHAT':
+        return 'text-amber-600 bg-amber-100'
+      case 'FOLLOW_UP':
+        return 'text-yellow-600 bg-yellow-100'
+      case 'REFERRAL':
+        return 'text-emerald-600 bg-emerald-100'
+      case 'LINKEDIN_MESSAGE':
+        return 'text-cyan-600 bg-cyan-100'
+      case 'RESEARCH':
+        return 'text-slate-600 bg-slate-100'
       default:
         return 'text-gray-600 bg-gray-100'
     }
   }
 
   const formatActivityType = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1)
+    const upperType = type.toUpperCase()
+    switch (upperType) {
+      case 'PHONE_CALL':
+        return 'Phone Call'
+      case 'NETWORKING_EVENT':
+        return 'Networking Event'
+      case 'COFFEE_CHAT':
+        return 'Coffee Chat'
+      case 'FOLLOW_UP':
+        return 'Follow Up'
+      case 'LINKEDIN_MESSAGE':
+        return 'LinkedIn Message'
+      default:
+        // Convert underscores to spaces and capitalize each word
+        return upperType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -147,7 +187,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
   // Get display properties based on item type
   const isNote = item.itemType === 'note'
   const displayDate = isNote ? item.createdAt! : item.date!
-  const displayType = isNote ? 'note' : item.type!
+  const displayType = isNote ? 'NOTE' : item.type!
   const displaySubject = isNote ? item.title! : item.subject!
   const displayDescription = isNote ? item.content! : item.description
 
@@ -194,9 +234,9 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                     {displayDescription}
                   </p>
                 )}
-                {!isNote && item.outcome && (
+                {!isNote && item.note && (
                   <p className="mt-1 text-sm text-gray-600">
-                    <span className="font-medium">Outcome:</span> {item.outcome}
+                    <span className="font-medium">Note:</span> {item.note}
                   </p>
                 )}
                 {!isNote && item.duration && (
@@ -313,10 +353,10 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     })
   }
 
-  // Outcome
-  if (item.outcome) {
+  // Note
+  if (item.note) {
     properties.push({
-      text: `Outcome: ${item.outcome}`
+      text: `Note: ${item.note}`
     })
   }
 

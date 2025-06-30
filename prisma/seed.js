@@ -287,7 +287,7 @@ async function main() {
   if (!activity1) {
     activity1 = await prisma.activity.create({
       data: {
-        type: 'meeting',
+        type: 'MEETING',
         subject: 'Product Strategy Webinar',
         description: 'Webinar discussing product strategy and roadmap for Q4',
         date: new Date('2024-07-02T14:00:00Z'),
@@ -310,7 +310,7 @@ async function main() {
   if (!activity2) {
     activity2 = await prisma.activity.create({
       data: {
-        type: 'interview',
+        type: 'INTERVIEW',
         subject: 'Technical Interview Panel',
         description: 'Technical interview with multiple team members',
         date: new Date('2024-07-05T10:00:00Z'),
@@ -333,7 +333,7 @@ async function main() {
   if (!activity3) {
     activity3 = await prisma.activity.create({
       data: {
-        type: 'call',
+        type: 'PHONE_CALL',
         subject: 'Creative Review Meeting',
         description: 'Review of creative concepts with the team',
         date: new Date('2024-07-08T15:30:00Z'),
@@ -356,12 +356,12 @@ async function main() {
   if (!activity4) {
     activity4 = await prisma.activity.create({
       data: {
-        type: 'email',
+        type: 'EMAIL',
         subject: 'Follow-up on Partnership Discussion',
         description: 'Email follow-up after yesterday\'s partnership meeting to clarify next steps',
         date: new Date('2024-07-02T09:30:00Z'),
         duration: 15,
-        outcome: 'Sent proposal document and timeline',
+        note: 'Sent proposal document and timeline',
         followUpDate: new Date('2024-07-09'),
         userId: user.id,
         companyId: companies[1].id,
@@ -406,26 +406,272 @@ async function main() {
 
   console.log('Created/found activity-contact connections')
 
-  // Create demo notes
-  const existingNote = await prisma.note.findFirst({
+  // Create demo note activities (using the NOTE activity type)
+  const noteActivities = []
+
+  // Note 1: Interview Preparation Notes
+  let noteActivity1 = await prisma.activity.findFirst({
     where: {
-      title: 'Interview Preparation Notes',
+      subject: 'Interview Preparation Notes',
+      type: 'NOTE',
       userId: user.id
     }
   })
 
-  if (!existingNote) {
-    await prisma.note.create({
+  if (!noteActivity1) {
+    noteActivity1 = await prisma.activity.create({
       data: {
-        title: 'Interview Preparation Notes',
-        content: 'Key points to remember for upcoming interviews:\n- Review React hooks\n- Prepare system design examples\n- Research company background',
-        tags: JSON.stringify(['interview', 'preparation']),
+        type: 'NOTE',
+        title: 'Interview Preparation',
+        subject: 'Interview Preparation Notes',
+        description: 'Key points to remember for upcoming interviews',
+        note: `**Technical Interview Checklist:**
+- Review React hooks and state management
+- Prepare system design examples (scaling, databases)
+- Research company background and recent news
+- Practice coding problems on LeetCode
+- Prepare questions about team structure and tech stack
+
+**Companies to focus on:**
+- TechCorp Inc. - React/Node.js focus
+- StartupXYZ - Product thinking important`,
+        date: new Date('2024-06-28T09:00:00Z'),
         userId: user.id,
       },
     })
   }
+  noteActivities.push(noteActivity1)
 
-  console.log('Created/found demo notes')
+  // Note 2: Networking Strategy
+  let noteActivity2 = await prisma.activity.findFirst({
+    where: {
+      subject: 'Q3 Networking Strategy',
+      type: 'NOTE',
+      userId: user.id
+    }
+  })
+
+  if (!noteActivity2) {
+    noteActivity2 = await prisma.activity.create({
+      data: {
+        type: 'NOTE',
+        title: 'Networking Goals',
+        subject: 'Q3 Networking Strategy',
+        description: 'Strategic plan for networking and job search activities for Q3 2024',
+        note: `**Q3 Networking Goals:**
+
+*Primary Targets:*
+- Attend 2 tech meetups per month
+- Connect with 5 new people per week on LinkedIn
+- Schedule 1 coffee chat per week with industry contacts
+
+*Events to Attend:*
+- React Conf (July 15-16)
+- StartupXYZ Product Showcase (August 3)
+- Tech Leaders Meetup (monthly)
+
+*Follow-up Strategy:*
+- Send personalized connection requests within 24 hours
+- Share relevant articles and insights
+- Offer help before asking for anything
+
+**Key Metrics:**
+- Target: 60 new connections by end of Q3
+- Goal: 3 informational interviews per month`,
+        date: new Date('2024-06-30T08:00:00Z'),
+        followUpDate: new Date('2024-07-15'),
+        userId: user.id,
+      },
+    })
+  }
+  noteActivities.push(noteActivity2)
+
+  // Note 3: Company Research Notes
+  let noteActivity3 = await prisma.activity.findFirst({
+    where: {
+      subject: 'TechCorp Research Notes',
+      type: 'NOTE',
+      userId: user.id
+    }
+  })
+
+  if (!noteActivity3) {
+    noteActivity3 = await prisma.activity.create({
+      data: {
+        type: 'NOTE',
+        title: 'Company Research',
+        subject: 'TechCorp Research Notes',
+        description: 'Detailed research on TechCorp Inc. for interview preparation',
+        note: `**TechCorp Inc. - Company Research**
+
+*Company Overview:*
+- Founded: 2015
+- Employees: ~3,000 globally
+- Revenue: $500M+ (2023)
+- Recent funding: Series D ($100M) in 2023
+
+*Tech Stack:*
+- Frontend: React, TypeScript, Next.js
+- Backend: Node.js, Python, Go
+- Database: PostgreSQL, Redis
+- Cloud: AWS, Kubernetes
+- CI/CD: GitHub Actions, Docker
+
+*Recent News:*
+- Launched AI-powered analytics platform (Q1 2024)
+- Expanded to European market
+- Hiring 200+ engineers this year
+
+*Culture & Values:*
+- Remote-first company
+- Strong emphasis on work-life balance
+- Engineering-driven culture
+- Focus on mentorship and growth
+
+*Interview Process:*
+1. Phone screen with recruiter (30 min)
+2. Technical interview with engineer (60 min)
+3. System design interview (45 min)
+4. Behavioral interview with manager (45 min)
+5. Final round with team lead (30 min)`,
+        date: new Date('2024-06-29T14:00:00Z'),
+        userId: user.id,
+        companyId: companies[0].id, // Link to TechCorp
+      },
+    })
+  }
+  noteActivities.push(noteActivity3)
+
+  // Note 4: Contact Follow-up Reminders
+  let noteActivity4 = await prisma.activity.findFirst({
+    where: {
+      subject: 'Weekly Contact Follow-ups',
+      type: 'NOTE',
+      userId: user.id
+    }
+  })
+
+  if (!noteActivity4) {
+    noteActivity4 = await prisma.activity.create({
+      data: {
+        type: 'NOTE',
+        title: 'Follow-up Reminders',
+        subject: 'Weekly Contact Follow-ups',
+        description: 'Weekly reminders for staying in touch with key contacts',
+        note: `**Weekly Follow-up Schedule:**
+
+*Monday:*
+- Check LinkedIn for contact updates
+- Send connection requests to new contacts
+
+*Wednesday:*
+- Follow up with recent coffee chat connections
+- Share interesting articles with relevant contacts
+
+*Friday:*
+- Review and update CRM notes
+- Plan next week's outreach activities
+
+**Current Priority Contacts:**
+1. **Jane Smith** (StartupXYZ) - Send quarterly update
+2. **John Doe** (TechCorp) - Follow up post-interview
+3. **Mike Johnson** (Digital Agency) - Schedule next meeting
+
+**Template Messages:**
+- "Hope you're doing well! Thought you'd find this article interesting..."
+- "Quick update on my job search progress..."
+- "Would love to catch up over coffee if you have time"`,
+        date: new Date('2024-06-30T10:00:00Z'),
+        followUpDate: new Date('2024-07-07'),
+        userId: user.id,
+      },
+    })
+  }
+  noteActivities.push(noteActivity4)
+
+  // Note 5: Salary Negotiation Research
+  let noteActivity5 = await prisma.activity.findFirst({
+    where: {
+      subject: 'Salary Research & Negotiation Strategy',
+      type: 'NOTE',
+      userId: user.id
+    }
+  })
+
+  if (!noteActivity5) {
+    noteActivity5 = await prisma.activity.create({
+      data: {
+        type: 'NOTE',
+        title: 'Salary Strategy',
+        subject: 'Salary Research & Negotiation Strategy',
+        description: 'Market research and negotiation strategy for job offers',
+        note: `**Market Salary Research (Senior Developer):**
+
+*San Francisco Bay Area:*
+- Base: $140K - $180K
+- Total comp: $180K - $250K
+- Equity: 0.1% - 0.5% at startups
+
+*Austin, TX:*
+- Base: $120K - $150K
+- Total comp: $150K - $200K
+- Lower cost of living adjustment
+
+*New York, NY:*
+- Base: $130K - $170K
+- Total comp: $170K - $230K
+
+**Negotiation Strategy:**
+1. Always ask for 10-20% above initial offer
+2. Focus on total compensation package
+3. Consider: salary, equity, benefits, PTO, remote work
+4. Research company's typical equity grants
+5. Get everything in writing
+
+**My Target Range:**
+- Minimum acceptable: $130K base
+- Target: $150K base + equity
+- Stretch goal: $170K+ total comp
+
+**Non-salary negotiations:**
+- Additional PTO days
+- Professional development budget
+- Home office stipend
+- Flexible working hours`,
+        date: new Date('2024-06-27T16:00:00Z'),
+        userId: user.id,
+      },
+    })
+  }
+  noteActivities.push(noteActivity5)
+
+  console.log('Created/found demo note activities')
+
+  // Create demo notes (legacy - will be removed after migration)
+  // This section can be removed once the Note model is fully migrated to Activity
+  try {
+    const existingNote = await prisma.note.findFirst({
+      where: {
+        title: 'Interview Preparation Notes',
+        userId: user.id
+      }
+    })
+
+    if (!existingNote) {
+      await prisma.note.create({
+        data: {
+          title: 'Interview Preparation Notes',
+          content: 'Key points to remember for upcoming interviews:\n- Review React hooks\n- Prepare system design examples\n- Research company background',
+          tags: JSON.stringify(['interview', 'preparation']),
+          userId: user.id,
+        },
+      })
+    }
+
+    console.log('Created/found demo notes (legacy)')
+  } catch (error) {
+    console.log('Note model not available (already migrated to Activity)')
+  }
 
   // Create demo tags
   const tags = await Promise.all([
@@ -509,6 +755,11 @@ async function main() {
     { type: 'activity', entityId: activity2.id, tagId: tags[1].id }, // Technical Interview - Technical
     { type: 'activity', entityId: activity1.id, tagId: tags[3].id }, // Product Strategy Webinar - Follow Up
     { type: 'activity', entityId: activity4.id, tagId: tags[3].id }, // Follow-up Email - Follow Up
+    // Note activity tags
+    { type: 'activity', entityId: noteActivities[0].id, tagId: tags[5].id }, // Interview Preparation - Interview
+    { type: 'activity', entityId: noteActivities[1].id, tagId: tags[3].id }, // Networking Strategy - Follow Up
+    { type: 'activity', entityId: noteActivities[2].id, tagId: tags[1].id }, // Company Research - Technical
+    { type: 'activity', entityId: noteActivities[3].id, tagId: tags[3].id }, // Contact Follow-ups - Follow Up
   ]
 
   for (const relation of tagRelationships) {
