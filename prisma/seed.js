@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
 
 const prisma = new PrismaClient()
 
@@ -6,12 +7,14 @@ async function main() {
   console.log('Starting database seeding...')
 
   // Create a demo user
+  const hashedPassword = await bcrypt.hash('demo123', 10)
+
   const user = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
     update: {},
     create: {
       email: 'demo@example.com',
-      password: 'demo123', // In a real app, this should be hashed
+      password: hashedPassword,
       firstName: 'Demo',
       lastName: 'User',
     },
@@ -35,7 +38,6 @@ async function main() {
       data: {
         name: 'TechCorp Inc.',
         industry: 'Technology',
-        website: 'https://techcorp.com',
         description: 'Leading software development company',
         location: 'San Francisco, CA',
         size: '1000-5000',
@@ -59,7 +61,6 @@ async function main() {
       data: {
         name: 'StartupXYZ',
         industry: 'SaaS',
-        website: 'https://startupxyz.com',
         description: 'Innovative SaaS platform for businesses',
         location: 'Austin, TX',
         size: '50-200',
@@ -83,7 +84,6 @@ async function main() {
       data: {
         name: 'Digital Agency',
         industry: 'Marketing',
-        website: 'https://digitalagency.com',
         description: 'Full-service digital marketing agency',
         location: 'New York, NY',
         size: '200-500',

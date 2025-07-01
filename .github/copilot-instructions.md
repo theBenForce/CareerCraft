@@ -267,6 +267,52 @@ export async function POST(request: NextRequest) {
 - Use HTTPS in production
 - Protect against SQL injection and XSS
 
+## Change Verification Requirements
+
+After making any changes to the codebase, **ALWAYS** verify that the changes work correctly:
+
+### File-Level Verification
+- **Check for errors**: Use `get_errors` tool to check for TypeScript, ESLint, or compilation errors
+- **Read modified files**: Verify the changes were applied correctly using `read_file`
+- **Test file structure**: Ensure imports and exports are correct
+
+### Functional Verification  
+- **API routes**: Test API endpoints using appropriate HTTP methods
+- **Database operations**: Verify database queries work with proper relationships
+- **Component rendering**: Check that React components render without errors
+- **Form submissions**: Test form validation and submission flows
+
+### Build Verification
+- **TypeScript compilation**: Ensure all types are correctly defined and used
+- **Build process**: Verify the application builds successfully
+- **Runtime testing**: Test critical user flows and functionality
+
+### Error Recovery
+- **Fix compilation errors**: Address any TypeScript or build errors immediately
+- **Handle runtime errors**: Catch and fix any runtime issues
+- **Validate functionality**: Ensure the feature works as intended
+- **Test edge cases**: Verify error handling and boundary conditions
+
+If verification reveals issues:
+1. **Identify the root cause** of any errors or problems
+2. **Fix the issues** using appropriate tools and techniques  
+3. **Re-verify** the changes after fixes are applied
+4. **Repeat** until all functionality works correctly
+
+## Code Quality Checklist
+
+Before completing any task, ensure:
+- [ ] No TypeScript compilation errors
+- [ ] No ESLint warnings or errors  
+- [ ] All imports and exports are correct
+- [ ] Database relationships work as expected
+- [ ] API routes return expected responses
+- [ ] Components render without console errors
+- [ ] Forms validate and submit correctly
+- [ ] Error handling works properly
+- [ ] Responsive design functions on different screen sizes
+- [ ] Accessibility requirements are met
+
 When suggesting code, always:
 1. Follow the established patterns in this codebase
 2. Reference the design system for styling decisions
@@ -275,3 +321,7 @@ When suggesting code, always:
 5. Handle errors appropriately
 6. Consider accessibility and responsive design
 7. Follow the component and file structure patterns
+8. **Verify all changes work correctly after implementation**
+9. **Fix any errors or issues that arise during verification**
+10. **Test the functionality thoroughly before marking complete**
+11. Use theme colors and avoid hard-coding color values

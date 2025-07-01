@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const applications = await prisma.jobApplication.findMany({
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
+    const applications = await (prisma as any).jobApplication.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         company: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -29,6 +43,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const body = await request.json();
     const {
       position,
@@ -41,10 +60,8 @@ export async function POST(request: NextRequest) {
       interviewDate,
       offerDate,
       notes,
-      jobUrl,
       source,
       companyId,
-      userId = 1, // Default user ID for now
     } = body;
 
     // Validate required fields
@@ -76,7 +93,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const application = await prisma.jobApplication.create({
+    const application = await (prisma as any).jobApplication.create({
       data: {
         position: position.trim(),
         status: status.trim(),
@@ -88,10 +105,9 @@ export async function POST(request: NextRequest) {
         interviewDate: interviewDate ? new Date(interviewDate) : null,
         offerDate: offerDate ? new Date(offerDate) : null,
         notes,
-        jobUrl,
         source,
         companyId: parseInt(companyId),
-        userId,
+        userId: user.id,
       },
       include: {
         company: {

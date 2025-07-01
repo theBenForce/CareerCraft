@@ -26,7 +26,6 @@ model Company {
   id              Int              @id @default(autoincrement())
   name            String
   industry        String?
-  website         String?
   description     String?
   location        String?
   size            String?
@@ -40,6 +39,7 @@ model Company {
   contacts        Contact[]
   jobApplications JobApplication[]
   companyTags     CompanyTag[]
+  links           Link[]
 }
 
 model Contact {
@@ -50,7 +50,6 @@ model Contact {
   phone            String?
   position         String?
   department       String?
-  linkedinUrl      String?
   image            String?
   summary          String?
   notes            String?
@@ -63,6 +62,7 @@ model Contact {
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   contactTags      ContactTag[]
+  links            Link[]
 }
 
 model JobApplication {
@@ -77,7 +77,6 @@ model JobApplication {
   interviewDate  DateTime?
   offerDate      DateTime?
   notes          String?
-  jobUrl         String?
   source         String?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
@@ -86,6 +85,7 @@ model JobApplication {
   activities     Activity[]
   company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links          Link[]
 }
 
 model Activity {
@@ -166,4 +166,18 @@ model ActivityTag {
   tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([activityId, tagId])
+}
+
+model Link {
+  id               Int             @id @default(autoincrement())
+  url              String
+  label            String?         // e.g., "LinkedIn", "Website", "Twitter", "Glassdoor"
+  companyId        Int?
+  contactId        Int?
+  jobApplicationId Int?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  company          Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
 }

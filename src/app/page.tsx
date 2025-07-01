@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import {
   BriefcaseIcon,
   BuildingOfficeIcon,
@@ -20,7 +23,7 @@ interface DashboardStats {
   recentActivities: number;
 }
 
-async function getDashboardStats(): Promise<DashboardStats> {
+async function getDashboardStats(userId: number): Promise<DashboardStats> {
   try {
     // Get all stats in parallel for better performance
     const [
@@ -29,21 +32,27 @@ async function getDashboardStats(): Promise<DashboardStats> {
       contactsCount,
       recentActivitiesCount,
     ] = await Promise.all([
-      // Count active applications (not rejected or closed)
+      // Count active applications (not rejected or closed) for this user
       prisma.jobApplication.count({
         where: {
+          userId,
           status: {
             notIn: ["rejected", "closed", "withdrawn"],
           },
         },
       }),
-      // Count total companies
-      prisma.company.count(),
-      // Count total contacts
-      prisma.contact.count(),
-      // Count activities from the last 30 days
+      // Count total companies for this user
+      prisma.company.count({
+        where: { userId },
+      }),
+      // Count total contacts for this user
+      prisma.contact.count({
+        where: { userId },
+      }),
+      // Count activities from the last 30 days for this user
       prisma.activity.count({
         where: {
+          userId,
           createdAt: {
             gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
           },
@@ -69,10 +78,11 @@ async function getDashboardStats(): Promise<DashboardStats> {
   }
 }
 
-async function getRecentApplications() {
+async function getRecentApplications(userId: number) {
   try {
     const applications = await prisma.jobApplication.findMany({
       take: 3, // Get latest 3 applications
+      where: { userId },
       orderBy: {
         createdAt: 'desc',
       },
@@ -91,11 +101,12 @@ async function getRecentApplications() {
   }
 }
 
-async function getUpcomingActivities() {
+async function getUpcomingActivities(userId: number) {
   try {
     const activities = await prisma.activity.findMany({
       take: 3, // Get next 3 activities
       where: {
+        userId,
         date: {
           gte: new Date(), // Future activities only
         },
@@ -124,10 +135,18 @@ async function getUpcomingActivities() {
 }
 
 export default async function Dashboard() {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/auth/signin')
+  }
+
+  const userId = parseInt(session.user.id)
+
   const [dashboardStats, recentApplications, upcomingActivities] = await Promise.all([
-    getDashboardStats(),
-    getRecentApplications(),
-    getUpcomingActivities(),
+    getDashboardStats(userId),
+    getRecentApplications(userId),
+    getUpcomingActivities(userId),
   ]);
 
   const stats = [

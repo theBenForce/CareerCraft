@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const companies = await prisma.company.findMany({
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
+    const companies = await (prisma as any).company.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         jobApplications: {
           select: {
@@ -14,6 +23,11 @@ export async function GET() {
         contacts: {
           select: {
             id: true,
+          },
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -34,17 +48,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const body = await request.json();
-    const {
-      name,
-      industry,
-      website,
-      description,
-      location,
-      size,
-      logo,
-      notes,
-    } = body;
+    const { name, industry, description, location, size, logo, notes } = body;
 
     // Validate required fields
     if (!name || !name.trim()) {
@@ -55,13 +65,12 @@ export async function POST(request: NextRequest) {
     }
 
     // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
-    const userId = 1;
+    const userId = user.id;
 
-    const company = await prisma.company.create({
+    const company = await (prisma as any).company.create({
       data: {
         name: name.trim(),
         industry,
-        website,
         description,
         location,
         size,

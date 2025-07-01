@@ -6,13 +6,18 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const application = await prisma.jobApplication.findUnique({
+    const application = await (prisma as any).jobApplication.findUnique({
       where: {
         id: parseInt(params.id),
       },
       include: {
         company: true,
         activities: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        links: {
           orderBy: {
             createdAt: "desc",
           },
@@ -54,12 +59,11 @@ export async function PUT(
       interviewDate,
       offerDate,
       notes,
-      jobUrl,
       source,
       companyId,
     } = body;
 
-    const application = await prisma.jobApplication.update({
+    const application = await (prisma as any).jobApplication.update({
       where: {
         id: parseInt(params.id),
       },
@@ -80,7 +84,6 @@ export async function PUT(
           offerDate: offerDate ? new Date(offerDate) : null,
         }),
         ...(notes !== undefined && { notes }),
-        ...(jobUrl !== undefined && { jobUrl }),
         ...(source !== undefined && { source }),
         ...(companyId && { companyId: parseInt(companyId) }),
       },

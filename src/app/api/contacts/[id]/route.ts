@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const contactId = parseInt(params.id);
 
     if (isNaN(contactId)) {
@@ -15,8 +21,11 @@ export async function GET(
       );
     }
 
-    const contact = await (prisma as any).contact.findUnique({
-      where: { id: contactId },
+    const contact = await (prisma as any).contact.findFirst({
+      where: {
+        id: contactId,
+        userId: user.id,
+      },
       include: {
         company: {
           select: {
@@ -27,6 +36,11 @@ export async function GET(
         contactTags: {
           include: {
             tag: true,
+          },
+        },
+        links: {
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -51,6 +65,11 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const contactId = parseInt(params.id);
 
     if (isNaN(contactId)) {
@@ -68,7 +87,6 @@ export async function PUT(
       phone,
       position,
       department,
-      linkedinUrl,
       image,
       summary,
       notes,
@@ -83,16 +101,19 @@ export async function PUT(
       );
     }
 
-    // Check if contact exists
-    const existingContact = await prisma.contact.findUnique({
-      where: { id: contactId },
+    // Check if contact exists and belongs to user
+    const existingContact = await (prisma as any).contact.findFirst({
+      where: {
+        id: contactId,
+        userId: user.id,
+      },
     });
 
     if (!existingContact) {
       return NextResponse.json({ error: "Contact not found" }, { status: 404 });
     }
 
-    const updatedContact = await prisma.contact.update({
+    const updatedContact = await (prisma as any).contact.update({
       where: { id: contactId },
       data: {
         firstName: firstName.trim(),
@@ -101,7 +122,6 @@ export async function PUT(
         phone,
         position,
         department,
-        linkedinUrl,
         ...(image !== undefined && { image }),
         ...(summary !== undefined && { summary }),
         notes,
@@ -132,6 +152,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     const contactId = parseInt(params.id);
 
     if (isNaN(contactId)) {
@@ -141,9 +165,12 @@ export async function DELETE(
       );
     }
 
-    // Check if contact exists
-    const existingContact = await prisma.contact.findUnique({
-      where: { id: contactId },
+    // Check if contact exists and belongs to user
+    const existingContact = await prisma.contact.findFirst({
+      where: {
+        id: contactId,
+        userId: user.id,
+      },
     });
 
     if (!existingContact) {

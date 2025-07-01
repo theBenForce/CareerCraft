@@ -234,8 +234,8 @@ export default function ActivitiesPage() {
                 <div key={group.date} className="relative">
                   {/* Date circle and label */}
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 w-12 h-12 bg-card border-4 border-primary rounded-full flex items-center justify-center relative z-10">
-                      <CalendarIcon className="w-5 h-5 text-primary" />
+                    <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-full flex items-center justify-center relative z-10 shadow-md">
+                      <CalendarIcon className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div className="ml-4">
                       <h3 className="text-lg font-semibold text-foreground">
@@ -256,7 +256,7 @@ export default function ActivitiesPage() {
                     {group.activities.map((activity, activityIndex) => (
                       <ActivityCard
                         key={activity.id}
-                        item={{ ...activity, itemType: 'activity' as const }}
+                        item={activity}
                         showTimeline={false}
                       />
                     ))}

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
+import { existsSync } from "fs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,8 +58,15 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Save file to appropriate directory based on category
-    const uploadDir = join(process.cwd(), `public/uploads/${category}`);
+    const uploadsBaseDir =
+      process.env.UPLOADS_DIR || join(process.cwd(), "public/uploads");
+    const uploadDir = join(uploadsBaseDir, category);
     const filePath = join(uploadDir, fileName);
+
+    // Ensure upload directory exists
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });
+    }
 
     await writeFile(filePath, buffer);
 
