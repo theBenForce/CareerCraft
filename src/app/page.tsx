@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge'
 import Header from '@/components/layout/Header'
 import { prisma } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 interface DashboardStats {
   activeApplications: number;
   companies: number;

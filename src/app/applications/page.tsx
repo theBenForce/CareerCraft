@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header'
 import { prisma } from '@/lib/db'
 import type { JobStatus, Priority } from '@/types'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 60 // Revalidate every 60 seconds
 
 export default async function ApplicationsPage() {
