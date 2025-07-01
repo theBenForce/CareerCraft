@@ -55,10 +55,10 @@ export function EntityCard({
       medium: 'w-16 h-16',
       large: 'w-32 h-32'
     }
-    
+
     const iconSizes = {
       small: 'w-6 h-6',
-      medium: 'w-8 h-8', 
+      medium: 'w-8 h-8',
       large: 'w-16 h-16'
     }
 
@@ -199,12 +199,12 @@ export function EntityCard({
                 <div className="text-xs text-muted-foreground text-center">
                   {createdAt && (
                     <>
-                      Joined {new Date(createdAt).toLocaleDateString()}
+                      Created {new Date(createdAt).toLocaleDateString()}
                       {updatedAt && <br />}
                     </>
                   )}
                   {updatedAt && (
-                    <>Last updated {new Date(updatedAt).toLocaleDateString()}</>
+                    <>Updated {new Date(updatedAt).toLocaleDateString()}</>
                   )}
                 </div>
               )}

@@ -1,9 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { notFound, useParams } from 'next/navigation'
+import { notFound, useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faLinkedin,
+  faTwitter,
+  faFacebook,
+  faInstagram,
+  faGithub,
+  faXTwitter
+} from '@fortawesome/free-brands-svg-icons'
 import {
   BuildingOfficeIcon,
   GlobeAltIcon,
@@ -16,12 +25,12 @@ import {
   EnvelopeIcon,
   PhoneIcon,
   CalendarIcon,
-  ClockIcon
+  ClockIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline'
 import DetailsLayout from '@/components/layout/DetailsLayout'
 import { EntityCard } from '@/components/EntityCard'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
-import LinksManager from '@/components/LinksManager'
 
 interface Company {
   id: number
@@ -69,9 +78,43 @@ interface Company {
 
 export default function CompanyPage() {
   const { id } = useParams()
+  const router = useRouter()
   const [company, setCompany] = useState<Company | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'applications' | 'contacts' | 'timeline'>('applications')
+
+  // Function to get brand icon for a URL
+  const getBrandIcon = (url: string) => {
+    const domain = url.toLowerCase()
+
+    if (domain.includes('linkedin.com')) {
+      return <FontAwesomeIcon icon={faLinkedin} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('twitter.com') || domain.includes('x.com')) {
+      return <FontAwesomeIcon icon={faXTwitter} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('facebook.com')) {
+      return <FontAwesomeIcon icon={faFacebook} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('instagram.com')) {
+      return <FontAwesomeIcon icon={faInstagram} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('github.com')) {
+      return <FontAwesomeIcon icon={faGithub} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('glassdoor.com')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('crunchbase.com')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('portfolio') || domain.includes('personal') || domain.includes('.dev') || domain.includes('.me')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+
+    // Default to LinkIcon for other URLs
+    return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+  }
 
   const handleLinksChange = (updatedLinks: any[]) => {
     if (company) {
@@ -217,60 +260,45 @@ export default function CompanyPage() {
   // Left Column Component
   const leftColumn = (
     <>
-      <div className="bg-card shadow rounded-lg p-8 flex flex-col items-center">
-        <div className="w-32 h-32 rounded-lg border-4 border-primary/20 bg-muted overflow-hidden flex items-center justify-center mb-4">
-          {(company as any).logo ? (
-            <Image
-              src={(company as any).logo}
-              alt={`${company.name} logo`}
-              width={128}
-              height={128}
-              className="object-contain w-full h-full"
-            />
-          ) : (
-            <BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />
-          )}
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1 text-center">
-          {company.name}
-        </h1>
-        {company.industry && (
-          <div className="text-lg font-semibold text-muted-foreground mb-2 text-center">{company.industry}</div>
-        )}
-        <div className="flex flex-col gap-2 mt-2 w-full">
-          {company.website && (
-            <div className="flex items-center text-muted-foreground text-sm justify-center">
-              <GlobeAltIcon className="w-5 h-5 mr-2" />
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline text-primary"
-              >
-                {company.website}
-              </a>
-            </div>
-          )}
-          {company.location && (
-            <div className="flex items-center text-muted-foreground text-sm justify-center">
-              <MapPinIcon className="w-5 h-5 mr-2" />
-              <span className="text-foreground">{company.location}</span>
-            </div>
-          )}
-          {company.size && (
-            <div className="flex items-center text-muted-foreground text-sm justify-center">
-              <UserGroupIcon className="w-5 h-5 mr-2" />
-              <span className="text-foreground">{company.size}</span>
-            </div>
-          )}
-        </div>
-
+      <EntityCard
+        id={company.id}
+        name={company.name}
+        subtitle={company.industry}
+        image={(company as any).logo}
+        imageAlt={`${company.name} logo`}
+        fallbackIcon={<BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />}
+        fallbackText={company.name.charAt(0).toUpperCase()}
+        imageType="logo"
+        imageSize="large"
+        createdAt={company.createdAt}
+        updatedAt={company.updatedAt}
+        properties={[
+          ...(company.website ? [{
+            icon: <GlobeAltIcon className="w-5 h-5" />,
+            text: company.website,
+            href: company.website
+          }] : []),
+          ...(company.location ? [{
+            icon: <MapPinIcon className="w-5 h-5" />,
+            text: company.location
+          }] : []),
+          ...(company.size ? [{
+            icon: <UserGroupIcon className="w-5 h-5" />,
+            text: company.size
+          }] : []),
+          ...(company.links || []).map(link => ({
+            icon: getBrandIcon(link.url),
+            text: link.label || 'Link',
+            href: link.url
+          }))
+        ]}
+      >
         {/* Description and Notes Section */}
         {(company.description || company.notes) && (
-          <div className="mt-6 w-full space-y-4">
+          <div className="w-full space-y-4">
             {company.description && (
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-2">Description</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2 text-center">Description</h3>
                 <p className="text-sm text-muted-foreground text-center">{company.description}</p>
               </div>
             )}
@@ -285,12 +313,7 @@ export default function CompanyPage() {
             )}
           </div>
         )}
-
-        <div className="mt-6 text-xs text-muted-foreground text-center">
-          Added {new Date(company.createdAt).toLocaleDateString()}<br />
-          Last updated {new Date(company.updatedAt).toLocaleDateString()}
-        </div>
-      </div>
+      </EntityCard>
 
       {/* Stats Card */}
       <div className="bg-card shadow rounded-lg mt-6">
@@ -317,16 +340,6 @@ export default function CompanyPage() {
             </span>
           </div>
         </div>
-      </div>
-
-      {/* Links Section */}
-      <div className="bg-card shadow rounded-lg mt-6 p-6">
-        <LinksManager
-          links={company.links || []}
-          entityType="company"
-          entityId={company.id}
-          onLinksChange={handleLinksChange}
-        />
       </div>
     </>
   )
