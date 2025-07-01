@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
+  id              String           @id @default(ulid())
   email           String           @unique
   password        String
   firstName       String
@@ -23,7 +23,7 @@ model User {
 }
 
 model Company {
-  id              Int              @id @default(autoincrement())
+  id              String           @id @default(ulid()) // ULID
   name            String
   industry        String?
   description     String?
@@ -33,7 +33,7 @@ model Company {
   notes           String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  userId          Int
+  userId          String
   activities      Activity[]
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts        Contact[]
@@ -43,7 +43,7 @@ model Company {
 }
 
 model Contact {
-  id               Int               @id @default(autoincrement())
+  id               String           @id @default(ulid()) // ULID
   firstName        String
   lastName         String
   email            String?
@@ -54,19 +54,19 @@ model Contact {
   summary          String?
   notes            String?
   lastContactDate  DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  userId           Int
-  companyId        Int?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userId           String
+  companyId        String?
   activityContacts ActivityContact[]
-  company          Company?          @relation(fields: [companyId], references: [id])
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company?         @relation(fields: [companyId], references: [id])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   contactTags      ContactTag[]
   links            Link[]
 }
 
 model JobApplication {
-  id             Int        @id @default(autoincrement())
+  id             String      @id @default(ulid()) // ULID
   position       String
   status         String
   priority       String     @default("medium")
@@ -80,8 +80,8 @@ model JobApplication {
   source         String?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
-  userId         Int
-  companyId      Int
+  userId         String
+  companyId      String
   activities     Activity[]
   company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -89,7 +89,7 @@ model JobApplication {
 }
 
 model Activity {
-  id               Int               @id @default(autoincrement())
+  id               String            @id @default(ulid()) // ULID
   type             String            // ActivityType: EMAIL, PHONE_CALL, MEETING, INTERVIEW, NETWORKING_EVENT, COFFEE_CHAT, FOLLOW_UP, APPLICATION, REFERRAL, LINKEDIN_MESSAGE, NOTE, RESEARCH, OTHER
   title            String?
   subject          String
@@ -100,9 +100,9 @@ model Activity {
   followUpDate     DateTime?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  userId           Int
-  companyId        Int?
-  jobApplicationId Int?
+  userId           String
+  companyId        String?
+  jobApplicationId String?
   jobApplication   JobApplication?   @relation(fields: [jobApplicationId], references: [id])
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -111,9 +111,9 @@ model Activity {
 }
 
 model ActivityContact {
-  id         Int      @id @default(autoincrement())
-  activityId Int
-  contactId  Int
+  id         String   @id @default(ulid()) // ULID
+  activityId String
+  contactId  String
   createdAt  DateTime @default(now())
   contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
@@ -122,13 +122,13 @@ model ActivityContact {
 }
 
 model Tag {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @default(ulid()) // ULID
   name         String        @unique
   color        String?       // Optional color for visual organization
   description  String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  userId       Int
+  userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   contactTags  ContactTag[]
   companyTags  CompanyTag[]
@@ -136,9 +136,9 @@ model Tag {
 }
 
 model ContactTag {
-  id        Int      @id @default(autoincrement())
-  contactId Int
-  tagId     Int
+  id        String   @id @default(ulid()) // ULID
+  contactId String
+  tagId     String
   createdAt DateTime @default(now())
   contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
   tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
@@ -147,9 +147,9 @@ model ContactTag {
 }
 
 model CompanyTag {
-  id        Int      @id @default(autoincrement())
-  companyId Int
-  tagId     Int
+  id        String   @id @default(ulid()) // ULID
+  companyId String
+  tagId     String
   createdAt DateTime @default(now())
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
@@ -158,9 +158,9 @@ model CompanyTag {
 }
 
 model ActivityTag {
-  id         Int      @id @default(autoincrement())
-  activityId Int
-  tagId      Int
+  id         String   @id @default(ulid()) // ULID
+  activityId String
+  tagId      String
   createdAt  DateTime @default(now())
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
   tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
@@ -169,12 +169,12 @@ model ActivityTag {
 }
 
 model Link {
-  id               Int             @id @default(autoincrement())
+  id               String   @id @default(ulid()) // ULID
   url              String
   label            String?         // e.g., "LinkedIn", "Website", "Twitter", "Glassdoor"
-  companyId        Int?
-  contactId        Int?
-  jobApplicationId Int?
+  companyId        String?
+  contactId        String?
+  jobApplicationId String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   company          Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)

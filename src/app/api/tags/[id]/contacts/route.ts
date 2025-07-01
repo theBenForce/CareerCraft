@@ -9,9 +9,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const tagId = parseInt(params.id);
+    const tagId = params.id;
 
-    if (isNaN(tagId)) {
+    if (!tagId || typeof tagId !== 'string') {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 

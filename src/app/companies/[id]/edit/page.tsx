@@ -54,7 +54,7 @@ const industries = [
 
 export default function EditCompanyPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const companyId = parseInt(params.id)
+  const companyId = params.id;
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -70,9 +70,6 @@ export default function EditCompanyPage({ params }: { params: { id: string } }) 
   })
 
   useEffect(() => {
-    if (isNaN(companyId)) {
-      notFound()
-    }
 
     const fetchCompany = async () => {
       try {

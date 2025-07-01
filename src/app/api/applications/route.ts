@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         offerDate: offerDate ? new Date(offerDate) : null,
         notes,
         source,
-        companyId: parseInt(companyId),
+        companyId: companyId,
         userId: user.id,
       },
       include: {

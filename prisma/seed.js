@@ -3,6 +3,19 @@ const bcrypt = require('bcryptjs')
 
 const prisma = new PrismaClient()
 
+// Hardcoded ULIDs for demo data
+const DEMO_USER_ID = '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK';
+const COMPANY_IDS = [
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQJ', // TechCorp
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH', // StartupXYZ
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQG', // Digital Agency
+];
+const CONTACT_IDS = [
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQI', // John Doe
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQF', // Jane Smith
+  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQE', // Mike Johnson
+];
+
 async function main() {
   console.log('Starting database seeding...')
 
@@ -10,9 +23,10 @@ async function main() {
   const hashedPassword = await bcrypt.hash('demo123', 10)
 
   const user = await prisma.user.upsert({
-    where: { email: 'demo@example.com' },
+    where: { id: DEMO_USER_ID },
     update: {},
     create: {
+      id: DEMO_USER_ID,
       email: 'demo@example.com',
       password: hashedPassword,
       firstName: 'Demo',
@@ -26,71 +40,53 @@ async function main() {
   const companies = []
 
   // TechCorp Inc.
-  let techCorp = await prisma.company.findFirst({
-    where: {
+  let techCorp = await prisma.company.upsert({
+    where: { id: COMPANY_IDS[0] },
+    update: {},
+    create: {
+      id: COMPANY_IDS[0],
       name: 'TechCorp Inc.',
-      userId: user.id
-    }
+      industry: 'Technology',
+      description: 'Leading software development company',
+      location: 'San Francisco, CA',
+      size: '1000-5000',
+      logo: '/uploads/logos/techcorp-logo.svg',
+      userId: DEMO_USER_ID,
+    },
   })
-
-  if (!techCorp) {
-    techCorp = await prisma.company.create({
-      data: {
-        name: 'TechCorp Inc.',
-        industry: 'Technology',
-        description: 'Leading software development company',
-        location: 'San Francisco, CA',
-        size: '1000-5000',
-        logo: '/uploads/logos/techcorp-logo.svg',
-        userId: user.id,
-      },
-    })
-  }
   companies.push(techCorp)
 
   // StartupXYZ
-  let startupXyz = await prisma.company.findFirst({
-    where: {
+  let startupXyz = await prisma.company.upsert({
+    where: { id: COMPANY_IDS[1] },
+    update: {},
+    create: {
+      id: COMPANY_IDS[1],
       name: 'StartupXYZ',
-      userId: user.id
-    }
+      industry: 'SaaS',
+      description: 'Innovative SaaS platform for businesses',
+      location: 'Austin, TX',
+      size: '50-200',
+      logo: '/uploads/logos/startupxyz-logo.svg',
+      userId: DEMO_USER_ID,
+    },
   })
-
-  if (!startupXyz) {
-    startupXyz = await prisma.company.create({
-      data: {
-        name: 'StartupXYZ',
-        industry: 'SaaS',
-        description: 'Innovative SaaS platform for businesses',
-        location: 'Austin, TX',
-        size: '50-200',
-        logo: '/uploads/logos/startupxyz-logo.svg',
-        userId: user.id,
-      },
-    })
-  }
   companies.push(startupXyz)
 
   // Digital Agency
-  let digitalAgency = await prisma.company.findFirst({
-    where: {
+  let digitalAgency = await prisma.company.upsert({
+    where: { id: COMPANY_IDS[2] },
+    update: {},
+    create: {
+      id: COMPANY_IDS[2],
       name: 'Digital Agency',
-      userId: user.id
-    }
+      industry: 'Marketing',
+      description: 'Full-service digital marketing agency',
+      location: 'New York, NY',
+      size: '200-500',
+      userId: DEMO_USER_ID,
+    },
   })
-
-  if (!digitalAgency) {
-    digitalAgency = await prisma.company.create({
-      data: {
-        name: 'Digital Agency',
-        industry: 'Marketing',
-        description: 'Full-service digital marketing agency',
-        location: 'New York, NY',
-        size: '200-500',
-        userId: user.id,
-      },
-    })
-  }
   companies.push(digitalAgency)
 
   console.log('Created/found demo companies')
@@ -99,84 +95,63 @@ async function main() {
   const contacts = []
 
   // John Doe
-  let johnDoe = await prisma.contact.findFirst({
-    where: {
+  let johnDoe = await prisma.contact.upsert({
+    where: { id: CONTACT_IDS[0] },
+    update: {},
+    create: {
+      id: CONTACT_IDS[0],
+      firstName: 'John',
+      lastName: 'Doe',
       email: 'john.doe@techcorp.com',
-      userId: user.id
-    }
+      phone: '+1-555-0123',
+      position: 'Engineering Manager',
+      department: 'Engineering',
+      image: '/uploads/contacts/john-smith.svg',
+      summary: '**Key Contact** at TechCorp\n\n- 8+ years of engineering experience\n- Decision maker for technical hiring\n- Very responsive to emails\n- Interested in *full-stack developers* with React expertise\n\n> "Always looking for talented engineers who can scale our platform"',
+      userId: DEMO_USER_ID,
+      companyId: COMPANY_IDS[0],
+    },
   })
-
-  if (!johnDoe) {
-    johnDoe = await prisma.contact.create({
-      data: {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@techcorp.com',
-        phone: '+1-555-0123',
-        position: 'Engineering Manager',
-        department: 'Engineering',
-        linkedinUrl: 'https://linkedin.com/in/johndoe',
-        image: '/uploads/contacts/john-smith.svg',
-        summary: '**Key Contact** at TechCorp\n\n- 8+ years of engineering experience\n- Decision maker for technical hiring\n- Very responsive to emails\n- Interested in *full-stack developers* with React expertise\n\n> "Always looking for talented engineers who can scale our platform"',
-        userId: user.id,
-        companyId: companies[0].id,
-      },
-    })
-  }
   contacts.push(johnDoe)
 
   // Jane Smith
-  let janeSmith = await prisma.contact.findFirst({
-    where: {
+  let janeSmith = await prisma.contact.upsert({
+    where: { id: CONTACT_IDS[1] },
+    update: {},
+    create: {
+      id: CONTACT_IDS[1],
+      firstName: 'Jane',
+      lastName: 'Smith',
       email: 'jane.smith@startupxyz.com',
-      userId: user.id
-    }
+      phone: '+1-555-0456',
+      position: 'Product Manager',
+      department: 'Product',
+      image: '/uploads/contacts/sarah-johnson.svg',
+      summary: '**Product Strategy Leader**\n\n- Former Google PM with 6 years experience\n- Leading StartupXYZ\'s product roadmap\n- **Hot connection** - referred by mutual friend Sarah\n- Scheduled follow-up for *next quarter*\n\n*Next steps:* Send quarterly product updates',
+      userId: DEMO_USER_ID,
+      companyId: COMPANY_IDS[1],
+    },
   })
-
-  if (!janeSmith) {
-    janeSmith = await prisma.contact.create({
-      data: {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@startupxyz.com',
-        phone: '+1-555-0456',
-        position: 'Product Manager',
-        department: 'Product',
-        linkedinUrl: 'https://linkedin.com/in/janesmith',
-        image: '/uploads/contacts/sarah-johnson.svg',
-        summary: '**Product Strategy Leader**\n\n- Former Google PM with 6 years experience\n- Leading StartupXYZ\'s product roadmap\n- **Hot connection** - referred by mutual friend Sarah\n- Scheduled follow-up for *next quarter*\n\n*Next steps:* Send quarterly product updates',
-        userId: user.id,
-        companyId: companies[1].id,
-      },
-    })
-  }
   contacts.push(janeSmith)
 
   // Mike Johnson
-  let mikeJohnson = await prisma.contact.findFirst({
-    where: {
+  let mikeJohnson = await prisma.contact.upsert({
+    where: { id: CONTACT_IDS[2] },
+    update: {},
+    create: {
+      id: CONTACT_IDS[2],
+      firstName: 'Mike',
+      lastName: 'Johnson',
       email: 'mike.johnson@digitalagency.com',
-      userId: user.id
-    }
+      phone: '+1-555-0789',
+      position: 'Creative Director',
+      department: 'Creative',
+      image: '/uploads/contacts/mike-wilson.svg',
+      summary: '**Creative Visionary** at Digital Agency\n\n- Award-winning designer (Webby Awards 2023)\n- Looking for **freelance developers** for client projects\n- Prefers weekend communication\n- Interested in:\n  - Modern web technologies\n  - UX/UI collaboration\n  - Long-term partnerships\n\n📅 *Next meeting: July 15th*',
+      userId: DEMO_USER_ID,
+      companyId: COMPANY_IDS[2],
+    },
   })
-
-  if (!mikeJohnson) {
-    mikeJohnson = await prisma.contact.create({
-      data: {
-        firstName: 'Mike',
-        lastName: 'Johnson',
-        email: 'mike.johnson@digitalagency.com',
-        phone: '+1-555-0789',
-        position: 'Creative Director',
-        department: 'Creative',
-        linkedinUrl: 'https://linkedin.com/in/mikejohnson',
-        image: '/uploads/contacts/mike-wilson.svg',
-        summary: '**Creative Visionary** at Digital Agency\n\n- Award-winning designer (Webby Awards 2023)\n- Looking for **freelance developers** for client projects\n- Prefers weekend communication\n- Interested in:\n  - Modern web technologies\n  - UX/UI collaboration\n  - Long-term partnerships\n\n📅 *Next meeting: July 15th*',
-        userId: user.id,
-        companyId: companies[2].id,
-      },
-    })
-  }
   contacts.push(mikeJohnson)
 
   console.log('Created/found demo contacts')
@@ -203,7 +178,6 @@ async function main() {
         salary: '$120,000 - $150,000',
         appliedDate: new Date('2024-06-25'),
         interviewDate: new Date('2024-07-02'),
-        jobUrl: 'https://techcorp.com/jobs/senior-developer',
         source: 'LinkedIn',
         userId: user.id,
         companyId: companies[0].id,
@@ -231,7 +205,6 @@ async function main() {
         jobDescription: 'Product Manager role focusing on SaaS platform development',
         salary: '$100,000 - $130,000',
         appliedDate: new Date('2024-06-20'),
-        jobUrl: 'https://startupxyz.com/careers/product-manager',
         source: 'Company Website',
         userId: user.id,
         companyId: companies[1].id,
@@ -260,7 +233,6 @@ async function main() {
         salary: '$90,000 - $110,000',
         appliedDate: new Date('2024-06-15'),
         responseDate: new Date('2024-06-22'),
-        jobUrl: 'https://digitalagency.com/jobs/fullstack',
         source: 'Referral',
         userId: user.id,
         companyId: companies[2].id,
@@ -813,6 +785,124 @@ async function main() {
   }
 
   console.log('Created/found demo tag relationships')
+
+  // Create demo links
+  const links = []
+
+  // Company links
+  const companyLinks = [
+    // TechCorp links
+    { url: 'https://techcorp.com', label: 'Website', companyId: companies[0].id },
+    { url: 'https://linkedin.com/company/techcorp', label: 'LinkedIn', companyId: companies[0].id },
+    { url: 'https://techcorp.com/careers', label: 'Careers Page', companyId: companies[0].id },
+    { url: 'https://techcorp.com/blog', label: 'Tech Blog', companyId: companies[0].id },
+    { url: 'https://github.com/techcorp', label: 'GitHub', companyId: companies[0].id },
+
+    // StartupXYZ links
+    { url: 'https://startupxyz.com', label: 'Website', companyId: companies[1].id },
+    { url: 'https://linkedin.com/company/startupxyz', label: 'LinkedIn', companyId: companies[1].id },
+    { url: 'https://startupxyz.com/careers', label: 'Careers Page', companyId: companies[1].id },
+    { url: 'https://twitter.com/startupxyz', label: 'Twitter', companyId: companies[1].id },
+    { url: 'https://startupxyz.com/product-demo', label: 'Product Demo', companyId: companies[1].id },
+
+    // Digital Agency links
+    { url: 'https://digitalagency.com', label: 'Website', companyId: companies[2].id },
+    { url: 'https://linkedin.com/company/digital-agency', label: 'LinkedIn', companyId: companies[2].id },
+    { url: 'https://digitalagency.com/portfolio', label: 'Portfolio', companyId: companies[2].id },
+    { url: 'https://instagram.com/digitalagency', label: 'Instagram', companyId: companies[2].id },
+  ]
+
+  for (const linkData of companyLinks) {
+    const existingLink = await prisma.link.findFirst({
+      where: {
+        url: linkData.url,
+        companyId: linkData.companyId
+      }
+    })
+
+    if (!existingLink) {
+      const link = await prisma.link.create({
+        data: linkData
+      })
+      links.push(link)
+    } else {
+      links.push(existingLink)
+    }
+  }
+
+  // Contact links
+  const contactLinks = [
+    // John Doe links
+    { url: 'https://linkedin.com/in/johndoe', label: 'LinkedIn', contactId: contacts[0].id },
+    { url: 'https://github.com/johndoe', label: 'GitHub', contactId: contacts[0].id },
+    { url: 'https://johndoe.dev', label: 'Personal Website', contactId: contacts[0].id },
+
+    // Jane Smith links
+    { url: 'https://linkedin.com/in/janesmith', label: 'LinkedIn', contactId: contacts[1].id },
+    { url: 'https://twitter.com/janesmith_pm', label: 'Twitter', contactId: contacts[1].id },
+    { url: 'https://medium.com/@janesmith', label: 'Medium Blog', contactId: contacts[1].id },
+
+    // Mike Johnson links
+    { url: 'https://linkedin.com/in/mikejohnson', label: 'LinkedIn', contactId: contacts[2].id },
+    { url: 'https://dribbble.com/mikejohnson', label: 'Dribbble', contactId: contacts[2].id },
+    { url: 'https://mikejohnson.design', label: 'Portfolio', contactId: contacts[2].id },
+    { url: 'https://behance.net/mikejohnson', label: 'Behance', contactId: contacts[2].id },
+  ]
+
+  for (const linkData of contactLinks) {
+    const existingLink = await prisma.link.findFirst({
+      where: {
+        url: linkData.url,
+        contactId: linkData.contactId
+      }
+    })
+
+    if (!existingLink) {
+      const link = await prisma.link.create({
+        data: linkData
+      })
+      links.push(link)
+    } else {
+      links.push(existingLink)
+    }
+  }
+
+  // Job application links
+  const jobApplicationLinks = [
+    // Senior Developer at TechCorp
+    { url: 'https://techcorp.com/jobs/senior-developer', label: 'Job Posting', jobApplicationId: jobApplications[0].id },
+    { url: 'https://glassdoor.com/jobs/techcorp-senior-developer', label: 'Glassdoor', jobApplicationId: jobApplications[0].id },
+    { url: 'https://levels.fyi/companies/techcorp', label: 'Levels.fyi', jobApplicationId: jobApplications[0].id },
+
+    // Product Manager at StartupXYZ
+    { url: 'https://startupxyz.com/careers/product-manager', label: 'Job Posting', jobApplicationId: jobApplications[1].id },
+    { url: 'https://glassdoor.com/jobs/startupxyz-product-manager', label: 'Glassdoor', jobApplicationId: jobApplications[1].id },
+    { url: 'https://startupxyz.com/team', label: 'Team Page', jobApplicationId: jobApplications[1].id },
+
+    // Full Stack Engineer at Digital Agency
+    { url: 'https://digitalagency.com/jobs/fullstack', label: 'Job Posting', jobApplicationId: jobApplications[2].id },
+    { url: 'https://glassdoor.com/jobs/digital-agency-fullstack', label: 'Glassdoor', jobApplicationId: jobApplications[2].id },
+  ]
+
+  for (const linkData of jobApplicationLinks) {
+    const existingLink = await prisma.link.findFirst({
+      where: {
+        url: linkData.url,
+        jobApplicationId: linkData.jobApplicationId
+      }
+    })
+
+    if (!existingLink) {
+      const link = await prisma.link.create({
+        data: linkData
+      })
+      links.push(link)
+    } else {
+      links.push(existingLink)
+    }
+  }
+
+  console.log('Created/found demo links')
   console.log('Database seeded successfully!')
 }
 

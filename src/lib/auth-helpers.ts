@@ -10,7 +10,7 @@ export async function getSessionUser(req: NextRequest) {
   }
 
   return {
-    id: parseInt(session.user.id),
+    id: session.user.id,
     email: session.user.email,
     firstName: session.user.firstName,
     lastName: session.user.lastName,

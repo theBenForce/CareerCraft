@@ -6,14 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const activityId = parseInt(params.id);
-
-    if (isNaN(activityId)) {
-      return NextResponse.json(
-        { error: "Invalid activity ID" },
-        { status: 400 }
-      );
-    }
+    const activityId = params.id;
 
     // Get the activity with basic relationships
     const activity = await prisma.activity.findUnique({
@@ -83,9 +76,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const activityId = parseInt(params.id);
+    const activityId = params.id;
 
-    if (isNaN(activityId)) {
+    if (!activityId || typeof activityId !== 'string') {
       return NextResponse.json(
         { error: "Invalid activity ID" },
         { status: 400 }
@@ -137,8 +130,8 @@ export async function PUT(
         duration: duration ? parseInt(duration) : null,
         note: note?.trim(),
         followUpDate: followUpDate ? new Date(followUpDate) : null,
-        companyId: companyId ? parseInt(companyId) : null,
-        jobApplicationId: jobApplicationId ? parseInt(jobApplicationId) : null,
+        companyId: companyId || null,
+        jobApplicationId: jobApplicationId || null,
       },
     });
 
@@ -150,9 +143,9 @@ export async function PUT(
 
     // Then, create new relationships if contactIds provided
     if (contactIds && Array.isArray(contactIds) && contactIds.length > 0) {
-      const activityContacts = contactIds.map((contactId: number) => ({
+      const activityContacts = contactIds.map((contactId: string) => ({
         activityId: activityId,
-        contactId: parseInt(contactId.toString()),
+        contactId: contactId,
       }));
 
       await (prisma as any).activityContact.createMany({
@@ -215,9 +208,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const activityId = parseInt(params.id);
+    const activityId = params.id;
 
-    if (isNaN(activityId)) {
+    if (!activityId || typeof activityId !== 'string') {
       return NextResponse.json(
         { error: "Invalid activity ID" },
         { status: 400 }

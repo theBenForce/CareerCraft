@@ -369,3 +369,19 @@ Future enhancements planned:
 - API endpoints for third-party integrations
 - Export functionality (PDF reports, CSV data)
 - Automated follow-up reminders
+
+## Database IDs: ULID
+
+All primary and foreign keys are now ULIDs (Universally Unique Lexicographically Sortable Identifiers) stored as String. This replaces the previous Int/autoincrement pattern. ULIDs are generated automatically by the database for all new records.
+
+- **Why ULID?**
+  - Globally unique, sortable, and safe for distributed systems
+  - Human-friendly and URL-safe
+  - No risk of collision or race conditions
+
+### Migration Notes
+- All models use `@default(dbgenerated('ulid()'))` for ID fields.
+- Foreign keys are now String (ULID) instead of Int.
+- Use `/prisma/ulid-generator.js` to generate ULIDs for manual seeding or migration steps if needed.
+
+**If you are migrating existing data, you must convert all Int IDs to ULID Strings and update all foreign key references accordingly.**

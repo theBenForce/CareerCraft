@@ -25,7 +25,7 @@ interface DashboardStats {
   recentActivities: number;
 }
 
-async function getDashboardStats(userId: number): Promise<DashboardStats> {
+async function getDashboardStats(userId: string): Promise<DashboardStats> {
   try {
     // Get all stats in parallel for better performance
     const [
@@ -80,7 +80,7 @@ async function getDashboardStats(userId: number): Promise<DashboardStats> {
   }
 }
 
-async function getRecentApplications(userId: number) {
+async function getRecentApplications(userId: string) {
   try {
     const applications = await prisma.jobApplication.findMany({
       take: 3, // Get latest 3 applications
@@ -103,7 +103,7 @@ async function getRecentApplications(userId: number) {
   }
 }
 
-async function getUpcomingActivities(userId: number) {
+async function getUpcomingActivities(userId: string) {
   try {
     const activities = await prisma.activity.findMany({
       take: 3, // Get next 3 activities
@@ -143,7 +143,7 @@ export default async function Dashboard() {
     redirect('/auth/signin')
   }
 
-  const userId = parseInt(session.user.id)
+  const userId = session.user.id;
 
   const [dashboardStats, recentApplications, upcomingActivities] = await Promise.all([
     getDashboardStats(userId),

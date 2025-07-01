@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = params.id;
 
     const link = await (prisma as any).link.findUnique({
       where: { id },
@@ -57,7 +57,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = params.id;
     const body = await request.json();
     const { url, label } = body;
 
@@ -88,7 +88,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = params.id;
 
     await (prisma as any).link.delete({
       where: { id },

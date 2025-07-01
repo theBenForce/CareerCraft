@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -8,7 +8,7 @@ export interface User {
 }
 
 export interface Company {
-  id: number;
+  id: string;
   name: string;
   industry?: string;
   website?: string;
@@ -18,11 +18,11 @@ export interface Company {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
+  userId: string;
 }
 
 export interface Contact {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   email?: string;
@@ -35,13 +35,13 @@ export interface Contact {
   lastContactDate?: Date;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
-  companyId?: number;
+  userId: string;
+  companyId?: string;
   company?: Company;
 }
 
 export interface JobApplication {
-  id: number;
+  id: string;
   position: string;
   status: string;
   priority: string;
@@ -56,13 +56,13 @@ export interface JobApplication {
   source?: string;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
-  companyId: number;
-  company: Company;
+  userId: string;
+  companyId: string;
+  company?: Company;
 }
 
 export interface Activity {
-  id: number;
+  id: string;
   type: string;
   subject: string;
   description?: string;
@@ -72,23 +72,23 @@ export interface Activity {
   followUpDate?: Date;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
-  companyId?: number;
-  contactId?: number;
-  jobApplicationId?: number;
+  userId: string;
+  companyId?: string;
+  contactId?: string;
+  jobApplicationId?: string;
   company?: Company;
   contact?: Contact;
   jobApplication?: JobApplication;
 }
 
 export interface Note {
-  id: number;
+  id: string;
   title: string;
   content: string;
   tags?: string;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
+  userId: string;
 }
 
 export type JobStatus =
@@ -110,37 +110,37 @@ export type ActivityType =
   | "note";
 
 export interface Tag {
-  id: number;
+  id: string;
   name: string;
   color?: string;
   description?: string;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
+  userId: string;
 }
 
 export interface ContactTag {
-  id: number;
-  contactId: number;
-  tagId: number;
+  id: string;
+  contactId: string;
+  tagId: string;
   createdAt: Date;
   contact: Contact;
   tag: Tag;
 }
 
 export interface CompanyTag {
-  id: number;
-  companyId: number;
-  tagId: number;
+  id: string;
+  companyId: string;
+  tagId: string;
   createdAt: Date;
   company: Company;
   tag: Tag;
 }
 
 export interface ActivityTag {
-  id: number;
-  activityId: number;
-  tagId: number;
+  id: string;
+  activityId: string;
+  tagId: string;
   createdAt: Date;
   activity: Activity;
   tag: Tag;

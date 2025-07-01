@@ -4,6 +4,10 @@
 
 This document outlines the design system, styles, and UI patterns used throughout the Career Craft application. The application is built with Next.js 14, React 18, TypeScript, and Tailwind CSS, focusing on a clean, professional interface suitable for job search and networking management.
 
+**🖸 Data Model Note:**
+- All primary and foreign keys are now **ULIDs** (String) instead of Int/autoincrement. This applies to all entities (User, Company, Contact, JobApplication, Activity, Tag, etc.).
+- ULIDs are generated automatically by the database for all new records.
+
 **📸 Visual References**: Implementation examples and design patterns are illustrated with reference images in `/design/reference-images/`. These images demonstrate real-world application of the design system patterns documented below.
 
 ## Core Tech#### Detail Page Structure (Two-Column Layout)

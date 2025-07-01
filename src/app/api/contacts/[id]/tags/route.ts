@@ -9,7 +9,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const contactId = parseInt(params.id);
+    const contactId = params.id;
     const body = await request.json();
     const { tagId } = body;
 
@@ -23,7 +23,7 @@ export async function POST(
     const contactTag = await prisma.contactTag.create({
       data: {
         contactId,
-        tagId: parseInt(tagId),
+        tagId,
       },
       include: {
         tag: true,
@@ -52,7 +52,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const contactId = parseInt(params.id);
+    const contactId = params.id;
     const { searchParams } = new URL(request.url);
     const tagId = searchParams.get("tagId");
 
@@ -67,7 +67,7 @@ export async function DELETE(
       where: {
         contactId_tagId: {
           contactId,
-          tagId: parseInt(tagId),
+          tagId: tagId,
         },
       },
     });
@@ -88,7 +88,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const contactId = parseInt(params.id);
+    const contactId = params.id;
 
     const contactTags = await prisma.contactTag.findMany({
       where: {

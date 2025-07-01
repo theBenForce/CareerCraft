@@ -11,6 +11,7 @@ services:
       - DATABASE_URL=file:/app/data/dev.db
       - NEXTAUTH_SECRET=your-production-secret-key-here
       - NEXTAUTH_URL=http://localhost:3000
+      - DISABLE_USER_REGISTRATION=true
       - NODE_ENV=production
       - UPLOADS_DIR=/app/public/uploads
     volumes:

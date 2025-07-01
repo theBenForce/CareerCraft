@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { PlusIcon, LinkIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 export interface Link {
-  id: number;
+  id: string;
   url: string;
   label?: string;
-  companyId?: number;
-  contactId?: number;
-  jobApplicationId?: number;
+  companyId?: string;
+  contactId?: string;
+  jobApplicationId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -15,7 +15,7 @@ export interface Link {
 interface LinksManagerProps {
   links: Link[];
   entityType: 'company' | 'contact' | 'jobApplication';
-  entityId: number;
+  entityId: string;
   onLinksChange?: (links: Link[]) => void;
   className?: string;
   readonly?: boolean;
@@ -60,7 +60,7 @@ export default function LinksManager({
 }: LinksManagerProps) {
   const [localLinks, setLocalLinks] = useState<Link[]>(links);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newLink, setNewLink] = useState({ url: '', label: '' });
 
   const updateLinks = (updatedLinks: Link[]) => {
@@ -96,7 +96,7 @@ export default function LinksManager({
     }
   };
 
-  const handleUpdateLink = async (linkId: number, updatedData: { url: string; label: string }) => {
+  const handleUpdateLink = async (linkId: string, updatedData: { url: string; label: string }) => {
     try {
       const response = await fetch(`/api/links/${linkId}`, {
         method: 'PUT',
@@ -119,7 +119,7 @@ export default function LinksManager({
     }
   };
 
-  const handleDeleteLink = async (linkId: number) => {
+  const handleDeleteLink = async (linkId: string) => {
     try {
       const response = await fetch(`/api/links/${linkId}`, {
         method: 'DELETE',
