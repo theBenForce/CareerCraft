@@ -78,15 +78,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const {
-      name,
-      industry,
-      description,
-      location,
-      size,
-      logo,
-      notes,
-    } = body;
+    const { name, industry, description, location, size, logo, notes } = body;
 
     // Validate required fields
     if (!name || !name.trim()) {

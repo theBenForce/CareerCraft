@@ -2,11 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 import { toast } from 'react-hot-toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faLinkedin,
+  faTwitter,
+  faFacebook,
+  faInstagram,
+  faGithub,
+  faXTwitter
+} from '@fortawesome/free-brands-svg-icons'
 import {
   PencilIcon,
   TrashIcon,
@@ -15,12 +23,14 @@ import {
   UserIcon,
   BuildingOfficeIcon,
   CheckIcon,
-  XMarkIcon
+  XMarkIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline'
 import DetailsLayout from '@/components/layout/DetailsLayout'
 import { TagList } from '@/components/TagComponent'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 import LinksManager from '@/components/LinksManager'
+import { EntityCard } from '@/components/EntityCard'
 
 interface Tag {
   id: number
@@ -74,6 +84,39 @@ export default function ContactDetailPage() {
   const [editingSummary, setEditingSummary] = useState(false)
   const [editedSummary, setEditedSummary] = useState('')
   const [savingSummary, setSavingSummary] = useState(false)
+
+  // Function to get brand icon for a URL
+  const getBrandIcon = (url: string) => {
+    const domain = url.toLowerCase()
+    
+    if (domain.includes('linkedin.com')) {
+      return <FontAwesomeIcon icon={faLinkedin} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('twitter.com') || domain.includes('x.com')) {
+      return <FontAwesomeIcon icon={faXTwitter} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('facebook.com')) {
+      return <FontAwesomeIcon icon={faFacebook} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('instagram.com')) {
+      return <FontAwesomeIcon icon={faInstagram} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('github.com')) {
+      return <FontAwesomeIcon icon={faGithub} className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('glassdoor.com')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('crunchbase.com')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+    if (domain.includes('portfolio') || domain.includes('personal') || domain.includes('.dev') || domain.includes('.me')) {
+      return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+    }
+    
+    // Default to LinkIcon for other URLs
+    return <LinkIcon className="w-4 h-4 text-muted-foreground" />
+  }
 
   const handleLinksChange = (updatedLinks: any[]) => {
     if (contact) {
@@ -275,78 +318,42 @@ export default function ContactDetailPage() {
 
   // Left Column Component
   const leftColumn = (
-    <div className="bg-card shadow rounded-lg p-8 flex flex-col items-center">
-      <div className="w-32 h-32 rounded-full border-4 border-primary/20 bg-muted overflow-hidden flex items-center justify-center mb-4">
-        {contact.image ? (
-          <Image
-            src={contact.image}
-            alt={`${contact.firstName} ${contact.lastName}`}
-            width={128}
-            height={128}
-            className="object-cover w-full h-full"
-          />
-        ) : (
-          <UserIcon className="w-16 h-16 text-muted-foreground" />
-        )}
-      </div>
-      <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1 text-center">
-        {contact.firstName} {contact.lastName}
-      </h1>
-      {contact.position && (
-        <div className="text-lg font-semibold text-muted-foreground mb-2 text-center">{contact.position}</div>
-      )}
-      {contact.company && (
-        <div className="flex items-center gap-2 mb-4 justify-center">
-          <BuildingOfficeIcon className="w-5 h-5 text-primary" />
-          <Link
-            href={`/companies/${contact.company.id}`}
-            className="text-primary hover:text-primary/80 font-medium"
-          >
-            {contact.company.name}
-          </Link>
-        </div>
-      )}
-      <div className="flex flex-col gap-2 mt-2 w-full">
-        <div className="flex items-center text-muted-foreground text-sm justify-center">
-          <EnvelopeIcon className="w-5 h-5 mr-2" />
-          <a href={`mailto:${contact.email}`} className="hover:underline text-primary">{contact.email}</a>
-        </div>
-        {contact.phone && (
-          <div className="flex items-center text-muted-foreground text-sm justify-center">
-            <PhoneIcon className="w-5 h-5 mr-2" />
-            <a href={`tel:${contact.phone}`} className="hover:underline text-primary">{contact.phone}</a>
-          </div>
-        )}
-      </div>
-
-      {/* Tags */}
-      {contact.contactTags && contact.contactTags.length > 0 && (
-        <div className="mt-6 w-full">
-          <div className="flex flex-wrap gap-1 justify-center">
-            <TagList
-              tags={contact.contactTags.map(ct => ct.tag)}
-              maxDisplay={6}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Links Section */}
-      <div className="mt-6 w-full">
-        <h3 className="text-sm font-medium text-foreground mb-3 text-center">Links</h3>
-        <LinksManager
-          links={contact.links || []}
-          entityType="contact"
-          entityId={parseInt(contact.id)}
-          onLinksChange={handleLinksChange}
-        />
-      </div>
-
-      <div className="mt-6 text-xs text-muted-foreground text-center">
-        Joined {new Date(contact.createdAt).toLocaleDateString()}<br />
-        Last updated {new Date(contact.updatedAt).toLocaleDateString()}
-      </div>
-    </div>
+    <EntityCard
+      id={contact.id}
+      name={`${contact.firstName} ${contact.lastName}`}
+      subtitle={contact.position}
+      image={contact.image}
+      imageAlt={`${contact.firstName} ${contact.lastName}`}
+      fallbackIcon={<UserIcon className="w-16 h-16 text-muted-foreground" />}
+      fallbackText={`${contact.firstName.charAt(0)}${contact.lastName.charAt(0)}`}
+      imageType="avatar"
+      imageSize="large"
+      createdAt={contact.createdAt}
+      updatedAt={contact.updatedAt}
+      properties={[
+        {
+          icon: <EnvelopeIcon className="w-5 h-5" />,
+          text: contact.email,
+          href: `mailto:${contact.email}`
+        },
+        ...(contact.phone ? [{
+          icon: <PhoneIcon className="w-5 h-5" />,
+          text: contact.phone,
+          href: `tel:${contact.phone}`
+        }] : []),
+        ...(contact.company ? [{
+          icon: <BuildingOfficeIcon className="w-5 h-5" />,
+          text: contact.company.name,
+          href: `/companies/${contact.company.id}`
+        }] : []),
+        ...(contact.links || []).map(link => ({
+          icon: getBrandIcon(link.url),
+          text: link.label || 'Link',
+          href: link.url
+        }))
+      ]}
+      tags={contact.contactTags?.map(ct => ct.tag) || []}
+    />
   )
 
   // Right Column Component  

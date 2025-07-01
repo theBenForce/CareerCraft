@@ -4,12 +4,12 @@ import { prisma } from "@/lib/db";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get('companyId');
-    const contactId = searchParams.get('contactId');
-    const jobApplicationId = searchParams.get('jobApplicationId');
+    const companyId = searchParams.get("companyId");
+    const contactId = searchParams.get("contactId");
+    const jobApplicationId = searchParams.get("jobApplicationId");
 
     const where: any = {};
-    
+
     if (companyId) {
       where.companyId = parseInt(companyId);
     }
@@ -43,19 +43,21 @@ export async function POST(request: NextRequest) {
     const { url, label, companyId, contactId, jobApplicationId } = body;
 
     // Validate that exactly one parent entity is specified
-    const parentCount = [companyId, contactId, jobApplicationId].filter(Boolean).length;
+    const parentCount = [companyId, contactId, jobApplicationId].filter(
+      Boolean
+    ).length;
     if (parentCount !== 1) {
       return NextResponse.json(
-        { error: "Exactly one of companyId, contactId, or jobApplicationId must be provided" },
+        {
+          error:
+            "Exactly one of companyId, contactId, or jobApplicationId must be provided",
+        },
         { status: 400 }
       );
     }
 
     if (!url) {
-      return NextResponse.json(
-        { error: "URL is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
     const linkData: any = {

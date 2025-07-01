@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id);
-    
+
     const link = await (prisma as any).link.findUnique({
       where: { id },
       include: {
@@ -39,10 +39,7 @@ export async function GET(
     });
 
     if (!link) {
-      return NextResponse.json(
-        { error: "Link not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Link not found" }, { status: 404 });
     }
 
     return NextResponse.json(link);
@@ -65,10 +62,7 @@ export async function PUT(
     const { url, label } = body;
 
     if (!url) {
-      return NextResponse.json(
-        { error: "URL is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
     const link = await (prisma as any).link.update({
