@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Save file to appropriate directory based on category
-    const uploadsBaseDir = process.env.UPLOADS_DIR || join(process.cwd(), 'public/uploads');
+    const uploadsBaseDir =
+      process.env.UPLOADS_DIR || join(process.cwd(), "public/uploads");
     const uploadDir = join(uploadsBaseDir, category);
     const filePath = join(uploadDir, fileName);
 
