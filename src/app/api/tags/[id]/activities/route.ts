@@ -11,7 +11,7 @@ export async function GET(
   try {
     const tagId = params.id;
 
-    if (!tagId || typeof tagId !== 'string') {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 

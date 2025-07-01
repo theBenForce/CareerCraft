@@ -18,6 +18,8 @@ import {
 import Header from '@/components/layout/Header'
 import { TagList } from '@/components/TagComponent'
 import ActivityIcon from '@/components/ActivityIcon'
+import { EntityCard } from '@/components/EntityCard'
+import DetailsLayout from '@/components/layout/DetailsLayout'
 
 interface Contact {
   id: number
@@ -30,6 +32,7 @@ interface Contact {
 interface Company {
   id: number
   name: string
+  logo?: string
 }
 
 interface JobApplication {
@@ -209,216 +212,136 @@ export default function ActivityDetailPage() {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-background">
-        {/* Header Row */}
-        <div className="flex justify-between items-center mb-8">
-          <Link
-            href="/activities"
-            className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Back to Activities
-          </Link>
-          <div className="flex gap-2">
-            <Link
-              href={`/activities/${activity.id}/edit`}
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium"
-            >
-              <PencilIcon className="w-4 h-4 mr-2" />
-              Edit
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 flex items-center text-sm font-medium disabled:opacity-50"
-            >
-              <TrashIcon className="w-4 h-4 mr-2" />
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
+  // Header section for DetailsLayout
+  const headerSection = (
+    <div className="flex justify-between items-center">
+      <Link
+        href="/activities"
+        className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
+      >
+        <ArrowLeftIcon className="w-4 h-4" />
+        Back to Activities
+      </Link>
+      <div className="flex gap-2">
+        <Link
+          href={`/activities/${activity.id}/edit`}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium"
+        >
+          <PencilIcon className="w-4 h-4 mr-2" />
+          Edit
+        </Link>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 flex items-center text-sm font-medium disabled:opacity-50"
+        >
+          <TrashIcon className="w-4 h-4 mr-2" />
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+    </div>
+  )
+
+  // Left column: EntityCard
+  const leftColumn = (
+    <EntityCard
+      id={activity.id}
+      name={activity.title || activity.subject || formatActivityType(activity.type)}
+      subtitle={activity.company ? activity.company.name : undefined}
+      fallbackIcon={<CalendarDaysIcon className="w-16 h-16 text-primary bg-primary/10 p-4 rounded-full" />}
+      properties={[
+        {
+          icon: <CalendarDaysIcon className="w-4 h-4" />,
+          text: new Date(activity.date).toLocaleDateString()
+        },
+        ...(activity.duration ? [{
+          icon: <ClockIcon className="w-4 h-4" />,
+          text: `${activity.duration} minutes`
+        }] : []),
+        ...(activity.company ? [{
+          icon: <BuildingOfficeIcon className="w-4 h-4" />,
+          text: activity.company.name,
+          href: `/companies/${activity.company.id}`
+        }] : []),
+        ...(activity.contacts && activity.contacts.length > 0 ? [{
+          icon: <UserGroupIcon className="w-4 h-4" />,
+          text: activity.contacts.map(c => `${c.firstName} ${c.lastName}`).join(', '),
+          href: activity.contacts.length === 1 ? `/contacts/${activity.contacts[0].id}` : undefined
+        }] : []),
+        ...(activity.followUpDate ? [{
+          icon: <CalendarDaysIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
+          text: `Follow-up: ${new Date(activity.followUpDate).toLocaleDateString()}`
+        }] : [])
+      ]}
+      tags={activity.activityTags?.map(at => at.tag) || []}
+      createdAt={activity.createdAt}
+      updatedAt={activity.updatedAt}
+      imageType='icon'
+      imageSize="large"
+    >
+      {activity.description && (
+        <div className="mt-2 text-sm text-muted-foreground text-center whitespace-pre-wrap">
+          {activity.description}
+        </div>
+      )}
+    </EntityCard>
+  )
+
+  // Right column: Main Content
+  const rightColumn = (
+    <div className="flex flex-col gap-6">
+      {/* Outcome Section */}
+      {activity.outcome && (
+        <div className="bg-card shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-border">
+            <h2 className="text-lg font-semibold text-foreground">Outcome</h2>
+          </div>
+          <div className="p-6">
+            <p className="text-muted-foreground whitespace-pre-wrap">{activity.outcome}</p>
           </div>
         </div>
+      )}
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Activity Summary Card */}
-          <div className="col-span-1">
-            <div className="bg-card shadow rounded-lg p-6">
-              {/* Activity Type and Icon */}
-              <div className="flex flex-col items-center mb-6">
-                <ActivityIcon
-                  type={activity.type}
-                  size="xl"
-                  withBackground={true}
-                  className="mb-4"
-                />
-                <h1 className="text-xl font-bold tracking-tight text-foreground text-center mb-2">
-                  {activity.title || activity.subject}
-                </h1>
-                <div className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
-                  {formatActivityType(activity.type)}
-                </div>
-              </div>
-
-              {/* Key Details */}
-              <div className="space-y-4">
-                {/* Date and Duration */}
-                <div className="text-center">
-                  <div className="flex items-center justify-center text-muted-foreground text-sm mb-1">
-                    <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                    {new Date(activity.date).toLocaleDateString()}
-                  </div>
-                  {activity.duration && (
-                    <div className="flex items-center justify-center text-muted-foreground text-sm">
-                      <ClockIcon className="w-4 h-4 mr-2" />
-                      {activity.duration} minutes
-                    </div>
-                  )}
-                </div>
-
-                {/* Company */}
-                {activity.company && (
-                  <div className="text-center">
-                    <div className="flex items-center justify-center text-muted-foreground text-sm mb-1">
-                      <BuildingOfficeIcon className="w-4 h-4 mr-2" />
-                      Company
-                    </div>
-                    <Link
-                      href={`/companies/${activity.company.id}`}
-                      className="text-primary hover:text-primary/80 font-medium"
-                    >
-                      {activity.company.name}
-                    </Link>
-                  </div>
-                )}
-
-                {/* Contacts */}
-                {activity.contacts && activity.contacts.length > 0 && (
-                  <div className="text-center">
-                    <div className="flex items-center justify-center text-muted-foreground text-sm mb-2">
-                      <UserGroupIcon className="w-4 h-4 mr-2" />
-                      Contacts
-                    </div>
-                    <div className="space-y-1">
-                      {activity.contacts.map((contact) => (
-                        <div key={contact.id}>
-                          <Link
-                            href={`/contacts/${contact.id}`}
-                            className="text-primary hover:text-primary/80 text-sm"
-                          >
-                            {contact.firstName} {contact.lastName}
-                          </Link>
-                          {contact.position && (
-                            <div className="text-muted-foreground text-xs">
-                              {contact.position}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Follow-up Date */}
-                {activity.followUpDate && (
-                  <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                    <div className="flex items-center justify-center text-amber-700 dark:text-amber-300 text-sm mb-1">
-                      <CalendarDaysIcon className="w-4 h-4 mr-2" />
-                      Follow-up Required
-                    </div>
-                    <div className="text-amber-800 dark:text-amber-200 font-medium text-sm">
-                      {new Date(activity.followUpDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Timestamps */}
-              <div className="mt-6 pt-4 border-t border-border text-xs text-muted-foreground text-center">
-                Created {new Date(activity.createdAt).toLocaleDateString()}<br />
-                Updated {new Date(activity.updatedAt).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Main Content */}
-          <div className="col-span-2 flex flex-col gap-6">
-            {/* Description Section */}
-            {activity.description && (
-              <div className="bg-card shadow rounded-lg">
-                <div className="px-6 py-4 border-b border-border">
-                  <h2 className="text-lg font-semibold text-foreground">Description</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-muted-foreground whitespace-pre-wrap">{activity.description}</p>
-                </div>
+      {/* Additional Details (now displays notes) */}
+      <div className="bg-card shadow rounded-lg">
+        <div className="px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">Details</h2>
+        </div>
+        <div className="p-6">
+          <div className="space-y-4">
+            {/* Job Application */}
+            {activity.jobApplication && (
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
+                <p className="text-muted-foreground">{activity.jobApplication.position}</p>
               </div>
             )}
 
-            {/* Note Section */}
+            {/* Notes Section */}
             {activity.note && (
-              <div className="bg-card shadow rounded-lg">
-                <div className="px-6 py-4 border-b border-border">
-                  <h2 className="text-lg font-semibold text-foreground">Note</h2>
-                </div>
-                <div className="p-6">
-                  <div className="prose prose-sm prose-gray dark:prose-invert max-w-none text-foreground">
-                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{activity.note}</ReactMarkdown>
-                  </div>
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-2">Note</h4>
+                <div className="prose prose-sm prose-gray dark:prose-invert max-w-none text-foreground">
+                  <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{activity.note}</ReactMarkdown>
                 </div>
               </div>
             )}
 
-            {/* Outcome Section */}
-            {activity.outcome && (
-              <div className="bg-card shadow rounded-lg">
-                <div className="px-6 py-4 border-b border-border">
-                  <h2 className="text-lg font-semibold text-foreground">Outcome</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-muted-foreground whitespace-pre-wrap">{activity.outcome}</p>
-                </div>
-              </div>
+            {/* Show message if no additional details */}
+            {!activity.jobApplication && !activity.note && (!activity.activityTags || activity.activityTags.length === 0) && (
+              <p className="text-muted-foreground text-sm">No additional details available.</p>
             )}
-
-            {/* Additional Details */}
-            <div className="bg-card shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-border">
-                <h2 className="text-lg font-semibold text-foreground">Additional Details</h2>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {/* Job Application */}
-                  {activity.jobApplication && (
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
-                      <p className="text-muted-foreground">{activity.jobApplication.position}</p>
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  {activity.activityTags && activity.activityTags.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground mb-2">Tags</h4>
-                      <TagList
-                        tags={activity.activityTags.map(at => at.tag)}
-                        maxDisplay={10}
-                      />
-                    </div>
-                  )}
-
-                  {/* Show message if no additional details */}
-                  {!activity.jobApplication && (!activity.activityTags || activity.activityTags.length === 0) && (
-                    <p className="text-muted-foreground text-sm">No additional details available.</p>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <DetailsLayout
+      leftColumn={leftColumn}
+      rightColumn={rightColumn}
+      headerSection={headerSection}
+    />
   )
 }

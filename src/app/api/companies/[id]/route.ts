@@ -8,7 +8,7 @@ export async function GET(
   try {
     const companyId = params.id;
 
-    if (!companyId || typeof companyId !== 'string') {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }
@@ -70,7 +70,7 @@ export async function PUT(
   try {
     const companyId = params.id;
 
-    if (!companyId || typeof companyId !== 'string') {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }
@@ -140,7 +140,7 @@ export async function DELETE(
   try {
     const companyId = params.id;
 
-    if (!companyId || typeof companyId !== 'string') {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }

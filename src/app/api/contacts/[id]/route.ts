@@ -65,7 +65,7 @@ export async function PUT(
 
     const contactId = params.id;
 
-    if (!contactId || typeof contactId !== 'string') {
+    if (!contactId || typeof contactId !== "string") {
       return NextResponse.json(
         { error: "Invalid contact ID" },
         { status: 400 }
@@ -151,7 +151,7 @@ export async function DELETE(
     }
     const contactId = params.id;
 
-    if (!contactId || typeof contactId !== 'string') {
+    if (!contactId || typeof contactId !== "string") {
       return NextResponse.json(
         { error: "Invalid contact ID" },
         { status: 400 }

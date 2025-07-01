@@ -11,7 +11,7 @@ export async function GET(
   try {
     const tagId = params.id;
 
-    if (!tagId || typeof tagId !== 'string') {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
@@ -40,7 +40,7 @@ export async function PUT(
     const body = await request.json();
     const { name, color, description } = body;
 
-    if (!tagId || typeof tagId !== 'string') {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
@@ -81,7 +81,7 @@ export async function DELETE(
   try {
     const tagId = params.id;
 
-    if (!tagId || typeof tagId !== 'string') {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 

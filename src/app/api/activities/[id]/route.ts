@@ -78,7 +78,7 @@ export async function PUT(
   try {
     const activityId = params.id;
 
-    if (!activityId || typeof activityId !== 'string') {
+    if (!activityId || typeof activityId !== "string") {
       return NextResponse.json(
         { error: "Invalid activity ID" },
         { status: 400 }
@@ -210,7 +210,7 @@ export async function DELETE(
   try {
     const activityId = params.id;
 
-    if (!activityId || typeof activityId !== 'string') {
+    if (!activityId || typeof activityId !== "string") {
       return NextResponse.json(
         { error: "Invalid activity ID" },
         { status: 400 }
