@@ -91,7 +91,7 @@ export function EntityCard({
     return (
       <div className={`${sizeClasses[imageSize]} rounded-lg bg-muted flex items-center justify-center`}>
         {fallbackIcon ? (
-          <div className={iconSizes[imageSize]}>
+          <div className={`${iconSizes[imageSize]} flex items-center justify-center`}>
             {fallbackIcon}
           </div>
         ) : (fallbackText && (

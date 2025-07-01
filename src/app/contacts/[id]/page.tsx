@@ -88,7 +88,7 @@ export default function ContactDetailPage() {
   // Function to get brand icon for a URL
   const getBrandIcon = (url: string) => {
     const domain = url.toLowerCase()
-    
+
     if (domain.includes('linkedin.com')) {
       return <FontAwesomeIcon icon={faLinkedin} className="w-4 h-4 text-muted-foreground" />
     }
@@ -113,7 +113,7 @@ export default function ContactDetailPage() {
     if (domain.includes('portfolio') || domain.includes('personal') || domain.includes('.dev') || domain.includes('.me')) {
       return <LinkIcon className="w-4 h-4 text-muted-foreground" />
     }
-    
+
     // Default to LinkIcon for other URLs
     return <LinkIcon className="w-4 h-4 text-muted-foreground" />
   }

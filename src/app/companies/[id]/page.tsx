@@ -427,8 +427,8 @@ export default function CompanyPage() {
                         text: `Applied ${new Date(application.createdAt).toLocaleDateString()}`
                       }
                     ]}
-                    viewPath={`/applications/${application.id}`}
-                    editPath={`/applications/${application.id}/edit`}
+                    onView={() => router.push(`/applications/${application.id}`)}
+                    onEdit={() => router.push(`/applications/${application.id}/edit`)}
                     imageType="logo"
                   >
                     <div className="flex items-center justify-between mt-2">
@@ -508,8 +508,8 @@ export default function CompanyPage() {
                       imageAlt={`${contact.firstName} ${contact.lastName}`}
                       fallbackText={contact.firstName.charAt(0) + contact.lastName.charAt(0)}
                       properties={contactProperties}
-                      viewPath={`/contacts/${contact.id}`}
-                      editPath={`/contacts/${contact.id}/edit`}
+                      onView={() => router.push(`/contacts/${contact.id}`)}
+                      onEdit={() => router.push(`/contacts/${contact.id}/edit`)}
                       imageType="avatar"
                     />
                   )

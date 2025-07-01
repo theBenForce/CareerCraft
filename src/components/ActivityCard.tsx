@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   CalendarDaysIcon,
   BuildingOfficeIcon,
@@ -68,6 +69,8 @@ interface ActivityCardProps {
 }
 
 export default function ActivityCard({ item, showTimeline = false, isLast = false }: ActivityCardProps) {
+  const router = useRouter()
+
   const formatActivityType = (type: string) => {
     const upperType = type.toUpperCase()
     switch (upperType) {
@@ -211,12 +214,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     )
   }
 
-  // Card format for activities page (only for activities, not notes)
-  if (isNote) {
-    // Notes don't have a card format, return null or a simple display
-    return null
-  }
-
+  // Card format for activities page
   // Prepare properties for EntityCard
   const properties = []
 
@@ -229,8 +227,8 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     })}`
   })
 
-  // Duration
-  if (item.duration) {
+  // Duration (only for non-NOTE activities)
+  if (!isNote && item.duration) {
     properties.push({
       icon: <ClockIcon className="w-4 h-4" />,
       text: `${item.duration} minutes`
@@ -256,7 +254,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
   }
 
   // Note
-  if (item.note) {
+  if (!isNote && item.note) {
     properties.push({
       text: `Note: ${item.note}`
     })
@@ -286,8 +284,8 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
       fallbackText={formatActivityType(displayType)}
       properties={properties}
       tags={item.activityTags?.map(at => at.tag) || []}
-      viewPath={`/activities/${item.id}`}
-      editPath={`/activities/${item.id}/edit`}
+      onView={() => router.push(`/activities/${item.id}`)}
+      onEdit={() => router.push(`/activities/${item.id}/edit`)}
       imageType="logo"
     />
   )
