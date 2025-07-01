@@ -1,40 +1,40 @@
-import { NextAuthOptions } from 'next-auth'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/db'
+import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email
-          }
-        })
+            email: credentials.email,
+          },
+        });
 
         if (!user) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
-        )
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
@@ -43,40 +43,40 @@ export const authOptions: NextAuthOptions = {
           name: `${user.firstName} ${user.lastName}`,
           firstName: user.firstName,
           lastName: user.lastName,
-        }
-      }
-    })
+        };
+      },
+    }),
   ],
   session: {
-    strategy: 'jwt'
+    strategy: "jwt",
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: "/auth/signin",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.firstName = (user as any).firstName
-        token.lastName = (user as any).lastName
+        token.id = user.id;
+        token.firstName = (user as any).firstName;
+        token.lastName = (user as any).lastName;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string
-        session.user.firstName = token.firstName as string
-        session.user.lastName = token.lastName as string
+        session.user.id = token.id as string;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
       }
-      return session
+      return session;
     },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl
-    }
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
-}
+};

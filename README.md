@@ -1,5 +1,9 @@
 # Career Craft - Job Search & Professional Networking Tracker
 
+[![Build and Publish](https://github.com/[username]/[repository-name]/actions/workflows/docker-build-publish.yml/badge.svg)](https://github.com/[username]/[repository-name]/actions/workflows/docker-build-publish.yml)
+[![Security](https://github.com/[username]/[repository-name]/actions/workflows/dependency-security.yml/badge.svg)](https://github.com/[username]/[repository-name]/actions/workflows/dependency-security.yml)
+[![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/[username]/[repository-name]/pkgs/container/[repository-name])
+
 A self-hostable Next.js application for tracking job applications, managing professional contacts, and organizing networking activities. Built with modern web technologies and designed for easy deployment with Docker.
 
 ## Features
@@ -119,6 +123,49 @@ docker-compose up career-craft-postgres postgres
 ```
 
 The application will be available at [http://localhost:3001](http://localhost:3001)
+
+### Pre-built Docker Images
+
+Pre-built Docker images are automatically published to GitHub Container Registry via GitHub Actions:
+
+```bash
+# Pull the latest stable release
+docker pull ghcr.io/[username]/[repository-name]:stable
+
+# Pull the latest development version
+docker pull ghcr.io/[username]/[repository-name]:latest
+
+# Pull a specific version
+docker pull ghcr.io/[username]/[repository-name]:v1.0.0
+```
+
+#### Using Pre-built Images
+
+You can use the pre-built images directly in your `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  career-craft:
+    image: ghcr.io/[username]/[repository-name]:stable
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_PROVIDER=sqlite
+      - DATABASE_URL=file:/app/data/career-craft.db
+      - NEXTAUTH_SECRET=your-secret-key
+      - NEXTAUTH_URL=http://localhost:3000
+    volumes:
+      - career_craft_data:/app/data
+volumes:
+  career_craft_data:
+```
+
+#### Multi-platform Support
+
+All published Docker images support multiple architectures:
+- `linux/amd64` (Intel/AMD 64-bit)
+- `linux/arm64` (ARM 64-bit, including Apple Silicon)
 
 ## Environment Variables
 

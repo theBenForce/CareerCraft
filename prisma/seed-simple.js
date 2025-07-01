@@ -8,7 +8,7 @@ async function main() {
 
   // Create a demo user
   const hashedPassword = await bcrypt.hash('demo123', 10)
-  
+
   const user = await prisma.user.upsert({
     where: { email: 'demo@example.com' },
     update: {},
@@ -24,7 +24,7 @@ async function main() {
 
   // Create a demo company
   const existingCompany = await prisma.company.findFirst({
-    where: { 
+    where: {
       name: 'TechCorp Inc.',
       userId: user.id
     }

@@ -136,13 +136,13 @@ async function getUpcomingActivities(userId: number) {
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions)
-  
+
   if (!session) {
     redirect('/auth/signin')
   }
 
   const userId = parseInt(session.user.id)
-  
+
   const [dashboardStats, recentApplications, upcomingActivities] = await Promise.all([
     getDashboardStats(userId),
     getRecentApplications(userId),

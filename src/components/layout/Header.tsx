@@ -34,9 +34,9 @@ export default function Header() {
   }
 
   const handleSignOut = () => {
-    signOut({ 
+    signOut({
       callbackUrl: '/auth/signin',
-      redirect: true 
+      redirect: true
     })
   }
 

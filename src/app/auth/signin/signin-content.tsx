@@ -18,7 +18,7 @@ export default function SignInContent() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Get the callback URL from the search params
   const callbackUrl = searchParams.get('callbackUrl') || '/'
 
@@ -38,7 +38,7 @@ export default function SignInContent() {
         setIsLoading(false)
       } else if (result?.ok) {
         toast.success('Welcome back!')
-        
+
         // Force a full page reload after a short delay
         setTimeout(() => {
           window.location.replace(callbackUrl || '/')

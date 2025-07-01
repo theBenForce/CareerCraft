@@ -24,7 +24,7 @@ export default function SignUpContent() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Get the callback URL from the search params
   const callbackUrl = searchParams.get('callbackUrl') || '/'
 
@@ -38,7 +38,7 @@ export default function SignUpContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match')
       return
@@ -69,7 +69,7 @@ export default function SignUpContent() {
 
       if (response.ok) {
         toast.success('Account created successfully!')
-        
+
         // Automatically sign in the user
         const result = await signIn('credentials', {
           email: formData.email,

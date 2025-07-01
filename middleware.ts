@@ -40,23 +40,23 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        
+
         // Allow access to auth pages without authentication
-        if (pathname.startsWith('/auth/')) {
+        if (pathname.startsWith("/auth/")) {
           return true;
         }
-        
+
         // Allow access to API auth routes
-        if (pathname.startsWith('/api/auth/')) {
+        if (pathname.startsWith("/api/auth/")) {
           return true;
         }
-        
+
         // Require authentication for all other pages
         return !!token;
       },
     },
     pages: {
-      signIn: '/auth/signin',
+      signIn: "/auth/signin",
     },
   }
 );

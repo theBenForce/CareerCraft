@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import SignUpContent from './signup-content'
+import SignInContent from './signin-content'
 
 export default function SignInPage() {
   return (
@@ -11,7 +11,7 @@ export default function SignInPage() {
         </div>
       </div>
     }>
-      <SignUpContent />
+      <SignInContent />
     </Suspense>
   )
 }

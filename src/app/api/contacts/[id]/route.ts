@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const contact = await (prisma as any).contact.findFirst({
-      where: { 
+      where: {
         id: contactId,
         userId: user.id,
       },
@@ -103,7 +103,7 @@ export async function PUT(
 
     // Check if contact exists and belongs to user
     const existingContact = await (prisma as any).contact.findFirst({
-      where: { 
+      where: {
         id: contactId,
         userId: user.id,
       },
@@ -167,7 +167,7 @@ export async function DELETE(
 
     // Check if contact exists and belongs to user
     const existingContact = await prisma.contact.findFirst({
-      where: { 
+      where: {
         id: contactId,
         userId: user.id,
       },
