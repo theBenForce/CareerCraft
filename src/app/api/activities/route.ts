@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     // Get activities with basic relationships
     const activities = await prisma.activity.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         company: {
           select: {
@@ -68,6 +77,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const body = await request.json();
     const {
       type,
@@ -90,9 +104,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For demo purposes, using userId = 1. In a real app, get from session/JWT
-    const userId = 1;
-
     // Create the activity
     const activity = await prisma.activity.create({
       data: {
@@ -105,7 +116,7 @@ export async function POST(request: NextRequest) {
         followUpDate: followUpDate ? new Date(followUpDate) : null,
         companyId: companyId ? parseInt(companyId) : null,
         jobApplicationId: jobApplicationId ? parseInt(jobApplicationId) : null,
-        userId,
+        userId: user.id,
       },
     });
 

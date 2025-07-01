@@ -2,11 +2,22 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
 export default function Header() {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   const navigationItems = [
     { href: '/contacts', label: 'Contacts' },
@@ -20,6 +31,13 @@ export default function Header() {
     if (href === '/') return pathname === '/'
     // For other paths, match if pathname starts with the href
     return pathname.startsWith(href)
+  }
+
+  const handleSignOut = () => {
+    signOut({ 
+      callbackUrl: '/auth/signin',
+      redirect: true 
+    })
   }
 
   return (
@@ -44,7 +62,29 @@ export default function Header() {
                 </Link>
               ))}
             </nav>
-            <ThemeToggle />
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              {session && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center space-x-2">
+                      <UserCircleIcon className="h-5 w-5" />
+                      <span className="hidden sm:inline">{session.user.firstName}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>
+                      {session.user.firstName} {session.user.lastName}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="flex items-center space-x-2 cursor-pointer">
+                      <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                      <span>Sign out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
         </div>
       </div>

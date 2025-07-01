@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const applications = await (prisma as any).jobApplication.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         company: {
           select: {
@@ -34,6 +43,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const body = await request.json();
     const {
       position,
@@ -48,7 +62,6 @@ export async function POST(request: NextRequest) {
       notes,
       source,
       companyId,
-      userId = 1, // Default user ID for now
     } = body;
 
     // Validate required fields
@@ -94,7 +107,7 @@ export async function POST(request: NextRequest) {
         notes,
         source,
         companyId: parseInt(companyId),
-        userId,
+        userId: user.id,
       },
       include: {
         company: {

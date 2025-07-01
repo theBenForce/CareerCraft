@@ -1,24 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
 const prisma = new PrismaClient();
 
 // GET /api/tags - Get all tags for a user
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 }
-      );
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
     }
 
     const tags = await prisma.tag.findMany({
       where: {
-        userId: parseInt(userId),
+        userId: user.id,
       },
       include: {
         _count: {
@@ -47,12 +43,17 @@ export async function GET(request: NextRequest) {
 // POST /api/tags - Create a new tag
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, color, description, userId } = body;
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
 
-    if (!name || !userId) {
+    const body = await request.json();
+    const { name, color, description } = body;
+
+    if (!name) {
       return NextResponse.json(
-        { error: "Name and user ID are required" },
+        { error: "Name is required" },
         { status: 400 }
       );
     }
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
         name,
         color,
         description,
-        userId: parseInt(userId),
+        userId: user.id,
       },
     });
 

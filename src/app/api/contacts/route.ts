@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const contacts = await (prisma as any).contact.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         company: {
           select: {
@@ -39,6 +48,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const body = await request.json();
     const {
       firstName,
@@ -62,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
-    const userId = 1;
+    const userId = user.id;
 
     const contact = await (prisma as any).contact.create({
       data: {
