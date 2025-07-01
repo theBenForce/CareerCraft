@@ -11,13 +11,13 @@ export async function GET(request: NextRequest) {
     const where: any = {};
 
     if (companyId) {
-      where.companyId = parseInt(companyId);
+      where.companyId = companyId;
     }
     if (contactId) {
-      where.contactId = parseInt(contactId);
+      where.contactId = contactId;
     }
     if (jobApplicationId) {
-      where.jobApplicationId = parseInt(jobApplicationId);
+      where.jobApplicationId = jobApplicationId;
     }
 
     const links = await (prisma as any).link.findMany({

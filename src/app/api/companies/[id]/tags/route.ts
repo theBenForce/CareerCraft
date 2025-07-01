@@ -9,7 +9,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
     const body = await request.json();
     const { tagId } = body;
 
@@ -23,7 +23,7 @@ export async function POST(
     const companyTag = await prisma.companyTag.create({
       data: {
         companyId,
-        tagId: parseInt(tagId),
+        tagId: tagId,
       },
       include: {
         tag: true,
@@ -52,7 +52,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
     const { searchParams } = new URL(request.url);
     const tagId = searchParams.get("tagId");
 
@@ -67,7 +67,7 @@ export async function DELETE(
       where: {
         companyId_tagId: {
           companyId,
-          tagId: parseInt(tagId),
+          tagId: tagId,
         },
       },
     });
@@ -88,7 +88,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
 
     const companyTags = await prisma.companyTag.findMany({
       where: {

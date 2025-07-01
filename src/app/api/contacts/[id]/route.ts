@@ -12,14 +12,7 @@ export async function GET(
       return unauthorizedResponse();
     }
 
-    const contactId = parseInt(params.id);
-
-    if (isNaN(contactId)) {
-      return NextResponse.json(
-        { error: "Invalid contact ID" },
-        { status: 400 }
-      );
-    }
+    const contactId = params.id;
 
     const contact = await (prisma as any).contact.findFirst({
       where: {
@@ -70,9 +63,9 @@ export async function PUT(
       return unauthorizedResponse();
     }
 
-    const contactId = parseInt(params.id);
+    const contactId = params.id;
 
-    if (isNaN(contactId)) {
+    if (!contactId || typeof contactId !== "string") {
       return NextResponse.json(
         { error: "Invalid contact ID" },
         { status: 400 }
@@ -125,7 +118,7 @@ export async function PUT(
         ...(image !== undefined && { image }),
         ...(summary !== undefined && { summary }),
         notes,
-        companyId: companyId ? parseInt(companyId) : null,
+        companyId: companyId || null,
       } as any,
       include: {
         company: {
@@ -156,9 +149,9 @@ export async function DELETE(
     if (!user) {
       return unauthorizedResponse();
     }
-    const contactId = parseInt(params.id);
+    const contactId = params.id;
 
-    if (isNaN(contactId)) {
+    if (!contactId || typeof contactId !== "string") {
       return NextResponse.json(
         { error: "Invalid contact ID" },
         { status: 400 }

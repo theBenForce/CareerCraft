@@ -24,11 +24,12 @@ interface EntityCardProps {
   tags?: any[]
   onView?: () => void
   onEdit?: () => void
-  imageType?: 'avatar' | 'logo'
+  imageType?: 'avatar' | 'logo' | 'icon'
   imageSize?: 'small' | 'medium' | 'large'
   createdAt?: string | Date
   updatedAt?: string | Date
   children?: React.ReactNode
+  mainIcon?: React.ReactNode
 }
 
 export function EntityCard({
@@ -47,7 +48,8 @@ export function EntityCard({
   imageSize = 'medium',
   createdAt,
   updatedAt,
-  children
+  children,
+  mainIcon
 }: EntityCardProps) {
   const renderImage = () => {
     const sizeClasses = {
@@ -113,6 +115,13 @@ export function EntityCard({
             <div className="flex-shrink-0 mb-4">
               {renderImage()}
             </div>
+
+            {/* Main Icon (if provided) */}
+            {mainIcon && (
+              <div className="mb-2 flex items-center justify-center">
+                {mainIcon}
+              </div>
+            )}
 
             {/* Entity Info */}
             <div className="w-full">
@@ -214,10 +223,15 @@ export function EntityCard({
           // Regular layout for small/medium images
           <div className="flex items-start space-x-4">
             {/* Entity Image */}
-            <div className="flex-shrink-0">
+            {!mainIcon && <div className="flex-shrink-0">
               {renderImage()}
-            </div>
-
+            </div>}
+            {/* Main Icon (if provided) */}
+            {mainIcon && (
+              <div className="mr-2 flex items-center justify-center">
+                {mainIcon}
+              </div>
+            )}
             {/* Entity Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">

@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         ...(image && { image }),
         ...(summary && { summary }),
         notes,
-        companyId: companyId ? parseInt(companyId) : null,
+        companyId: companyId || null,
         userId,
       } as any,
       include: {

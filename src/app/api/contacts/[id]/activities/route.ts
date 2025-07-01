@@ -6,14 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const contactId = parseInt(params.id);
-
-    if (isNaN(contactId)) {
-      return NextResponse.json(
-        { error: "Invalid contact ID" },
-        { status: 400 }
-      );
-    }
+    const contactId = params.id;
 
     // Get all activities for this contact
     const activityContacts = await (prisma as any).activityContact.findMany({

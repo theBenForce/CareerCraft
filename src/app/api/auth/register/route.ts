@@ -11,6 +11,13 @@ const registerSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  // Check for environment variable to disable registration
+  if (process.env.DISABLE_USER_REGISTRATION === "true") {
+    return NextResponse.json(
+      { error: "User registration is currently disabled." },
+      { status: 403 }
+    );
+  }
   try {
     const body = await request.json();
 

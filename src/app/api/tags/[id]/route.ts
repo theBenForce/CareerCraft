@@ -9,9 +9,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const tagId = parseInt(params.id);
+    const tagId = params.id;
 
-    if (isNaN(tagId)) {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
@@ -36,11 +36,11 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const tagId = parseInt(params.id);
+    const tagId = params.id;
     const body = await request.json();
     const { name, color, description } = body;
 
-    if (isNaN(tagId)) {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
@@ -79,9 +79,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const tagId = parseInt(params.id);
+    const tagId = params.id;
 
-    if (isNaN(tagId)) {
+    if (!tagId || typeof tagId !== "string") {
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 

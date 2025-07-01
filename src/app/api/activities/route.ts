@@ -114,17 +114,17 @@ export async function POST(request: NextRequest) {
         duration: duration ? parseInt(duration) : null,
         note: note?.trim(),
         followUpDate: followUpDate ? new Date(followUpDate) : null,
-        companyId: companyId ? parseInt(companyId) : null,
-        jobApplicationId: jobApplicationId ? parseInt(jobApplicationId) : null,
+        companyId: companyId ?? null,
+        jobApplicationId: jobApplicationId ?? null,
         userId: user.id,
       },
     });
 
     // Create activity-contact relationships if contactIds provided
     if (contactIds && Array.isArray(contactIds) && contactIds.length > 0) {
-      const activityContacts = contactIds.map((contactId: number) => ({
+      const activityContacts = contactIds.map((contactId: string) => ({
         activityId: activity.id,
-        contactId: parseInt(contactId.toString()),
+        contactId,
       }));
 
       await (prisma as any).activityContact.createMany({

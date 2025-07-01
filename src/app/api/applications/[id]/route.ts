@@ -8,7 +8,7 @@ export async function GET(
   try {
     const application = await (prisma as any).jobApplication.findUnique({
       where: {
-        id: parseInt(params.id),
+        id: params.id,
       },
       include: {
         company: true,
@@ -65,7 +65,7 @@ export async function PUT(
 
     const application = await (prisma as any).jobApplication.update({
       where: {
-        id: parseInt(params.id),
+        id: params.id,
       },
       data: {
         ...(position && { position: position.trim() }),
@@ -85,7 +85,7 @@ export async function PUT(
         }),
         ...(notes !== undefined && { notes }),
         ...(source !== undefined && { source }),
-        ...(companyId && { companyId: parseInt(companyId) }),
+        ...(companyId && { companyId }),
       },
       include: {
         company: true,
@@ -109,7 +109,7 @@ export async function DELETE(
   try {
     await prisma.jobApplication.delete({
       where: {
-        id: parseInt(params.id),
+        id: params.id,
       },
     });
 

@@ -6,9 +6,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
 
-    if (isNaN(companyId)) {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }
@@ -68,9 +68,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
 
-    if (isNaN(companyId)) {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }
@@ -138,9 +138,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const companyId = params.id;
 
-    if (isNaN(companyId)) {
+    if (!companyId || typeof companyId !== "string") {
       return NextResponse.json(
         { error: "Invalid company ID" },
         { status: 400 }
