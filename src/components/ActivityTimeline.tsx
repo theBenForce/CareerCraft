@@ -19,6 +19,8 @@ interface ActivityTimelineProps {
   standalone?: boolean // Whether to render as standalone card or as tab content
 }
 
+// ActivityTimelineProps does not duplicate any Prisma types.
+
 export function ActivityTimeline({
   entityType,
   entityId,

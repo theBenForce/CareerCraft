@@ -18,57 +18,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import Header from '@/components/layout/Header'
 import ActivityCard from '@/components/ActivityCard'
-import { Tag } from '@/types'
+import { Tag, Contact, Company, Activity } from '@prisma/client'
+import { ActivityWithTags } from '@/types'
 
-
-interface Contact {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string
-  position?: string
-  department?: string
-  image?: string
-  company?: {
-    id: string
-    name: string
-  }
-}
-
-interface Company {
-  id: string
-  name: string
-  industry?: string
-  website?: string
-  location?: string
-  logo?: string
-}
-
-interface Activity {
-  id: string
-  type: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  outcome?: string
-  followUpDate?: string
-  company?: Company
-  jobApplication?: {
-    id: string
-    position: string
-  }
-  contacts?: Contact[]
-  createdAt: string
-  updatedAt: string
-}
 
 interface TagData {
   tag: Tag
-  contacts: Contact[]
+  contacts: (Contact & { company?: Company | null })[]
   companies: Company[]
-  activities: Activity[]
+  activities: ActivityWithTags[]
 }
 
 export default function TagDetailPage() {
@@ -253,7 +211,7 @@ export default function TagDetailPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-3">
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={contact.image} alt={`${contact.firstName} ${contact.lastName}`} />
+                          <AvatarImage src={contact.image || undefined} alt={`${contact.firstName} ${contact.lastName}`} />
                           <AvatarFallback>
                             {contact.firstName.charAt(0)}{contact.lastName.charAt(0)}
                           </AvatarFallback>

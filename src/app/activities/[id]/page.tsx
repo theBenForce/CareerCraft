@@ -16,70 +16,21 @@ import {
   ArrowLeftIcon
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
-import { TagList } from '@/components/TagComponent'
-import ActivityIcon from '@/components/ActivityIcon'
 import { EntityCard } from '@/components/EntityCard'
 import DetailsLayout from '@/components/layout/DetailsLayout'
+import { Contact, Company, JobApplication, Tag, Activity } from '@prisma/client'
 
-interface Contact {
-  id: number
-  firstName: string
-  lastName: string
-  email: string
-  position?: string
-}
-
-interface Company {
-  id: number
-  name: string
-  logo?: string
-}
-
-interface JobApplication {
-  id: number
-  position: string
-}
-
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
-}
-
-interface ActivityTag {
-  id: number
-  activityId: number
-  tagId: number
-  tag: Tag
-}
-
-interface Activity {
-  id: number
-  type: string
-  title?: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  note?: string
-  outcome?: string
-  followUpDate?: string
-  company?: Company
-  jobApplication?: JobApplication
-  contacts?: Contact[]
-  activityTags?: ActivityTag[]
-  createdAt: string
-  updatedAt: string
+interface ActivityWithRelations extends Activity {
+  company?: Company | null
+  jobApplication?: JobApplication | null
+  contacts?: Contact[] | null
+  tags?: Tag[] | null
 }
 
 export default function ActivityDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [activity, setActivity] = useState<Activity | null>(null)
+  const [activity, setActivity] = useState<ActivityWithRelations | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
@@ -176,172 +127,219 @@ export default function ActivityDetailPage() {
                 </div>
               </div>
               <div className="col-span-2">
-                <div className="space-y-6">
-                  <div className="bg-card rounded-lg p-6">
-                    <div className="h-6 bg-muted rounded w-1/4 mb-4"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="space-y
+  const formatActivityType = (type: string) => {
+    const upperType = type.toUpperCase()
+    switch (upperType) {
+      case 'PHONE_CALL':
+        return 'Phone Call'
+      case 'NETWORKING_EVENT':
+        return 'Networking Event'
+      case 'COFFEE_CHAT':
+        return 'Coffee Chat'
+      case 'FOLLOW_UP':
+        return 'Follow Up'
+      case 'LINKEDIN_MESSAGE':
+        return 'LinkedIn Message'
+      default:
+        return upperType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+                <Header />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="animate-pulse">
+                    <div className="flex justify-between items-center mb-8">
+                      <div className="h-6 bg-muted rounded w-32"></div>
+                      <div className="flex gap-2">
+                        <div className="h-10 bg-muted rounded w-20"></div>
+                        <div className="h-10 bg-muted rounded w-20"></div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      <div className="col-span-1">
+                        <div className="bg-card rounded-lg p-6">
+                          <div className="flex flex-col items-center mb-6">
+                            <div className="w-16 h-16 bg-muted rounded-full mb-4"></div>
+                            <div className="h-6 bg-muted rounded w-3/4 mb-2"></div>
+                            <div className="h-4 bg-muted rounded w-1/2"></div>
+                          </div>
+                          <div className="space-y-4">
+                            <div className="h-4 bg-muted rounded w-full"></div>
+                            <div className="h-4 bg-muted rounded w-2/3"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <div className="space-y-6">
+                          <div className="bg-card rounded-lg p-6">
+                            <div className="h-6 bg-muted rounded w-1/4 mb-4"></div>
+                            <div className="space-y-2">
+                              <div className="h-4 bg-muted rounded w-full"></div>
+                              <div className="h-4 bg-muted rounded w-3/4"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+              )
   }
 
-  if (!activity) {
+              if (!activity) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground mb-4">Activity Not Found</h1>
-            <Link
-              href="/activities"
-              className="text-primary hover:text-primary/80"
-            >
-              Back to Activities
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Header section for DetailsLayout
-  const headerSection = (
-    <div className="flex justify-between items-center">
-      <Link
-        href="/activities"
-        className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
-      >
-        <ArrowLeftIcon className="w-4 h-4" />
-        Back to Activities
-      </Link>
-      <div className="flex gap-2">
-        <Link
-          href={`/activities/${activity.id}/edit`}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium"
-        >
-          <PencilIcon className="w-4 h-4 mr-2" />
-          Edit
-        </Link>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 flex items-center text-sm font-medium disabled:opacity-50"
-        >
-          <TrashIcon className="w-4 h-4 mr-2" />
-          {deleting ? 'Deleting...' : 'Delete'}
-        </button>
-      </div>
-    </div>
-  )
-
-  // Left column: EntityCard
-  const leftColumn = (
-    <EntityCard
-      id={activity.id}
-      name={activity.title || activity.subject || formatActivityType(activity.type)}
-      subtitle={activity.company ? activity.company.name : undefined}
-      fallbackIcon={<CalendarDaysIcon className="w-16 h-16 text-primary bg-primary/10 p-4 rounded-full" />}
-      properties={[
-        {
-          icon: <CalendarDaysIcon className="w-4 h-4" />,
-          text: new Date(activity.date).toLocaleDateString()
-        },
-        ...(activity.duration ? [{
-          icon: <ClockIcon className="w-4 h-4" />,
-          text: `${activity.duration} minutes`
-        }] : []),
-        ...(activity.company ? [{
-          icon: <BuildingOfficeIcon className="w-4 h-4" />,
-          text: activity.company.name,
-          href: `/companies/${activity.company.id}`
-        }] : []),
-        ...(activity.contacts && activity.contacts.length > 0 ? [{
-          icon: <UserGroupIcon className="w-4 h-4" />,
-          text: activity.contacts.map(c => `${c.firstName} ${c.lastName}`).join(', '),
-          href: activity.contacts.length === 1 ? `/contacts/${activity.contacts[0].id}` : undefined
-        }] : []),
-        ...(activity.followUpDate ? [{
-          icon: <CalendarDaysIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
-          text: `Follow-up: ${new Date(activity.followUpDate).toLocaleDateString()}`
-        }] : [])
-      ]}
-      tags={activity.activityTags?.map(at => at.tag) || []}
-      createdAt={activity.createdAt}
-      updatedAt={activity.updatedAt}
-      imageType='icon'
-      imageSize="large"
-    >
-      {activity.description && (
-        <div className="mt-2 text-sm text-muted-foreground text-center whitespace-pre-wrap">
-          {activity.description}
-        </div>
-      )}
-    </EntityCard>
-  )
-
-  // Right column: Main Content
-  const rightColumn = (
-    <div className="flex flex-col gap-6">
-      {/* Outcome Section */}
-      {activity.outcome && (
-        <div className="bg-card shadow rounded-lg">
-          <div className="px-6 py-4 border-b border-border">
-            <h2 className="text-lg font-semibold text-foreground">Outcome</h2>
-          </div>
-          <div className="p-6">
-            <p className="text-muted-foreground whitespace-pre-wrap">{activity.outcome}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Additional Details (now displays notes) */}
-      <div className="bg-card shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">Details</h2>
-        </div>
-        <div className="p-6">
-          <div className="space-y-4">
-            {/* Job Application */}
-            {activity.jobApplication && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
-                <p className="text-muted-foreground">{activity.jobApplication.position}</p>
-              </div>
-            )}
-
-            {/* Notes Section */}
-            {activity.note && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">Note</h4>
-                <div className="prose prose-sm prose-gray dark:prose-invert max-w-none text-foreground">
-                  <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{activity.note}</ReactMarkdown>
+              <div className="min-h-screen bg-background">
+                <Header />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="text-center">
+                    <h1 className="text-2xl font-bold text-foreground mb-4">Activity Not Found</h1>
+                    <Link
+                      href="/activities"
+                      className="text-primary hover:text-primary/80"
+                    >
+                      Back to Activities
+                    </Link>
+                  </div>
                 </div>
               </div>
-            )}
+              )
+  }
 
-            {/* Show message if no additional details */}
-            {!activity.jobApplication && !activity.note && (!activity.activityTags || activity.activityTags.length === 0) && (
-              <p className="text-muted-foreground text-sm">No additional details available.</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+              // Header section for DetailsLayout
+              const headerSection = (
+              <div className="flex justify-between items-center">
+                <Link
+                  href="/activities"
+                  className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1"
+                >
+                  <ArrowLeftIcon className="w-4 h-4" />
+                  Back to Activities
+                </Link>
+                <div className="flex gap-2">
+                  <Link
+                    href={`/activities/${activity.id}/edit`}
+                    className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center text-sm font-medium"
+                  >
+                    <PencilIcon className="w-4 h-4 mr-2" />
+                    Edit
+                  </Link>
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/80 flex items-center text-sm font-medium disabled:opacity-50"
+                  >
+                    <TrashIcon className="w-4 h-4 mr-2" />
+                    {deleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+              )
 
-  return (
-    <DetailsLayout
-      leftColumn={leftColumn}
-      rightColumn={rightColumn}
-      headerSection={headerSection}
-    />
-  )
+              // Left column: EntityCard
+              const leftColumn = (
+              <EntityCard
+                id={activity.id}
+                name={activity.title || activity.subject || formatActivityType(activity.type)}
+                subtitle={activity.company ? activity.company.name : undefined}
+                fallbackIcon={<CalendarDaysIcon className="w-16 h-16 text-primary bg-primary/10 p-4 rounded-full" />}
+                properties={[
+                  {
+                    icon: <CalendarDaysIcon className="w-4 h-4" />,
+                    text: new Date(activity.date).toLocaleDateString()
+                  },
+                  ...(activity.duration ? [{
+                    icon: <ClockIcon className="w-4 h-4" />,
+                    text: `${activity.duration} minutes`
+                  }] : []),
+                  ...(activity.company ? [{
+                    icon: <BuildingOfficeIcon className="w-4 h-4" />,
+                    text: activity.company.name,
+                    href: `/companies/${activity.company.id}`
+                  }] : []),
+                  ...(activity.contacts && activity.contacts.length > 0 ? [{
+                    icon: <UserGroupIcon className="w-4 h-4" />,
+                    text: activity.contacts.map(c => `${c.firstName} ${c.lastName}`).join(', '),
+                    href: activity.contacts.length === 1 ? `/contacts/${activity.contacts[0].id}` : undefined
+                  }] : []),
+                  ...(activity.followUpDate ? [{
+                    icon: <CalendarDaysIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
+                    text: `Follow-up: ${new Date(activity.followUpDate).toLocaleDateString()}`
+                  }] : [])
+                ]}
+                tags={activity.activityTags?.map(at => at.tag) || []}
+                createdAt={activity.createdAt}
+                updatedAt={activity.updatedAt}
+                imageType='icon'
+                imageSize="large"
+              >
+                {activity.description && (
+                  <div className="mt-2 text-sm text-muted-foreground text-center whitespace-pre-wrap">
+                    {activity.description}
+                  </div>
+                )}
+              </EntityCard>
+              )
+
+              // Right column: Main Content
+              const rightColumn = (
+              <div className="flex flex-col gap-6">
+                {/* Outcome Section */}
+                {activity.outcome && (
+                  <div className="bg-card shadow rounded-lg">
+                    <div className="px-6 py-4 border-b border-border">
+                      <h2 className="text-lg font-semibold text-foreground">Outcome</h2>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-muted-foreground whitespace-pre-wrap">{activity.outcome}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Details (now displays notes) */}
+                <div className="bg-card shadow rounded-lg">
+                  <div className="px-6 py-4 border-b border-border">
+                    <h2 className="text-lg font-semibold text-foreground">Details</h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {/* Job Application */}
+                      {activity.jobApplication && (
+                        <div>
+                          <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
+                          <p className="text-muted-foreground">{activity.jobApplication.position}</p>
+                        </div>
+                      )}
+
+                      {/* Notes Section */}
+                      {activity.note && (
+                        <div>
+                          <h4 className="text-sm font-medium text-foreground mb-2">Note</h4>
+                          <div className="prose prose-sm prose-gray dark:prose-invert max-w-none text-foreground">
+                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{activity.note}</ReactMarkdown>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Show message if no additional details */}
+                      {!activity.jobApplication && !activity.note && (!activity.activityTags || activity.activityTags.length === 0) && (
+                        <p className="text-muted-foreground text-sm">No additional details available.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              )
+
+              return (
+              <DetailsLayout
+                leftColumn={leftColumn}
+                rightColumn={rightColumn}
+                headerSection={headerSection}
+              />
+              )
 }

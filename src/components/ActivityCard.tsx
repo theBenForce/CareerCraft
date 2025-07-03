@@ -9,7 +9,7 @@ import {
 import { TagList } from './TagComponent'
 import { EntityCard } from './EntityCard'
 import ActivityIcon from './ActivityIcon'
-import { ActivityWithTags, Tag } from '@/types'
+import { ActivityWithTags } from '@/types'
 
 interface ActivityCardProps {
   item: ActivityWithTags
@@ -227,7 +227,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     <EntityCard
       id={item.id!}
       name={displaySubject}
-      subtitle={displayDescription}
+      subtitle={displayDescription ?? undefined}
       fallbackIcon={<ActivityIcon type={displayType} size="md" />}
       fallbackText={formatActivityType(displayType)}
       properties={properties}

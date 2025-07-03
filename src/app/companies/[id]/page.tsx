@@ -31,50 +31,7 @@ import {
 import DetailsLayout from '@/components/layout/DetailsLayout'
 import { EntityCard } from '@/components/EntityCard'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
-
-interface Company {
-  id: string
-  name: string
-  industry?: string
-  website?: string
-  location?: string
-  size?: string
-  description?: string
-  notes?: string
-  logo?: string
-  createdAt: string
-  updatedAt: string
-  links?: Array<{
-    id: string
-    url: string
-    label?: string
-    createdAt: string
-    updatedAt: string
-  }>
-  jobApplications: Array<{
-    id: string
-    position: string
-    status: string
-    jobDescription?: string
-    createdAt: string
-    company: {
-      name: string
-    }
-  }>
-  contacts: Array<{
-    id: string
-    firstName: string
-    lastName: string
-    email?: string
-    position?: string
-  }>
-  activities: Array<{
-    id: string
-    type: string
-    subject: string
-    createdAt: string
-  }>
-}
+import { Company } from '@prisma/client'
 
 export default function CompanyPage() {
   const { id } = useParams()

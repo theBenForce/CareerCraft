@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
-import { Tag } from '@/types';
+import { Tag } from '@prisma/client';
 
 interface TagComponentProps {
   tag: Tag;

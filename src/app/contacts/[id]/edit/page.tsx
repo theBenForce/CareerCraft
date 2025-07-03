@@ -8,32 +8,8 @@ import { X, Plus } from 'lucide-react'
 import ImageUpload from '@/components/ImageUpload'
 import Header from '@/components/layout/Header'
 import { TagList, TagComponent } from '@/components/TagComponent'
-import { Tag } from '@/types'
-
-interface Contact {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string
-  position?: string
-  companyId?: string
-  summary?: string
-  image?: string
-  contactTags?: ContactTag[]
-}
-
-interface Company {
-  id: string
-  name: string
-}
-
-interface ContactTag {
-  id: number
-  contactId: number
-  tagId: number
-  tag: Tag
-}
+import { Contact, Company, Tag } from '@prisma/client';
+import { ContactTag } from '@/types';
 
 export default function EditContactPage() {
   const { id } = useParams()
