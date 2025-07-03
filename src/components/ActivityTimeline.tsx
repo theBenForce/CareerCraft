@@ -8,32 +8,7 @@ import {
   CalendarDaysIcon
 } from '@heroicons/react/24/outline'
 import ActivityCard from '@/components/ActivityCard'
-
-interface Activity {
-  id: string
-  type: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  outcome?: string
-  followUpDate?: string
-  company?: {
-    id: string
-    name: string
-  }
-  contact?: {
-    id: string
-    firstName: string
-    lastName: string
-  }
-  jobApplication?: {
-    id: string
-    position: string
-  }
-  createdAt: string
-  updatedAt: string
-}
+import { ActivityWithTags } from '@/types'
 
 interface ActivityTimelineProps {
   entityType: 'contact' | 'company' | 'application'
@@ -52,7 +27,7 @@ export function ActivityTimeline({
   className = '',
   standalone = true
 }: ActivityTimelineProps) {
-  const [activities, setActivities] = useState<Activity[]>([])
+  const [activities, setActivities] = useState<ActivityWithTags[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchActivities = useCallback(async () => {
@@ -137,7 +112,7 @@ export function ActivityTimeline({
         ) : (
           <div className="relative">
             <ul className="space-y-0">
-              {activities.map((item: Activity, itemIdx: number) => (
+              {activities.map((item: ActivityWithTags, itemIdx: number) => (
                 <ActivityCard
                   key={`activity-${item.id}`}
                   item={item}

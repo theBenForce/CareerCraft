@@ -9,51 +9,10 @@ import {
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
 import ActivityCard from '@/components/ActivityCard'
-import { Tag } from '@/types'
-
-interface Contact {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  position?: string
-}
-
-interface Company {
-  id: string
-  name: string
-}
-
-interface ActivityTag {
-  id: string
-  activityId: string
-  tagId: string
-  tag: Tag
-}
-
-interface Activity {
-  id: string
-  type: string
-  title?: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  note?: string
-  followUpDate?: string
-  company?: Company
-  jobApplication?: {
-    id: string
-    position: string
-  }
-  contacts: Contact[]
-  activityTags?: ActivityTag[]
-  createdAt: string
-  updatedAt: string
-}
+import { ActivityWithTags } from '@/types'
 
 export default function ActivitiesPage() {
-  const [activities, setActivities] = useState<Activity[]>([])
+  const [activities, setActivities] = useState<ActivityWithTags[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -77,7 +36,7 @@ export default function ActivitiesPage() {
   }
 
   // Group activities by date
-  const groupActivitiesByDate = (activities: Activity[]) => {
+  const groupActivitiesByDate = (activities: ActivityWithTags[]) => {
     const grouped = activities.reduce((acc, activity) => {
       const date = new Date(activity.date).toDateString()
       if (!acc[date]) {
@@ -85,7 +44,7 @@ export default function ActivitiesPage() {
       }
       acc[date].push(activity)
       return acc
-    }, {} as Record<string, Activity[]>)
+    }, {} as Record<string, ActivityWithTags[]>)
 
     // Sort dates in descending order (newest first)
     const sortedDates = Object.keys(grouped).sort((a, b) =>

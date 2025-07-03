@@ -64,10 +64,12 @@ export interface JobApplication {
 export interface Activity {
   id: string;
   type: string;
+  title?: string; // Added
   subject: string;
   description?: string;
   date: Date;
   duration?: number;
+  note?: string; // Added
   outcome?: string;
   followUpDate?: Date;
   createdAt: Date;
@@ -78,6 +80,7 @@ export interface Activity {
   jobApplicationId?: string;
   company?: Company;
   contact?: Contact;
+  contacts?: Contact[]; // Added for M:N
   jobApplication?: JobApplication;
 }
 
