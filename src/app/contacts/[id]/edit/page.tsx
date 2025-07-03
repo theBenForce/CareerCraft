@@ -8,6 +8,7 @@ import { X, Plus } from 'lucide-react'
 import ImageUpload from '@/components/ImageUpload'
 import Header from '@/components/layout/Header'
 import { TagList, TagComponent } from '@/components/TagComponent'
+import { Tag } from '@/types'
 
 interface Contact {
   id: string
@@ -25,16 +26,6 @@ interface Contact {
 interface Company {
   id: string
   name: string
-}
-
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
 }
 
 interface ContactTag {
@@ -208,7 +199,7 @@ export default function EditContactPage() {
     }
   }
 
-  const handleRemoveTag = async (tagId: number) => {
+  const handleRemoveTag = async (tagId: string) => {
     try {
       const response = await fetch(`/api/contacts/${id}/tags?tagId=${tagId}`, {
         method: 'DELETE',

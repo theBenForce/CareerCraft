@@ -33,7 +33,7 @@ import { EntityCard } from '@/components/EntityCard'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 
 interface Company {
-  id: number
+  id: string
   name: string
   industry?: string
   website?: string
@@ -45,14 +45,14 @@ interface Company {
   createdAt: string
   updatedAt: string
   links?: Array<{
-    id: number
+    id: string
     url: string
     label?: string
     createdAt: string
     updatedAt: string
   }>
   jobApplications: Array<{
-    id: number
+    id: string
     position: string
     status: string
     jobDescription?: string
@@ -62,14 +62,14 @@ interface Company {
     }
   }>
   contacts: Array<{
-    id: number
+    id: string
     firstName: string
     lastName: string
     email?: string
     position?: string
   }>
   activities: Array<{
-    id: number
+    id: string
     type: string
     subject: string
     createdAt: string

@@ -18,19 +18,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import Header from '@/components/layout/Header'
 import ActivityCard from '@/components/ActivityCard'
+import { Tag } from '@/types'
 
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: string
-  updatedAt: string
-  userId: number
-}
 
 interface Contact {
-  id: number
+  id: string
   firstName: string
   lastName: string
   email: string
@@ -39,13 +31,13 @@ interface Contact {
   department?: string
   image?: string
   company?: {
-    id: number
+    id: string
     name: string
   }
 }
 
 interface Company {
-  id: number
+  id: string
   name: string
   industry?: string
   website?: string
@@ -54,7 +46,7 @@ interface Company {
 }
 
 interface Activity {
-  id: number
+  id: string
   type: string
   subject: string
   description?: string
@@ -64,7 +56,7 @@ interface Activity {
   followUpDate?: string
   company?: Company
   jobApplication?: {
-    id: number
+    id: string
     position: string
   }
   contacts?: Contact[]

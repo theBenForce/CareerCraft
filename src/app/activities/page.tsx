@@ -9,9 +9,10 @@ import {
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
 import ActivityCard from '@/components/ActivityCard'
+import { Tag } from '@/types'
 
 interface Contact {
-  id: number
+  id: string
   firstName: string
   lastName: string
   email: string
@@ -19,29 +20,19 @@ interface Contact {
 }
 
 interface Company {
-  id: number
+  id: string
   name: string
-}
-
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
 }
 
 interface ActivityTag {
-  id: number
-  activityId: number
-  tagId: number
+  id: string
+  activityId: string
+  tagId: string
   tag: Tag
 }
 
 interface Activity {
-  id: number
+  id: string
   type: string
   title?: string
   subject: string
@@ -52,7 +43,7 @@ interface Activity {
   followUpDate?: string
   company?: Company
   jobApplication?: {
-    id: number
+    id: string
     position: string
   }
   contacts: Contact[]

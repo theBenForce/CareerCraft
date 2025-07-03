@@ -9,9 +9,10 @@ import {
 import { TagList } from './TagComponent'
 import { EntityCard } from './EntityCard'
 import ActivityIcon from './ActivityIcon'
+import { Tag } from '@/types'
 
 interface Contact {
-  id: number
+  id: string
   firstName: string
   lastName: string
   email: string
@@ -19,34 +20,23 @@ interface Contact {
 }
 
 interface Company {
-  id: number
+  id: string
   name: string
 }
 
 interface JobApplication {
-  id: number
+  id: string
   position: string
 }
-
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
-}
-
 interface ActivityTag {
-  id: number
-  activityId: number
-  tagId: number
+  id: string
+  activityId: string
+  tagId: string
   tag: Tag
 }
 
 interface Activity {
-  id: number
+  id: string
   type: string
   title?: string
   subject: string

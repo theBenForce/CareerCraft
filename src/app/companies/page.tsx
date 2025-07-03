@@ -4,13 +4,19 @@ import { Button } from '@/components/ui/button'
 import Header from '@/components/layout/Header'
 import { CompaniesList } from '@/components/CompaniesList'
 import { prisma } from '@/lib/db'
+import { Company } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 60 // Revalidate every 60 seconds
 
+type CompanyListProp = Company & {
+  jobApplications: Array<{ id: string; status: string }>,
+  contacts: Array<{ id: string }>
+};
+
 export default async function CompaniesPage() {
   // Fetch companies from the database
-  let companies
+  let companies: Array<CompanyListProp>;
   try {
     companies = await prisma.company.findMany({
       include: {

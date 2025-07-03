@@ -124,6 +124,27 @@ docker-compose up career-craft-postgres postgres
 
 The application will be available at [http://localhost:3001](http://localhost:3001)
 
+## Docker Compose Usage
+
+You can run Career Craft with either SQLite (default, simple) or PostgreSQL (recommended for production):
+
+### Start with SQLite (default, port 3000)
+
+```bash
+docker compose -f docker-compose.sqlite.yml up --build
+```
+
+### Start with PostgreSQL (port 3001)
+
+```bash
+docker compose -f docker-compose.postgres.yml up --build
+```
+
+- The SQLite version stores data in a local file and is best for quick setup or development.
+- The PostgreSQL version runs a full Postgres database in a container and is recommended for production or multi-user setups.
+
+See environment variables in each compose file for configuration details.
+
 ### Pre-built Docker Images
 
 Pre-built Docker images are automatically published to GitHub Container Registry via GitHub Actions:

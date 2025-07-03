@@ -50,7 +50,7 @@ export function TagComponent({ tag, onRemove, removable = false, clickable = tru
 
 interface TagListProps {
   tags: Tag[];
-  onRemove?: (tagId: number) => void;
+  onRemove?: (tagId: string) => void;
   removable?: boolean;
   maxDisplay?: number;
   clickable?: boolean;

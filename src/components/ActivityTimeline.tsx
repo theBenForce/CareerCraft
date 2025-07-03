@@ -10,7 +10,7 @@ import {
 import ActivityCard from '@/components/ActivityCard'
 
 interface Activity {
-  id: number
+  id: string
   type: string
   subject: string
   description?: string
@@ -19,16 +19,16 @@ interface Activity {
   outcome?: string
   followUpDate?: string
   company?: {
-    id: number
+    id: string
     name: string
   }
   contact?: {
-    id: number
+    id: string
     firstName: string
     lastName: string
   }
   jobApplication?: {
-    id: number
+    id: string
     position: string
   }
   createdAt: string
@@ -37,7 +37,7 @@ interface Activity {
 
 interface ActivityTimelineProps {
   entityType: 'contact' | 'company' | 'application'
-  entityId: string | number
+  entityId: string
   title?: string
   addActivityHref?: string
   className?: string

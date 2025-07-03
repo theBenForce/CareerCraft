@@ -5,7 +5,7 @@ import { BuildingOfficeIcon, GlobeAltIcon, MapPinIcon } from '@heroicons/react/2
 import { EntityCard } from '@/components/EntityCard'
 
 interface Company {
-  id: number
+  id: string
   name: string
   description: string | null
   website?: string | null
@@ -13,11 +13,11 @@ interface Company {
   industry?: string | null
   logo?: string | null
   jobApplications: Array<{
-    id: number
+    id: string
     status: string
   }>
   contacts: Array<{
-    id: number
+    id: string
   }>
   companyTags?: Array<{
     tag: any

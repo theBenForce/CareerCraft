@@ -1,25 +1,6 @@
 version: '3.8'
 
 services:
-  # SQLite version (default - simpler setup)
-  career-craft-sqlite:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_PROVIDER=sqlite
-      - DATABASE_URL=file:/app/data/dev.db
-      - NEXTAUTH_SECRET=your-production-secret-key-here
-      - NEXTAUTH_URL=http://localhost:3000
-      - DISABLE_USER_REGISTRATION=true
-      - NODE_ENV=production
-      - UPLOADS_DIR=/app/public/uploads
-    volumes:
-      - sqlite_data:/app/data
-      - uploads_data:/app/public/uploads
-    restart: unless-stopped
-
-  # PostgreSQL version (recommended for production)
   career-craft-postgres:
     build: .
     ports:
@@ -50,6 +31,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
   postgres_data:
   uploads_data:
