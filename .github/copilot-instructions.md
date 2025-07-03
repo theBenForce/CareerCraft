@@ -16,13 +16,13 @@ This is a Career Craft application built for job search and networking managemen
 
 ## Key Files & References
 
-- **Database Schema**: See `#file:../prisma/schema.prisma` for all data models and relationships
+- **Database Schema**: See `design/DataModel.md` for all data models, relationships, and ER diagram
 - **Design System**: Follow guidelines in `#file:../design/DESIGN_SYSTEM.md` for all UI/UX decisions
 - **Components**: Located in `src/components/` with existing patterns to follow
 
 ## Database Schema Overview
 
-Refer to `#file:../prisma/schema.prisma` for complete details. Key models include:
+Refer to `design/DataModel.md` for complete details. Key models include:
 
 - **User**: Main user entity with cascading relationships
 - **Company**: Organizations with industry, website, location, logo
@@ -37,6 +37,8 @@ Refer to `#file:../prisma/schema.prisma` for complete details. Key models includ
 - Contacts can be associated with Companies (optional)
 - Activities can be linked to Companies, Contacts, and JobApplications
 - Tags can be applied to Contacts, Companies, and Activities via junction tables
+
+> **Note:** Prisma implicit many-to-many relations are preferred for flexibility and maintainability. See `design/DataModel.md` for details.
 
 ## Design System Guidelines
 
@@ -96,9 +98,7 @@ src/
 1. **Use functional components** with hooks
 2. **Import order**: External libraries → Internal components → Types
 3. **Props destructuring**: Destructure props in function signature
-4. **Event handlers**: Use descriptive names (e.g., `handleSubmit`, `handleDelete`)
-5. **State management**: Use React hooks, consider Context for shared state
-
+4. **Event handlers**: Use descriptive names (e.g., `handleSubmit`, `handle
 ### API Route Patterns
 - Follow RESTful conventions:
   - `GET /api/contacts` - List contacts

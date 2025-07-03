@@ -38,7 +38,7 @@ model Company {
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts        Contact[]
   jobApplications JobApplication[]
-  companyTags     CompanyTag[]
+  tags            Tag[]
   links           Link[]
 }
 
@@ -58,10 +58,10 @@ model Contact {
   updatedAt        DateTime         @updatedAt
   userId           String
   companyId        String?
-  activityContacts ActivityContact[]
+  activities       Activity[]
   company          Company?         @relation(fields: [companyId], references: [id])
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactTags      ContactTag[]
+  tags             Tag[]
   links            Link[]
 }
 
@@ -106,19 +106,9 @@ model Activity {
   jobApplication   JobApplication?   @relation(fields: [jobApplicationId], references: [id])
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activityContacts ActivityContact[]
-  activityTags     ActivityTag[]
-}
-
-model ActivityContact {
-  id         String   @id @default(ulid()) // ULID
-  activityId String
-  contactId  String
-  createdAt  DateTime @default(now())
-  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, contactId])
+  contacts         Contact[]
+  tags             Tag[]
+  links           Link[]
 }
 
 model Tag {
@@ -130,42 +120,9 @@ model Tag {
   updatedAt    DateTime      @updatedAt
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactTags  ContactTag[]
-  companyTags  CompanyTag[]
-  activityTags ActivityTag[]
-}
-
-model ContactTag {
-  id        String   @id @default(ulid()) // ULID
-  contactId String
-  tagId     String
-  createdAt DateTime @default(now())
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([contactId, tagId])
-}
-
-model CompanyTag {
-  id        String   @id @default(ulid()) // ULID
-  companyId String
-  tagId     String
-  createdAt DateTime @default(now())
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([companyId, tagId])
-}
-
-model ActivityTag {
-  id         String   @id @default(ulid()) // ULID
-  activityId String
-  tagId      String
-  createdAt  DateTime @default(now())
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, tagId])
+  contacts     Contact[]
+  company      Company[]
+  activity     Activity[]
 }
 
 model Link {
@@ -175,9 +132,11 @@ model Link {
   companyId        String?
   contactId        String?
   jobApplicationId String?
+  activityId       String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   company          Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: Cascade)
   jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  activity         Activity?       @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }

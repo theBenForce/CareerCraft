@@ -10,110 +10,135 @@ datasource db {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
+  id              String           @id @default(ulid())
   email           String           @unique
   password        String
   firstName       String
   lastName        String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  jobApplications JobApplication[]
-  contacts        Contact[]
-  companies       Company[]
   activities      Activity[]
-  notes           Note[]
+  companies       Company[]
+  contacts        Contact[]
+  jobApplications JobApplication[]
+  tags            Tag[]
 }
 
 model Company {
-  id              Int              @id @default(autoincrement())
+  id              String           @id @default(ulid()) // ULID
   name            String
   industry        String?
-  website         String?
   description     String?
   location        String?
   size            String?
+  logo            String?
   notes           String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          Int
-  jobApplications JobApplication[]
-  contacts        Contact[]
+  userId          String
   activities      Activity[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts        Contact[]
+  jobApplications JobApplication[]
+  tags            Tag[]
+  links           Link[]
 }
 
 model Contact {
-  id               Int              @id @default(autoincrement())
+  id               String           @id @default(ulid()) // ULID
   firstName        String
   lastName         String
   email            String?
   phone            String?
   position         String?
   department       String?
-  linkedinUrl      String?
+  image            String?
   summary          String?
   notes            String?
   lastContactDate  DateTime?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           Int
-  company          Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  companyId        Int?
+  userId           String
+  companyId        String?
   activities       Activity[]
+  company          Company?         @relation(fields: [companyId], references: [id])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags             Tag[]
+  links            Link[]
 }
 
 model JobApplication {
-  id              Int       @id @default(autoincrement())
-  position        String
-  status          String    // applied, interview_scheduled, interviewed, offer, rejected, accepted
-  priority        String    @default("medium") // low, medium, high
-  jobDescription  String?
-  salary          String?
-  appliedDate     DateTime
-  responseDate    DateTime?
-  interviewDate   DateTime?
-  offerDate       DateTime?
-  notes           String?
-  jobUrl          String?
-  source          String?   // linkedin, company_website, referral, etc
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          Int
-  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  companyId       Int
-  activities      Activity[]
+  id             String      @id @default(ulid()) // ULID
+  position       String
+  status         String
+  priority       String     @default("medium")
+  jobDescription String?
+  salary         String?
+  appliedDate    DateTime
+  responseDate   DateTime?
+  interviewDate  DateTime?
+  offerDate      DateTime?
+  notes          String?
+  source         String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  userId         String
+  companyId      String
+  activities     Activity[]
+  company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links          Link[]
 }
 
 model Activity {
-  id               Int             @id @default(autoincrement())
-  type             String          // email, call, meeting, application, interview, note
+  id               String            @id @default(ulid()) // ULID
+  type             String            // ActivityType: EMAIL, PHONE_CALL, MEETING, INTERVIEW, NETWORKING_EVENT, COFFEE_CHAT, FOLLOW_UP, APPLICATION, REFERRAL, LINKEDIN_MESSAGE, NOTE, RESEARCH, OTHER
+  title            String?
   subject          String
   description      String?
   date             DateTime
-  duration         Int?            // in minutes
-  outcome          String?
+  duration         Int?
+  note             String?
   followUpDate     DateTime?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           Int
-  company          Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  companyId        Int?
-  contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  contactId        Int?
-  jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: SetNull)
-  jobApplicationId Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  userId           String
+  companyId        String?
+  jobApplicationId String?
+  jobApplication   JobApplication?   @relation(fields: [jobApplicationId], references: [id])
+  company          Company?          @relation(fields: [companyId], references: [id])
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts         Contact[]
+  tags             Tag[]
+  links           Link[]
 }
 
-model Note {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  tags      String?  // JSON array of tags
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
+model Tag {
+  id           String        @id @default(ulid()) // ULID
+  name         String        @unique
+  color        String?       // Optional color for visual organization
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts     Contact[]
+  company      Company[]
+  activity     Activity[]
+}
+
+model Link {
+  id               String   @id @default(ulid()) // ULID
+  url              String
+  label            String?         // e.g., "LinkedIn", "Website", "Twitter", "Glassdoor"
+  companyId        String?
+  contactId        String?
+  jobApplicationId String?
+  activityId       String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  company          Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  activity         Activity?       @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }
