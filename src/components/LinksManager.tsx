@@ -1,22 +1,12 @@
 import React, { useState } from 'react';
 import { PlusIcon, LinkIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
-
-export interface Link {
-  id: string;
-  url: string;
-  label?: string;
-  companyId?: string;
-  contactId?: string;
-  jobApplicationId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Link as PrismaLink } from '@prisma/client';
 
 interface LinksManagerProps {
-  links: Link[];
+  links: PrismaLink[];
   entityType: 'company' | 'contact' | 'jobApplication';
   entityId: string;
-  onLinksChange?: (links: Link[]) => void;
+  onLinksChange?: (links: PrismaLink[]) => void;
   className?: string;
   readonly?: boolean;
 }
@@ -58,12 +48,12 @@ export default function LinksManager({
   className = '',
   readonly = false,
 }: LinksManagerProps) {
-  const [localLinks, setLocalLinks] = useState<Link[]>(links);
+  const [localLinks, setLocalLinks] = useState<PrismaLink[]>(links);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newLink, setNewLink] = useState({ url: '', label: '' });
 
-  const updateLinks = (updatedLinks: Link[]) => {
+  const updateLinks = (updatedLinks: PrismaLink[]) => {
     setLocalLinks(updatedLinks);
     onLinksChange?.(updatedLinks);
   };
@@ -228,7 +218,7 @@ export default function LinksManager({
     );
   };
 
-  const renderLinkItem = (link: Link) => {
+  const renderLinkItem = (link: PrismaLink) => {
     const isEditing = editingId === link.id;
 
     if (isEditing && !readonly) {
@@ -451,7 +441,7 @@ function EditLinkForm({
   onCancel,
   commonLabels,
 }: {
-  link: Link;
+  link: PrismaLink;
   onSave: (data: { url: string; label: string }) => void;
   onCancel: () => void;
   commonLabels: string[];
