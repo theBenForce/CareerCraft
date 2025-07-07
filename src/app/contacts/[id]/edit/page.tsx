@@ -10,6 +10,18 @@ import Header from '@/components/layout/Header'
 import { TagList, TagComponent } from '@/components/TagComponent'
 import { Contact, Company, Tag } from '@prisma/client';
 import { ContactTag } from '@/types';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 export default function EditContactPage() {
   const { id } = useParams()
@@ -231,6 +243,93 @@ export default function EditContactPage() {
     }
   }
 
+  function CompanyComboBox({ value, onChange, companies }: { value: string; onChange: (val: string) => void; companies: Company[] }) {
+    const [open, setOpen] = useState(false);
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+    const [selectedCompany, setSelectedCompany] = useState<Company | null>(
+      companies.find((c) => c.id === value) || null
+    );
+
+    useEffect(() => {
+      setSelectedCompany(companies.find((c) => c.id === value) || null);
+    }, [value, companies]);
+
+    const handleSelect = (val: string) => {
+      const company = companies.find((c) => c.id === val) || null;
+      setSelectedCompany(company);
+      onChange(val);
+      setOpen(false);
+    };
+
+    if (isDesktop) {
+      return (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background text-foreground"
+            >
+              {selectedCompany ? selectedCompany.name : 'Select a company'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Filter company..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {companies.map((company) => (
+                    <CommandItem
+                      key={company.id}
+                      value={company.id}
+                      onSelect={() => handleSelect(company.id)}
+                    >
+                      {company.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      );
+    }
+
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background text-foreground"
+          >
+            {selectedCompany ? selectedCompany.name : 'Select a company'}
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <div className="mt-4 border-t">
+            <Command>
+              <CommandInput placeholder="Filter company..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {companies.map((company) => (
+                    <CommandItem
+                      key={company.id}
+                      value={company.id}
+                      onSelect={() => handleSelect(company.id)}
+                    >
+                      {company.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -270,292 +369,264 @@ export default function EditContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Edit Contact</h1>
-          <Link
-            href={`/contacts/${id}`}
-            className="text-blue-600 hover:text-blue-500"
-          >
-            Cancel
-          </Link>
-        </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-2xl mx-auto p-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Edit Contact</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Contact Photo */}
+                <ImageUpload
+                  currentImage={formData.image}
+                  onImageUpload={handleImageUpload}
+                  onImageRemove={handleImageRemove}
+                  category="contacts"
+                />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Contact Photo */}
-          <ImageUpload
-            currentImage={formData.image}
-            onImageUpload={handleImageUpload}
-            onImageRemove={handleImageRemove}
-            category="contacts"
-          />
+                {/* Name Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      required
+                      className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      required
+                      className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
 
-          {/* Name Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                First Name *
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Position */}
-          <div>
-            <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
-              Position
-            </label>
-            <input
-              type="text"
-              id="position"
-              name="position"
-              value={formData.position}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Summary */}
-          <div>
-            <label htmlFor="summary" className="block text-sm font-medium text-gray-700 mb-1">
-              Summary
-            </label>
-            <textarea
-              id="summary"
-              name="summary"
-              value={formData.summary}
-              onChange={handleInputChange}
-              rows={4}
-              placeholder="Brief markdown-formatted note about this contact..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              You can use markdown formatting (e.g., **bold**, *italic*, lists)
-            </p>
-          </div>
-
-          {/* Company */}
-          <div>
-            <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-1">
-              Company
-            </label>
-            <select
-              id="companyId"
-              name="companyId"
-              value={formData.companyId}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select a company</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tags Section */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Tags
-            </label>
-
-            {/* Current Tags */}
-            <div className="space-y-3">
-              {contactTags.length > 0 ? (
+                {/* Email */}
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Current tags:</p>
-                  <TagList
-                    tags={contactTags}
-                    removable={true}
-                    clickable={false}
-                    onRemove={handleRemoveTag}
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500">No tags assigned</p>
-              )}
 
-              {/* Add Tag Button */}
-              <div>
-                {!showTagSelector ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowTagSelector(true)}
-                    className="inline-flex items-center px-3 py-2 border border-dashed border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Tag
-                  </button>
-                ) : (
-                  <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-gray-900">Select a tag to add:</h4>
-                      <button
-                        type="button"
-                        onClick={() => setShowTagSelector(false)}
-                        className="text-gray-400 hover:text-gray-600"
-                        title="Close tag selector"
-                        aria-label="Close tag selector"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
+                {/* Phone */}
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {availableTags
-                        .filter(tag => !contactTags.some(ct => ct.id === tag.id))
-                        .map(tag => (
-                          <button
-                            key={tag.id}
-                            type="button"
-                            onClick={() => handleAddTag(tag)}
-                            className="text-left p-2 border border-gray-200 rounded-md hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <TagComponent tag={tag} clickable={false} />
-                            {tag.description && (
-                              <p className="text-xs text-gray-500 mt-1">{tag.description}</p>
-                            )}
-                          </button>
-                        ))}
-                    </div>
+                {/* Position */}
+                <div>
+                  <Label htmlFor="position">Position</Label>
+                  <Input
+                    type="text"
+                    id="position"
+                    name="position"
+                    value={formData.position}
+                    onChange={handleInputChange}
+                    className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
 
-                    {availableTags.filter(tag => !contactTags.some(ct => ct.id === tag.id)).length === 0 && (
-                      <p className="text-sm text-gray-500">All available tags have been assigned to this contact.</p>
+                {/* Summary */}
+                <div>
+                  <Label htmlFor="summary">Summary</Label>
+                  <Textarea
+                    id="summary"
+                    name="summary"
+                    value={formData.summary}
+                    onChange={handleInputChange}
+                    rows={4}
+                    placeholder="Brief markdown-formatted note about this contact..."
+                    className="border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    You can use markdown formatting (e.g., **bold**, *italic*, lists)
+                  </p>
+                </div>
+
+                {/* Company */}
+                <div>
+                  <Label htmlFor="companyId">Company</Label>
+                  <div className="bg-background border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <CompanyComboBox
+                      value={formData.companyId}
+                      onChange={(val) => setFormData((prev) => ({ ...prev, companyId: val }))}
+                      companies={companies}
+                    />
+                  </div>
+                </div>
+
+                {/* Tags Section */}
+                <div>
+                  <Label className="block text-sm font-medium text-gray-700 mb-3">
+                    Tags
+                  </Label>
+
+                  {/* Current Tags */}
+                  <div className="space-y-3">
+                    {contactTags.length > 0 ? (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Current tags:</p>
+                        <TagList
+                          tags={contactTags}
+                          removable={true}
+                          clickable={false}
+                          onRemove={handleRemoveTag}
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">No tags assigned</p>
                     )}
 
-                    {/* Create New Tag Section */}
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      {!showCreateTag ? (
+                    {/* Add Tag Button */}
+                    <div>
+                      {!showTagSelector ? (
                         <button
                           type="button"
-                          onClick={() => setShowCreateTag(true)}
-                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                          onClick={() => setShowTagSelector(true)}
+                          className="inline-flex items-center px-3 py-2 border border-dashed border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          + Create New Tag
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Tag
                         </button>
                       ) : (
-                        <div className="space-y-3">
-                          <h5 className="text-sm font-medium text-gray-900">Create New Tag</h5>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <input
-                                type="text"
-                                placeholder="Tag name"
-                                value={newTagName}
-                                onChange={(e) => setNewTagName(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-                            <div>
-                              <label htmlFor="newTagColor" className="sr-only">Tag color</label>
-                              <input
-                                id="newTagColor"
-                                type="color"
-                                value={newTagColor}
-                                onChange={(e) => setNewTagColor(e.target.value)}
-                                className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                title="Choose tag color"
-                              />
-                            </div>
+                        <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-medium text-gray-900">Select a tag to add:</h4>
+                            <button
+                              type="button"
+                              onClick={() => setShowTagSelector(false)}
+                              className="text-gray-400 hover:text-gray-600"
+                              title="Close tag selector"
+                              aria-label="Close tag selector"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={handleCreateTag}
-                              className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              Create & Add
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowCreateTag(false)
-                                setNewTagName('')
-                                setNewTagColor('#3b82f6')
-                              }}
-                              className="px-3 py-1.5 text-gray-700 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              Cancel
-                            </button>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {availableTags
+                              .filter(tag => !contactTags.some(ct => ct.id === tag.id))
+                              .map(tag => (
+                                <button
+                                  key={tag.id}
+                                  type="button"
+                                  onClick={() => handleAddTag(tag)}
+                                  className="text-left p-2 border border-gray-200 rounded-md hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                  <TagComponent tag={tag} clickable={false} />
+                                  {tag.description && (
+                                    <p className="text-xs text-gray-500 mt-1">{tag.description}</p>
+                                  )}
+                                </button>
+                              ))}
+                          </div>
+
+                          {availableTags.filter(tag => !contactTags.some(ct => ct.id === tag.id)).length === 0 && (
+                            <p className="text-sm text-gray-500">All available tags have been assigned to this contact.</p>
+                          )}
+
+                          {/* Create New Tag Section */}
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            {!showCreateTag ? (
+                              <button
+                                type="button"
+                                onClick={() => setShowCreateTag(true)}
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                              >
+                                + Create New Tag
+                              </button>
+                            ) : (
+                              <div className="space-y-3">
+                                <h5 className="text-sm font-medium text-gray-900">Create New Tag</h5>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <div>
+                                    <input
+                                      type="text"
+                                      placeholder="Tag name"
+                                      value={newTagName}
+                                      onChange={(e) => setNewTagName(e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label htmlFor="newTagColor" className="sr-only">Tag color</label>
+                                    <input
+                                      id="newTagColor"
+                                      type="color"
+                                      value={newTagColor}
+                                      onChange={(e) => setNewTagColor(e.target.value)}
+                                      className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      title="Choose tag color"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={handleCreateTag}
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  >
+                                    Create & Add
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setShowCreateTag(false)
+                                      setNewTagName('')
+                                      setNewTagColor('#3b82f6')
+                                    }}
+                                    className="px-3 py-1.5 text-gray-700 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
+                </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? 'Saving...' : 'Save Contact'}
-            </button>
-          </div>
-        </form>
+                {/* Submit Button */}
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save Contact'}</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   )
 }
