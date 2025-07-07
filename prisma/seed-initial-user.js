@@ -28,7 +28,6 @@ async function main() {
 
   await prisma.user.create({
     data: {
-      id: '01JZ8GEZZ2C76281NSV3AG39ZB',
       email,
       firstName: 'Admin',
       lastName: 'User',

@@ -78,7 +78,8 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, industry, description, location, size, logo, notes } = body;
+    const { name, industry, description, location, size, logo, notes, links } =
+      body;
 
     // Validate required fields
     if (!name || !name.trim()) {
@@ -89,7 +90,7 @@ export async function PUT(
     }
 
     // Check if company exists
-    const existingCompany = await (prisma as any).company.findUnique({
+    const existingCompany = await prisma.company.findUnique({
       where: { id: companyId },
     });
 
@@ -97,7 +98,8 @@ export async function PUT(
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
-    const updatedCompany = await (prisma as any).company.update({
+    // Update company details
+    const updatedCompany = await prisma.company.update({
       where: { id: companyId },
       data: {
         name: name.trim(),
@@ -108,20 +110,18 @@ export async function PUT(
         logo,
         notes,
       },
-      include: {
-        jobApplications: {
-          select: {
-            id: true,
-            status: true,
-          },
-        },
-        contacts: {
-          select: {
-            id: true,
-          },
-        },
-      },
     });
+
+    // Update links
+    if (Array.isArray(links)) {
+      await prisma.link.deleteMany({ where: { companyId } });
+      await prisma.link.createMany({
+        data: links.map((link) => ({
+          ...link,
+          companyId,
+        })),
+      });
+    }
 
     return NextResponse.json(updatedCompany);
   } catch (error) {
