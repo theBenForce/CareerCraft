@@ -54,8 +54,8 @@ export default function EditContactPage() {
         image: data.image || ''
       })
       // Set contact tags if available
-      if (data.contactTags) {
-        setContactTags(data.contactTags.map((ct: ContactTag) => ct.tag))
+      if (data.tags) {
+        setContactTags(data.tags)
       }
     } catch (error) {
       console.error('Error fetching contact:', error)

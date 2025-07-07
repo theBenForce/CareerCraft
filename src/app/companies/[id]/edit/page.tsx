@@ -489,17 +489,12 @@ export default function EditCompanyPage({ params }: { params: { id: string } }) 
               </div>
 
               {/* Links Manager */}
-              <div>
-                <label className="block text-sm font-medium text-foreground">
-                  Links
-                </label>
-                <LinksManager
-                  links={formData.links}
-                  entityType="company"
-                  entityId={companyId}
-                  onLinksChange={handleLinksChange}
-                />
-              </div>
+              <LinksManager
+                links={formData.links}
+                entityType="company"
+                entityId={companyId}
+                onLinksChange={handleLinksChange}
+              />
             </div>
           </div>
 

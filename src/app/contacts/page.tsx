@@ -20,11 +20,7 @@ export default async function ContactsPage() {
             name: true
           }
         },
-        contactTags: {
-          include: {
-            tag: true
-          }
-        }
+        tags: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -184,16 +180,16 @@ export default async function ContactsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-wrap gap-1">
-                        {contact.contactTags?.length > 0 ? (
-                          contact.contactTags.slice(0, 2).map((ct: any) => (
+                        {contact.tags?.length > 0 ? (
+                          contact.tags.slice(0, 2).map((ct: any) => (
                             <span
                               key={ct.tag.id}
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ct.tag.name.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' :
-                                  ct.tag.name.toLowerCase() === 'applied' ? 'bg-blue-100 text-blue-800' :
-                                    ct.tag.name.toLowerCase() === 'interviewing' ? 'bg-yellow-100 text-yellow-800' :
-                                      ct.tag.name.toLowerCase() === 'offer extended' ? 'bg-purple-100 text-purple-800' :
-                                        ct.tag.name.toLowerCase() === 'hired' ? 'bg-green-100 text-green-800' :
-                                          'bg-gray-100 text-gray-800'
+                                ct.tag.name.toLowerCase() === 'applied' ? 'bg-blue-100 text-blue-800' :
+                                  ct.tag.name.toLowerCase() === 'interviewing' ? 'bg-yellow-100 text-yellow-800' :
+                                    ct.tag.name.toLowerCase() === 'offer extended' ? 'bg-purple-100 text-purple-800' :
+                                      ct.tag.name.toLowerCase() === 'hired' ? 'bg-green-100 text-green-800' :
+                                        'bg-gray-100 text-gray-800'
                                 }`}
                             >
                               {ct.tag.name}
@@ -202,9 +198,9 @@ export default async function ContactsPage() {
                         ) : (
                           <span className="text-sm text-muted-foreground">-</span>
                         )}
-                        {contact.contactTags?.length > 2 && (
+                        {contact.tags?.length > 2 && (
                           <span className="text-xs text-muted-foreground">
-                            +{contact.contactTags.length - 2} more
+                            +{contact.tags.length - 2} more
                           </span>
                         )}
                       </div>

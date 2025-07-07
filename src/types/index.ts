@@ -53,7 +53,7 @@ export interface ActivityTag {
 
 // Extended types with tags and relations included
 export interface ContactWithTags extends Contact {
-  contactTags: ContactTag[];
+  tags: Tag[];
 }
 
 export interface CompanyWithTags extends Company {

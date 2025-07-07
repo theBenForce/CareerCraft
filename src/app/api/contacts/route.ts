@@ -20,11 +20,7 @@ export async function GET(request: NextRequest) {
             name: true,
           },
         },
-        contactTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
         links: {
           orderBy: {
             createdAt: "desc",
