@@ -42,11 +42,7 @@ export async function GET(
             },
           },
         },
-        activityTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
       },
       orderBy: {
         date: "desc",

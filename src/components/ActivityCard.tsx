@@ -135,10 +135,10 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                     ))}
                   </div>
                 )}
-                {!isNote && item.activityTags && item.activityTags.length > 0 && (
+                {!isNote && item.tags && item.tags.length > 0 && (
                   <div className="mt-2">
                     <TagList
-                      tags={item.activityTags.map(at => at.tag)}
+                      tags={item.tags}
                       maxDisplay={3}
                     />
                   </div>
@@ -231,7 +231,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
       fallbackIcon={<ActivityIcon type={displayType} size="md" />}
       fallbackText={formatActivityType(displayType)}
       properties={properties}
-      tags={item.activityTags?.map(at => at.tag) || []}
+      tags={item.tags || []}
       onView={() => router.push(`/activities/${item.id}`)}
       onEdit={() => router.push(`/activities/${item.id}/edit`)}
       imageType="logo"

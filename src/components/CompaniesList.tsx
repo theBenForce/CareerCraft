@@ -16,7 +16,7 @@ interface CompaniesListProps {
     location?: string | null
     jobApplications: JobApplication[]
     contacts: Contact[]
-    companyTags: { tag: Tag }[]
+    tags: Tag[]
   }>
 }
 
@@ -65,7 +65,7 @@ export function CompaniesList({ companies }: CompaniesListProps) {
             imageType="logo"
             fallbackIcon={<BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />}
             properties={properties}
-            tags={company.companyTags.map(ct => ct.tag) || []}
+            tags={company.tags || []}
             onView={() => router.push(`/companies/${company.id}`)}
             onEdit={() => router.push(`/companies/${company.id}/edit`)}
           />

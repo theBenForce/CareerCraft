@@ -57,11 +57,11 @@ export interface ContactWithTags extends Contact {
 }
 
 export interface CompanyWithTags extends Company {
-  companyTags: CompanyTag[];
+  tags: Tag[];
 }
 
 export interface ActivityWithTags extends Activity {
-  activityTags: ActivityTag[];
+  tags: Tag[];
   company?: Company | null;
   jobApplication?: JobApplication | null;
   contacts?: Contact[];

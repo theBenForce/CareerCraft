@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // GET /api/tags/[id]/companies - Get all companies with a specific tag
 export async function GET(
@@ -15,14 +13,12 @@ export async function GET(
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
-    const companyTags = await (prisma as any).companyTag.findMany({
-      where: { tagId },
-      include: {
-        company: true,
-      },
+    // Query companies with this tag using implicit many-to-many
+    const companies = await prisma.company.findMany({
+      where: { tags: { some: { id: tagId } } },
+      include: { tags: true },
+      orderBy: { createdAt: "desc" },
     });
-
-    const companies = companyTags.map((ct: any) => ct.company);
 
     return NextResponse.json(companies);
   } catch (error) {

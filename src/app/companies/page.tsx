@@ -13,7 +13,6 @@ interface CompanyListForUI extends Company {
   jobApplications: JobApplication[]
   contacts: Contact[]
   tags: Tag[]
-  companyTags: { tag: Tag }[]
 }
 
 export default async function CompaniesPage() {
@@ -30,8 +29,7 @@ export default async function CompaniesPage() {
       }
     })
     companies = dbCompanies.map(company => ({
-      ...company,
-      companyTags: company.tags.map((tag: Tag) => ({ tag })),
+      ...company
     }))
   } catch (error) {
     console.error('Failed to fetch companies:', error)
