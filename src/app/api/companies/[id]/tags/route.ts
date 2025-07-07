@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // POST /api/companies/[id]/tags - Add a tag to a company
 export async function POST(
@@ -20,20 +18,30 @@ export async function POST(
       );
     }
 
-    const companyTag = await prisma.companyTag.create({
+    // Use implicit many-to-many relation: connect tag to company
+    const updatedCompany = await prisma.company.update({
+      where: { id: companyId },
       data: {
-        companyId,
-        tagId: tagId,
+        tags: {
+          connect: { id: tagId },
+        },
       },
       include: {
-        tag: true,
+        tags: true,
       },
     });
 
-    return NextResponse.json(companyTag, { status: 201 });
+    // Return the connected tag only (for compatibility)
+    const tag = updatedCompany.tags.find((t) => t.id === tagId);
+    return NextResponse.json(tag, { status: 201 });
   } catch (error) {
     console.error("Error adding tag to company:", error);
-    if (error instanceof Error && "code" in error && error.code === "P2002") {
+    // Prisma unique constraint error for already connected tag
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as any).code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "This tag is already assigned to this company" },
         { status: 409 }
@@ -63,11 +71,12 @@ export async function DELETE(
       );
     }
 
-    await prisma.companyTag.delete({
-      where: {
-        companyId_tagId: {
-          companyId,
-          tagId: tagId,
+    // Use implicit many-to-many relation: disconnect tag from company
+    await prisma.company.update({
+      where: { id: companyId },
+      data: {
+        tags: {
+          disconnect: { id: tagId },
         },
       },
     });
@@ -89,17 +98,16 @@ export async function GET(
 ) {
   try {
     const companyId = params.id;
-
-    const companyTags = await prisma.companyTag.findMany({
-      where: {
-        companyId,
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
       include: {
-        tag: true,
+        tags: true,
       },
     });
-
-    return NextResponse.json(companyTags);
+    if (!company) {
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    }
+    return NextResponse.json(company.tags);
   } catch (error) {
     console.error("Error fetching company tags:", error);
     return NextResponse.json(

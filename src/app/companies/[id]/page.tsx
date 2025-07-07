@@ -73,15 +73,6 @@ export default function CompanyPage() {
     return <LinkIcon className="w-4 h-4 text-muted-foreground" />
   }
 
-  const handleLinksChange = (updatedLinks: any[]) => {
-    if (company) {
-      setCompany({
-        ...company,
-        links: updatedLinks
-      })
-    }
-  }
-
   useEffect(() => {
     async function fetchCompany() {
       try {
@@ -220,7 +211,7 @@ export default function CompanyPage() {
       <EntityCard
         id={company.id}
         name={company.name}
-        subtitle={company.industry}
+        subtitle={company.industry ?? undefined}
         image={(company as any).logo}
         imageAlt={`${company.name} logo`}
         fallbackIcon={<BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />}
@@ -230,11 +221,6 @@ export default function CompanyPage() {
         createdAt={company.createdAt}
         updatedAt={company.updatedAt}
         properties={[
-          ...(company.website ? [{
-            icon: <GlobeAltIcon className="w-5 h-5" />,
-            text: company.website,
-            href: company.website
-          }] : []),
           ...(company.location ? [{
             icon: <MapPinIcon className="w-5 h-5" />,
             text: company.location

@@ -20,20 +20,30 @@ export async function POST(
       );
     }
 
-    const activityTag = await prisma.activityTag.create({
+    // Add tag to activity using implicit many-to-many
+    const updatedActivity = await prisma.activity.update({
+      where: { id: activityId },
       data: {
-        activityId,
-        tagId,
+        tags: {
+          connect: { id: tagId },
+        },
       },
       include: {
-        tag: true,
+        tags: true,
       },
     });
 
-    return NextResponse.json(activityTag, { status: 201 });
+    // Return the newly added tag (find it in the updated tags array)
+    const addedTag = updatedActivity.tags.find((tag) => tag.id === tagId);
+    return NextResponse.json(addedTag, { status: 201 });
   } catch (error) {
     console.error("Error adding tag to activity:", error);
-    if (error instanceof Error && "code" in error && error.code === "P2002") {
+    // Prisma unique constraint error (already assigned)
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as any).code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "This tag is already assigned to this activity" },
         { status: 409 }
@@ -63,11 +73,12 @@ export async function DELETE(
       );
     }
 
-    await prisma.activityTag.delete({
-      where: {
-        activityId_tagId: {
-          activityId,
-          tagId,
+    // Remove tag from activity using implicit many-to-many
+    await prisma.activity.update({
+      where: { id: activityId },
+      data: {
+        tags: {
+          disconnect: { id: tagId },
         },
       },
     });
@@ -90,16 +101,19 @@ export async function GET(
   try {
     const activityId = params.id;
 
-    const activityTags = await prisma.activityTag.findMany({
-      where: {
-        activityId,
-      },
-      include: {
-        tag: true,
-      },
+    const activity = await prisma.activity.findUnique({
+      where: { id: activityId },
+      include: { tags: true },
     });
 
-    return NextResponse.json(activityTags);
+    if (!activity) {
+      return NextResponse.json(
+        { error: "Activity not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(activity.tags);
   } catch (error) {
     console.error("Error fetching activity tags:", error);
     return NextResponse.json(
