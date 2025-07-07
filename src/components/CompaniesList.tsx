@@ -3,20 +3,21 @@
 import { useRouter } from 'next/navigation'
 import { BuildingOfficeIcon, GlobeAltIcon, MapPinIcon } from '@heroicons/react/24/outline'
 import { EntityCard } from '@/components/EntityCard'
-import { JobApplication, Contact } from '@prisma/client'
-import { CompanyWithTags } from '@/types'
+import { JobApplication, Contact, Tag } from '@prisma/client'
 
 interface CompaniesListProps {
-  companies: (CompanyWithTags & {
-    jobApplications: JobApplication[]
-    contacts: Contact[]
+  companies: Array<{
+    id: string
+    name: string
     logo?: string | null
     description?: string | null
     industry?: string | null
     website?: string | null
     location?: string | null
-    companyTags?: { tag: any }[]
-  })[]
+    jobApplications: JobApplication[]
+    contacts: Contact[]
+    companyTags: { tag: Tag }[]
+  }>
 }
 
 export function CompaniesList({ companies }: CompaniesListProps) {
@@ -64,7 +65,7 @@ export function CompaniesList({ companies }: CompaniesListProps) {
             imageType="logo"
             fallbackIcon={<BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />}
             properties={properties}
-            tags={company.companyTags?.map((ct: any) => ct.tag) || []}
+            tags={company.companyTags.map(ct => ct.tag) || []}
             onView={() => router.push(`/companies/${company.id}`)}
             onEdit={() => router.push(`/companies/${company.id}/edit`)}
           />

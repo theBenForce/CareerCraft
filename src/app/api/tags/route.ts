@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/db";
 import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
-
-const prisma = new PrismaClient();
 
 // GET /api/tags - Get all tags for a user
 export async function GET(request: NextRequest) {
@@ -19,9 +17,9 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            contactTags: true,
-            companyTags: true,
-            activityTags: true,
+            contacts: true,
+            company: true,
+            activity: true,
           },
         },
       },

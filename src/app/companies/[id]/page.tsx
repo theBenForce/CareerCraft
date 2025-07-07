@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { notFound, useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -31,12 +30,20 @@ import {
 import DetailsLayout from '@/components/layout/DetailsLayout'
 import { EntityCard } from '@/components/EntityCard'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
-import { Company } from '@prisma/client'
+import { CompanyWithTags } from '@/types'
+import { JobApplication, Contact, Link as CompanyLink } from '@prisma/client'
+import { useState, useEffect } from 'react'
+
+interface CompanyPageData extends CompanyWithTags {
+  jobApplications: JobApplication[]
+  contacts: Contact[]
+  links: CompanyLink[]
+}
 
 export default function CompanyPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [company, setCompany] = useState<Company | null>(null)
+  const [company, setCompany] = useState<CompanyPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'applications' | 'contacts' | 'timeline'>('applications')
 
@@ -141,15 +148,9 @@ export default function CompanyPage() {
         rightColumn={
           <div className="animate-pulse">
             <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
-            <div className="space-y-4">
-              <div className="h-20 bg-muted rounded"></div>
-              <div className="h-20 bg-muted rounded"></div>
-              <div className="h-20 bg-muted rounded"></div>
-            </div>
           </div>
-        }
-      />
-    )
+        } />
+    );
   }
 
   if (!company) {
@@ -362,7 +363,7 @@ export default function CompanyPage() {
                     key={application.id}
                     id={application.id}
                     name={application.position}
-                    subtitle={application.jobDescription}
+                    subtitle={application.jobDescription ?? undefined}
                     fallbackIcon={<BriefcaseIcon className="w-6 h-6 text-muted-foreground" />}
                     properties={[
                       {

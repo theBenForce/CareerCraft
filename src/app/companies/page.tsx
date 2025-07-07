@@ -1,41 +1,38 @@
 import Link from 'next/link'
-import { PlusIcon, BuildingOfficeIcon, GlobeAltIcon, MapPinIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import Header from '@/components/layout/Header'
 import { CompaniesList } from '@/components/CompaniesList'
 import { prisma } from '@/lib/db'
-import { Company } from '@prisma/client'
+import { JobApplication, Contact, Tag, Company } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 60 // Revalidate every 60 seconds
 
-type CompanyListProp = Company & {
-  jobApplications: Array<{ id: string; status: string }>,
-  contacts: Array<{ id: string }>
-};
+interface CompanyListForUI extends Company {
+  jobApplications: JobApplication[]
+  contacts: Contact[]
+  tags: Tag[]
+  companyTags: { tag: Tag }[]
+}
 
 export default async function CompaniesPage() {
-  // Fetch companies from the database
-  let companies: Array<CompanyListProp>;
+  let companies: CompanyListForUI[] = []
   try {
-    companies = await prisma.company.findMany({
+    const dbCompanies = await prisma.company.findMany({
       include: {
-        jobApplications: {
-          select: {
-            id: true,
-            status: true
-          }
-        },
-        contacts: {
-          select: {
-            id: true
-          }
-        }
+        jobApplications: true,
+        contacts: true,
+        tags: true,
       },
       orderBy: {
         createdAt: 'desc'
       }
     })
+    companies = dbCompanies.map(company => ({
+      ...company,
+      companyTags: company.tags.map((tag: Tag) => ({ tag })),
+    }))
   } catch (error) {
     console.error('Failed to fetch companies:', error)
     throw new Error('Failed to load companies. Please try again.')
@@ -44,7 +41,6 @@ export default async function CompaniesPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
