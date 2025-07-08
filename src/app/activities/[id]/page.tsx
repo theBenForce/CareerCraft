@@ -13,7 +13,8 @@ import {
   CalendarDaysIcon,
   BuildingOfficeIcon,
   UserGroupIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  BriefcaseIcon
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
 import { EntityCard } from '@/components/EntityCard'
@@ -222,6 +223,11 @@ export default function ActivityDetailPage() {
         ...(activity.followUpDate ? [{
           icon: <CalendarDaysIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
           text: `Follow-up: ${new Date(activity.followUpDate).toLocaleDateString()}`
+        }] : []),
+        ...(activity.jobApplication ? [{
+          icon: <BriefcaseIcon className="w-4 h-4" />,
+          text: activity.jobApplication.position,
+          href: `/applications/${activity.jobApplication.id}`
         }] : [])
       ]}
       tags={activity.tags || []}
@@ -260,14 +266,6 @@ export default function ActivityDetailPage() {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {/* Job Application */}
-            {activity.jobApplication && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
-                <p className="text-muted-foreground">{activity.jobApplication.position}</p>
-              </div>
-            )}
-
             {/* Notes Section */}
             {activity.note && (
               <div>
@@ -279,7 +277,7 @@ export default function ActivityDetailPage() {
             )}
 
             {/* Show message if no additional details */}
-            {!activity.jobApplication && !activity.note && !Boolean(activity.tags?.length) && (
+            {!activity.note && !Boolean(activity.tags?.length) && (
               <p className="text-muted-foreground text-sm">No additional details available.</p>
             )}
           </div>

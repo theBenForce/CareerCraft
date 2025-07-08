@@ -70,7 +70,7 @@ const contactsData = [
     companyId: companiesData[1].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQN',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
     firstName: 'Jim',
     lastName: 'Halpert',
     email: 'jim.halpert@dundermifflin.com',
@@ -103,7 +103,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQS',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqs',
     firstName: 'Stanley',
     lastName: 'Hudson',
     email: 'stanley.hudson@dundermifflin.com',
@@ -114,7 +114,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQT',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqt',
     firstName: 'Ryan',
     lastName: 'Howard',
     email: 'ryan.howard@dundermifflin.com',
@@ -125,7 +125,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQU',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqu',
     firstName: 'Kelly',
     lastName: 'Kapoor',
     email: 'kelly.kapoor@dundermifflin.com',
@@ -136,7 +136,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQV',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqv',
     firstName: 'Toby',
     lastName: 'Flenderson',
     email: 'toby.flenderson@dundermifflin.com',
@@ -147,7 +147,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQW',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqw',
     firstName: 'Angela',
     lastName: 'Martin',
     email: 'angela.martin@dundermifflin.com',
@@ -158,7 +158,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQX',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqx',
     firstName: 'Oscar',
     lastName: 'Martinez',
     email: 'oscar.martinez@dundermifflin.com',
@@ -169,7 +169,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQY',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqy',
     firstName: 'Creed',
     lastName: 'Bratton',
     email: 'creed.bratton@dundermifflin.com',
@@ -180,7 +180,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQZ',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqz',
     firstName: 'Kevin',
     lastName: 'Malone',
     email: 'kevin.malone@dundermifflin.com',
@@ -191,7 +191,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQA',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqa',
     firstName: 'Phyllis',
     lastName: 'Vance',
     email: 'phyllis.vance@dundermifflin.com',
@@ -202,7 +202,7 @@ const contactsData = [
     companyId: companiesData[0].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQB',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqb',
     firstName: 'Jan',
     lastName: 'Levinson',
     email: 'jan.levinson@sabre.com',
@@ -213,7 +213,7 @@ const contactsData = [
     companyId: companiesData[2].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQC',
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqc',
     firstName: 'Bob',
     lastName: 'Vance',
     email: 'bob.vance@vance-refrigeration.com',
@@ -330,44 +330,79 @@ async function main() {
   const regionalManagerApp = await prisma.jobApplication.findFirst({
     where: { position: 'Regional Manager', userId: user.id, companyId: companies['Dunder Mifflin'].id }
   })
+  let regionalManagerAppRecord
   if (!regionalManagerApp) {
-    jobApplications.push(await prisma.jobApplication.create({
+    regionalManagerAppRecord = await prisma.jobApplication.create({
       data: {
         position: 'Regional Manager',
         status: 'interview_scheduled',
         priority: 'high',
         jobDescription: 'Leadership role overseeing sales and operations',
         salary: '$80,000 - $100,000',
-        appliedDate: new Date('2025-06-25'),
-        interviewDate: new Date('2025-07-02'),
         source: 'LinkedIn',
         userId: user.id,
         companyId: companies['Dunder Mifflin'].id,
       },
-    }))
+    })
+    jobApplications.push(regionalManagerAppRecord)
   } else {
+    regionalManagerAppRecord = regionalManagerApp
     jobApplications.push(regionalManagerApp)
   }
+  // Add activities for application process
+  await prisma.activity.create({
+    data: {
+      type: 'APPLICATION',
+      subject: 'Applied for Regional Manager',
+      date: new Date('2025-06-25'),
+      userId: user.id,
+      companyId: companies['Dunder Mifflin'].id,
+      jobApplicationId: regionalManagerAppRecord.id,
+    },
+  })
+  await prisma.activity.create({
+    data: {
+      type: 'INTERVIEW',
+      subject: 'Interview for Regional Manager',
+      date: new Date('2025-07-02'),
+      userId: user.id,
+      companyId: companies['Dunder Mifflin'].id,
+      jobApplicationId: regionalManagerAppRecord.id,
+    },
+  })
+
   const softwareEngineerApp = await prisma.jobApplication.findFirst({
     where: { position: 'Software Engineer', userId: user.id, companyId: companies['Initech'].id }
   })
+  let softwareEngineerAppRecord
   if (!softwareEngineerApp) {
-    jobApplications.push(await prisma.jobApplication.create({
+    softwareEngineerAppRecord = await prisma.jobApplication.create({
       data: {
         position: 'Software Engineer',
         status: 'applied',
         priority: 'medium',
         jobDescription: 'Develop and maintain enterprise software solutions',
         salary: '$90,000 - $120,000',
-        appliedDate: new Date('2025-06-20'),
         source: 'Company Website',
         userId: user.id,
         companyId: companies['Initech'].id,
       },
-    }))
+    })
+    jobApplications.push(softwareEngineerAppRecord)
   } else {
+    softwareEngineerAppRecord = softwareEngineerApp
     jobApplications.push(softwareEngineerApp)
   }
+  await prisma.activity.create({
+    data: {
+      type: 'APPLICATION',
+      subject: 'Applied for Software Engineer',
+      date: new Date('2025-06-20'),
+      userId: user.id,
+      companyId: companies['Initech'].id,
+      jobApplicationId: softwareEngineerAppRecord.id,
+    },
+  })
 
   // Activities (same as before)
   const activities = []

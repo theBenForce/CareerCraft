@@ -74,10 +74,6 @@ model JobApplication {
   priority       String     @default("medium")
   jobDescription String?
   salary         String?
-  appliedDate    DateTime
-  responseDate   DateTime?
-  interviewDate  DateTime?
-  offerDate      DateTime?
   notes          String?
   source         String?
   createdAt      DateTime   @default(now())
