@@ -253,6 +253,30 @@ const tagAssignments = [
   { type: 'company', companyName: 'Initech', tag: 'TPS Report Expert' },
 ]
 
+const jobApplicationsData = [
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK',
+    position: 'Software Engineer',
+    status: 'applied',
+    priority: 'high',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH',
+    tags: [
+      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ1', name: 'Urgent' },
+      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ2', name: 'Remote' },
+    ],
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    position: 'Product Manager',
+    status: 'interview_scheduled',
+    priority: 'medium',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    tags: [
+      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ3', name: 'Leadership' },
+    ],
+  },
+]
+
 // Map company name to logo URL (public SVGs for demo)
 const logoSources = {
   'Dunder Mifflin': 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg',
@@ -282,6 +306,19 @@ async function downloadLogoIfMissing(company) {
       })
     })
     console.log(`Downloaded logo for ${company.name}`)
+  }
+}
+
+async function seedJobApplications() {
+  for (const application of jobApplicationsData) {
+    await prisma.jobApplication.create({
+      data: {
+        ...application,
+        tags: {
+          connect: application.tags.map((tag) => ({ id: tag.id })),
+        },
+      },
+    })
   }
 }
 
@@ -483,6 +520,9 @@ async function main() {
       console.log(`Tag relationship already exists: ${rel.type} ${rel.contactName || rel.companyName} - Tag ${rel.tag}`)
     }
   }
+
+  // Seed job applications
+  await seedJobApplications()
 
   console.log('Database seeding completed.')
 }

@@ -17,6 +17,9 @@ export async function GET(
             createdAt: "desc",
           },
         },
+        tags: {
+          orderBy: { name: "asc" },
+        },
         links: {
           orderBy: {
             createdAt: "desc",
@@ -89,6 +92,9 @@ export async function PUT(
       },
       include: {
         company: true,
+        tags: {
+          orderBy: { name: "asc" },
+        },
       },
     });
 

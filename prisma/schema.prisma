@@ -63,6 +63,7 @@ model Contact {
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags             Tag[]
   links            Link[]
+  jobApplications   JobApplication[] // Many-to-many relationship with JobApplication
 }
 
 model JobApplication {
@@ -82,6 +83,8 @@ model JobApplication {
   company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   links          Link[]
+  contacts       Contact[]   // Many-to-many relationship with Contact
+  tags           Tag[]      // Many-to-many relationship with Tag
 }
 
 model Activity {
@@ -119,6 +122,7 @@ model Tag {
   contacts     Contact[]
   company      Company[]
   activity     Activity[]
+  jobApplication JobApplication[]
 }
 
 model Link {

@@ -51,6 +51,15 @@ export interface ActivityTag {
   tag: Tag;
 }
 
+export interface JobApplicationTag {
+  id: string;
+  jobApplicationId: string;
+  tagId: string;
+  createdAt: Date;
+  jobApplication: JobApplication;
+  tag: Tag;
+}
+
 // Extended types with tags and relations included
 export interface ContactWithTags extends Contact {
   tags: Tag[];
