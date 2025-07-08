@@ -149,6 +149,7 @@ interface CompaniesListProps {
 
 ### Styling Guidelines
 - **Prefer Tailwind utilities** over custom CSS
+- **Use only Tailwind theme classes for all colors and backgrounds** (do not use inline styles or custom CSS for color, background, or border unless absolutely required for accessibility)
 - **Responsive design**: Mobile-first approach with sm:, md:, lg: prefixes
 - **Focus states**: Always include focus styles for accessibility
 - **Hover effects**: Use subtle transitions and color changes
@@ -355,4 +356,3 @@ When suggesting code, always:
 9. **Fix any errors or issues that arise during verification**
 10. **Test the functionality thoroughly before marking complete**
 11. Use theme colors and avoid hard-coding color values
-````
