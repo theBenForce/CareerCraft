@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       jobApplicationId,
       contactIds, // Array of contact IDs
       tagIds, // Array of tag IDs (optional)
+      fileIds, // Array of File ULIDs to associate
     } = body;
 
     // Validate required fields
@@ -118,20 +119,21 @@ export async function POST(request: NextRequest) {
         companyId: companyId ?? null,
         jobApplicationId: jobApplicationId ?? null,
         userId: user.id,
-        // Connect tags if provided
         tags:
           tagIds && Array.isArray(tagIds) && tagIds.length > 0
             ? {
                 connect: tagIds.map((id: string) => ({ id })),
               }
             : undefined,
-        // Connect contacts if provided
         contacts:
           contactIds && Array.isArray(contactIds) && contactIds.length > 0
             ? {
                 connect: contactIds.map((id: string) => ({ id })),
               }
             : undefined,
+        files: fileIds && Array.isArray(fileIds) && fileIds.length > 0
+          ? { connect: fileIds.map((id: string) => ({ id })) }
+          : undefined,
       },
       include: {
         company: {
@@ -162,6 +164,7 @@ export async function POST(request: NextRequest) {
             position: true,
           },
         },
+        // files: true, // Not directly includable, fetch separately if needed
       },
     });
 

@@ -20,6 +20,7 @@ model User {
   contacts        Contact[]
   jobApplications JobApplication[]
   tags            Tag[]
+  files            File[]
 }
 
 model Company {
@@ -40,6 +41,7 @@ model Company {
   jobApplications JobApplication[]
   tags            Tag[]
   links           Link[]
+  files            File[]
 }
 
 model Contact {
@@ -64,6 +66,7 @@ model Contact {
   tags             Tag[]
   links            Link[]
   jobApplications   JobApplication[] // Many-to-many relationship with JobApplication
+  files            File[]
 }
 
 model JobApplication {
@@ -85,6 +88,7 @@ model JobApplication {
   links          Link[]
   contacts       Contact[]   // Many-to-many relationship with Contact
   tags           Tag[]      // Many-to-many relationship with Tag
+  files            File[]
 }
 
 model Activity {
@@ -108,6 +112,7 @@ model Activity {
   contacts         Contact[]
   tags             Tag[]
   links           Link[]
+  files            File[]
 }
 
 model Tag {
@@ -139,4 +144,18 @@ model Link {
   contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: Cascade)
   jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
   activity         Activity?       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+}
+
+model File {
+  id         String   @id @default(ulid()) // ULID
+  fileName   String
+  mimeType   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts   Contact[]
+  companies  Company[]
+  jobApplications JobApplication[]
+  activities Activity[]
 }

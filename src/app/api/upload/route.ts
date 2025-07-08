@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
-import { randomUUID } from "crypto";
 import { existsSync } from "fs";
+import { prisma } from "@/lib/db";
+import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const category = (formData.get("category") as string) || "logos"; // Default to logos for backwards compatibility
+    const category = (formData.get("category") as string) || "logos";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -49,9 +55,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
+    // Create File record in DB to get ULID
     const fileExtension = file.name.split(".").pop();
-    const fileName = `${randomUUID()}.${fileExtension}`;
+    const fileRecord = await prisma.file.create({
+      data: {
+        fileName: file.name,
+        mimeType: file.type,
+        user: { connect: { id: user.id } },
+      },
+    });
+
+    // Use ULID as filename
+    const ulidFileName = `${fileRecord.id}.${fileExtension}`;
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
@@ -61,7 +76,7 @@ export async function POST(request: NextRequest) {
     const uploadsBaseDir =
       process.env.UPLOADS_DIR || join(process.cwd(), "public/uploads");
     const uploadDir = join(uploadsBaseDir, category);
-    const filePath = join(uploadDir, fileName);
+    const filePath = join(uploadDir, ulidFileName);
 
     // Ensure upload directory exists
     if (!existsSync(uploadDir)) {
@@ -70,13 +85,17 @@ export async function POST(request: NextRequest) {
 
     await writeFile(filePath, buffer);
 
-    // Return the file path that can be used in img src
-    const publicPath = `/uploads/${category}/${fileName}`;
+    // Optionally, update the File record with the storage path (not required for now)
+
+    // Return the file path and File record info
+    const publicPath = `/uploads/${category}/${ulidFileName}`;
 
     return NextResponse.json({
       success: true,
+      fileId: fileRecord.id,
       filePath: publicPath,
-      fileName,
+      fileName: fileRecord.fileName,
+      mimeType: fileRecord.mimeType,
     });
   } catch (error) {
     console.error("Upload error:", error);

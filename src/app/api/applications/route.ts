@@ -55,13 +55,10 @@ export async function POST(request: NextRequest) {
       priority,
       jobDescription,
       salary,
-      appliedDate,
-      responseDate,
-      interviewDate,
-      offerDate,
       notes,
       source,
       companyId,
+      fileIds, // Array of File ULIDs to associate
     } = body;
 
     // Validate required fields
@@ -79,13 +76,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!appliedDate) {
-      return NextResponse.json(
-        { error: "Applied date is required" },
-        { status: 400 }
-      );
-    }
-
     if (!companyId) {
       return NextResponse.json(
         { error: "Company is required" },
@@ -93,21 +83,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const application = await (prisma as any).jobApplication.create({
+    const application = await prisma.jobApplication.create({
       data: {
         position: position.trim(),
         status: status.trim(),
         priority: priority || "medium",
         jobDescription,
         salary,
-        appliedDate: new Date(appliedDate),
-        responseDate: responseDate ? new Date(responseDate) : null,
-        interviewDate: interviewDate ? new Date(interviewDate) : null,
-        offerDate: offerDate ? new Date(offerDate) : null,
         notes,
         source,
         companyId: companyId,
         userId: user.id,
+        files: fileIds && Array.isArray(fileIds) && fileIds.length > 0
+          ? { connect: fileIds.map((id: string) => ({ id })) }
+          : undefined,
       },
       include: {
         company: {
@@ -116,6 +105,7 @@ export async function POST(request: NextRequest) {
             name: true,
           },
         },
+        // files: true, // Not directly includable, fetch separately if needed
       },
     });
 
