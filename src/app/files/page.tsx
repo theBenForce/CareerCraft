@@ -1,3 +1,5 @@
+'use client'
+
 import { File } from '@prisma/client'
 import { NextPage } from 'next'
 import { useEffect, useState } from 'react'

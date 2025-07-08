@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const fs = require('fs')
 const path = require('path')
 const https = require('https')
+const fileSeedData = require('./fileSeedData')
 
 const prisma = new PrismaClient()
 
@@ -212,6 +213,16 @@ const contactsData = [
     summary: '**Entrepreneurial and Hardworking**\n\n- Skilled in refrigeration systems\n- Prefers hands-on management\n- Interested in *growing his business*\n\n> "I take pride in my work."',
     companyId: companiesData[0].id,
   },
+  {
+    id: '11HZYX6JQK7ZQK7ZQK7ZQK7zqc',
+    firstName: 'Bill',
+    lastName: 'Lumberg',
+    email: 'bill.lumberg@initech.com',
+    position: 'Vice President',
+    department: 'Management',
+    summary: 'Office manager and notorious for TPS reports.',
+    companyId: companiesData[1].id,
+  }
 ]
 
 // Update jobApplicationsData to use tag names instead of IDs
@@ -289,8 +300,10 @@ async function downloadLogoIfMissing(company) {
 
 async function seedJobApplications(userId, tagsByName) {
   for (const application of jobApplicationsData) {
-    await prisma.jobApplication.create({
-      data: {
+    await prisma.jobApplication.upsert({
+      where: { id: application.id },
+      update: {},
+      create: {
         id: application.id,
         position: application.position,
         status: application.status,
@@ -319,11 +332,6 @@ async function main() {
       lastName: 'Scott',
     },
   })
-
-  // Download company logos if missing
-  for (const c of companiesData) {
-    await downloadLogoIfMissing(c)
-  }
 
   // Companies
   const companies = {}
@@ -504,8 +512,64 @@ async function main() {
     }
   }
 
+  // File seeding: create File records for every file in fileSeedData
+  for (const file of fileSeedData) {
+    // Rename the file to use the static ID as filename
+    const absPath = path.join(__dirname, '../public', file.relPath)
+    const newFileName = `${file.id}${path.extname(file.fileName)}`
+    const newAbsPath = path.join(path.dirname(absPath), newFileName)
+    if (fs.existsSync(absPath) && absPath !== newAbsPath) {
+      fs.renameSync(absPath, newAbsPath)
+    }
+    await prisma.file.upsert({
+      where: { id: file.id },
+      update: {},
+      create: {
+        id: file.id,
+        fileName: newFileName,
+        mimeType: file.mimeType,
+        userId: user.id,
+      },
+    })
+  }
+
   // Seed job applications (moved after tags and tag assignments)
   await seedJobApplications(user.id, tags)
+
+  // Add a "Don't Jump to Conclusions" activity (note) to the Initech Software Engineer application
+  if (typeof softwareEngineerAppRecord !== 'undefined') {
+    await prisma.activity.upsert({
+      where: { id: 'NOTE_DONT_JUMP_TO_CONCLUSIONS' },
+      update: {},
+      create: {
+        id: 'NOTE_DONT_JUMP_TO_CONCLUSIONS',
+        type: 'RESEARCH', // Use enum or string as defined in your schema
+        subject: "Don't Jump to Conclusions",
+        description: null,
+        date: new Date('2025-06-19'), // before application date (2025-06-20)
+        userId: user.id,
+        jobApplicationId: softwareEngineerAppRecord.id,
+        companyId: companies['Initech'].id,
+      },
+    });
+    await prisma.activity.upsert({
+      where: { id: 'LUMBERG_INTERVIEW' },
+      update: {},
+      create: {
+        id: 'LUMBERG_INTERVIEW',
+        type: 'INTERVIEW', // Use enum or string as defined in your schema
+        subject: "Culture Fit",
+        description: null,
+        date: new Date('2025-06-22'), // before application date (2025-06-20)
+        userId: user.id,
+        jobApplicationId: softwareEngineerAppRecord.id,
+        companyId: companies['Initech'].id,
+        contacts: {
+          connect: [{ id: '11HZYX6JQK7ZQK7ZQK7ZQK7zqc' }],
+        },
+      },
+    });
+  }
 
   console.log('Database seeding completed.')
 }
