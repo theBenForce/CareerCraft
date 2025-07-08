@@ -22,6 +22,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import TagSelect from '@/components/ui/tag-select';
 
 export default function EditContactPage() {
   const { id } = useParams()
@@ -30,10 +31,6 @@ export default function EditContactPage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
   const [contactTags, setContactTags] = useState<Tag[]>([])
-  const [showTagSelector, setShowTagSelector] = useState(false)
-  const [showCreateTag, setShowCreateTag] = useState(false)
-  const [newTagName, setNewTagName] = useState('')
-  const [newTagColor, setNewTagColor] = useState('#3b82f6')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
@@ -179,7 +176,6 @@ export default function EditContactPage() {
       }
 
       setContactTags(prev => [...prev, tag])
-      setShowTagSelector(false)
       toast.success('Tag added successfully!')
     } catch (error) {
       console.error('Error adding tag:', error)
@@ -202,44 +198,6 @@ export default function EditContactPage() {
     } catch (error) {
       console.error('Error removing tag:', error)
       toast.error('Failed to remove tag')
-    }
-  }
-
-  const handleCreateTag = async () => {
-    if (!newTagName.trim()) {
-      toast.error('Tag name is required')
-      return
-    }
-
-    try {
-      const response = await fetch('/api/tags', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: newTagName.trim(),
-          color: newTagColor,
-          userId: 1, // TODO: Get actual user ID
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create tag')
-      }
-
-      const newTag = await response.json()
-      setAvailableTags(prev => [...prev, newTag])
-      setNewTagName('')
-      setNewTagColor('#3b82f6')
-      setShowCreateTag(false)
-      toast.success('Tag created successfully!')
-
-      // Automatically add the new tag to the contact
-      await handleAddTag(newTag)
-    } catch (error) {
-      console.error('Error creating tag:', error)
-      toast.error('Failed to create tag')
     }
   }
 
@@ -267,7 +225,7 @@ export default function EditContactPage() {
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background text-foreground"
+              className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-foreground"
             >
               {selectedCompany ? selectedCompany.name : 'Select a company'}
             </Button>
@@ -300,7 +258,7 @@ export default function EditContactPage() {
         <DrawerTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-background text-foreground"
+            className="w-full justify-start border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-foreground"
           >
             {selectedCompany ? selectedCompany.name : 'Select a company'}
           </Button>
@@ -475,7 +433,7 @@ export default function EditContactPage() {
                 {/* Company */}
                 <div>
                   <Label htmlFor="companyId">Company</Label>
-                  <div className="bg-background border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <div className="bg-transparent border border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <CompanyComboBox
                       value={formData.companyId}
                       onChange={(val) => setFormData((prev) => ({ ...prev, companyId: val }))}
@@ -489,133 +447,26 @@ export default function EditContactPage() {
                   <Label className="block text-sm font-medium text-gray-700 mb-3">
                     Tags
                   </Label>
-
-                  {/* Current Tags */}
-                  <div className="space-y-3">
-                    {contactTags.length > 0 ? (
-                      <div>
-                        <p className="text-sm text-gray-600 mb-2">Current tags:</p>
-                        <TagList
-                          tags={contactTags}
-                          removable={true}
-                          clickable={false}
-                          onRemove={handleRemoveTag}
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">No tags assigned</p>
-                    )}
-
-                    {/* Add Tag Button */}
-                    <div>
-                      {!showTagSelector ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowTagSelector(true)}
-                          className="inline-flex items-center px-3 py-2 border border-dashed border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Tag
-                        </button>
-                      ) : (
-                        <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-medium text-gray-900">Select a tag to add:</h4>
-                            <button
-                              type="button"
-                              onClick={() => setShowTagSelector(false)}
-                              className="text-gray-400 hover:text-gray-600"
-                              title="Close tag selector"
-                              aria-label="Close tag selector"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {availableTags
-                              .filter(tag => !contactTags.some(ct => ct.id === tag.id))
-                              .map(tag => (
-                                <button
-                                  key={tag.id}
-                                  type="button"
-                                  onClick={() => handleAddTag(tag)}
-                                  className="text-left p-2 border border-gray-200 rounded-md hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  <TagComponent tag={tag} clickable={false} />
-                                  {tag.description && (
-                                    <p className="text-xs text-gray-500 mt-1">{tag.description}</p>
-                                  )}
-                                </button>
-                              ))}
-                          </div>
-
-                          {availableTags.filter(tag => !contactTags.some(ct => ct.id === tag.id)).length === 0 && (
-                            <p className="text-sm text-gray-500">All available tags have been assigned to this contact.</p>
-                          )}
-
-                          {/* Create New Tag Section */}
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            {!showCreateTag ? (
-                              <button
-                                type="button"
-                                onClick={() => setShowCreateTag(true)}
-                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                              >
-                                + Create New Tag
-                              </button>
-                            ) : (
-                              <div className="space-y-3">
-                                <h5 className="text-sm font-medium text-gray-900">Create New Tag</h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  <div>
-                                    <input
-                                      type="text"
-                                      placeholder="Tag name"
-                                      value={newTagName}
-                                      onChange={(e) => setNewTagName(e.target.value)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label htmlFor="newTagColor" className="sr-only">Tag color</label>
-                                    <input
-                                      id="newTagColor"
-                                      type="color"
-                                      value={newTagColor}
-                                      onChange={(e) => setNewTagColor(e.target.value)}
-                                      className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                      title="Choose tag color"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={handleCreateTag}
-                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  >
-                                    Create & Add
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setShowCreateTag(false)
-                                      setNewTagName('')
-                                      setNewTagColor('#3b82f6')
-                                    }}
-                                    className="px-3 py-1.5 text-gray-700 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <TagSelect
+                    availableTags={availableTags}
+                    selectedTags={contactTags}
+                    onChange={async (tags) => {
+                      // Add new tags
+                      for (const tag of tags) {
+                        if (!contactTags.some((t) => t.id === tag.id)) {
+                          await handleAddTag(tag)
+                        }
+                      }
+                      // Remove unselected tags
+                      for (const tag of contactTags) {
+                        if (!tags.some((t) => t.id === tag.id)) {
+                          await handleRemoveTag(tag.id)
+                        }
+                      }
+                    }}
+                    placeholder="Type or select tags..."
+                    disabled={saving}
+                  />
                 </div>
 
                 {/* Submit Button */}
