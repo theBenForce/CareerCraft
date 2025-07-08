@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 import DetailsLayout from '@/components/layout/DetailsLayout'
-import { BriefcaseIcon, MapPinIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import { BriefcaseIcon, MapPinIcon, BuildingOfficeIcon, CurrencyDollarIcon, ArrowTrendingUpIcon, LinkIcon } from '@heroicons/react/24/outline'
 import { JobApplication, Company, Tag } from '@prisma/client'
 import { Separator } from '@/components/ui/separator'
 import { useState, useEffect } from 'react'
@@ -67,6 +67,9 @@ export default function ApplicationDetailsPage({ params }: ApplicationDetailsPag
       properties={[
         { icon: <MapPinIcon className="w-4 h-4 text-primary" />, text: companyData?.location || '-' },
         { icon: <BuildingOfficeIcon className="w-4 h-4 text-primary" />, text: companyData?.name || '-', href: companyData?.id ? `/companies/${companyData.id}` : undefined },
+        { icon: <ArrowTrendingUpIcon className="w-4 h-4 text-primary" />, text: applicationData?.priority || '-' },
+        { icon: <CurrencyDollarIcon className="w-4 h-4 text-primary" />, text: applicationData?.salary || '-' },
+        { icon: <LinkIcon className="w-4 h-4 text-primary" />, text: applicationData?.source || '-' },
       ]}
       tags={applicationData && Array.isArray((applicationData as any).tags) ? (applicationData as any).tags.map((tag: { id: string; name: string }) => ({ id: tag.id, name: tag.name })) : []}
       onEdit={() => handleStatusClick(currentStatus)}
