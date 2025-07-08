@@ -3,7 +3,10 @@ import { prisma } from "@/lib/db";
 import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
 // PATCH /api/companies/[id]/files - Add or remove file associations
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getSessionUser(request);
     if (!user) return unauthorizedResponse();
@@ -12,8 +15,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { addFileIds = [], removeFileIds = [] } = body;
 
     // Check ownership
-    const company = await prisma.company.findFirst({ where: { id: companyId, userId: user.id } });
-    if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const company = await prisma.company.findFirst({
+      where: { id: companyId, userId: user.id },
+    });
+    if (!company)
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
     // Update associations
     await prisma.company.update({
@@ -28,6 +34,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating company files:", error);
-    return NextResponse.json({ error: "Failed to update company files" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update company files" },
+      { status: 500 }
+    );
   }
 }

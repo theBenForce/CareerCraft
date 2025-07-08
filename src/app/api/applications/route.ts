@@ -94,9 +94,10 @@ export async function POST(request: NextRequest) {
         source,
         companyId: companyId,
         userId: user.id,
-        files: fileIds && Array.isArray(fileIds) && fileIds.length > 0
-          ? { connect: fileIds.map((id: string) => ({ id })) }
-          : undefined,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
       },
       include: {
         company: {

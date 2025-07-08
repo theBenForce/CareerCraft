@@ -131,9 +131,10 @@ export async function POST(request: NextRequest) {
                 connect: contactIds.map((id: string) => ({ id })),
               }
             : undefined,
-        files: fileIds && Array.isArray(fileIds) && fileIds.length > 0
-          ? { connect: fileIds.map((id: string) => ({ id })) }
-          : undefined,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
       },
       include: {
         company: {

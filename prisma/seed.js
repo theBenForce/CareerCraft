@@ -92,17 +92,6 @@ const contactsData = [
     companyId: companiesData[1].id,
   },
   {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQR',
-    firstName: 'Pam',
-    lastName: 'Beesly',
-    email: 'pam.beesly@dundermifflin.com',
-    phone: '+1-555-0124',
-    position: 'Receptionist',
-    department: 'Administration',
-    summary: '**Creative and Friendly**\n\n- Skilled in communication\n- Aspiring artist\n- Interested in *building office morale*\n\n> "I love making people smile."',
-    companyId: companiesData[0].id,
-  },
-  {
     id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqs',
     firstName: 'Stanley',
     lastName: 'Hudson',
@@ -225,6 +214,26 @@ const contactsData = [
   },
 ]
 
+// Update jobApplicationsData to use tag names instead of IDs
+const jobApplicationsData = [
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK',
+    position: 'Software Engineer',
+    status: 'applied',
+    priority: 'high',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH',
+    tagNames: ['Engineering', 'TPS Report Expert'],
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    position: 'Product Manager',
+    status: 'interview_scheduled',
+    priority: 'medium',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    tagNames: ['Sales'],
+  },
+]
+
 const tagsData = [
   { name: 'Sales', color: '#3b82f6', description: 'Sales-related activities and contacts' },
   { name: 'Engineering', color: '#10b981', description: 'Engineering roles and contacts' },
@@ -253,37 +262,6 @@ const tagAssignments = [
   { type: 'company', companyName: 'Initech', tag: 'TPS Report Expert' },
 ]
 
-const jobApplicationsData = [
-  {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK',
-    position: 'Software Engineer',
-    status: 'applied',
-    priority: 'high',
-    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH',
-    tags: [
-      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ1', name: 'Urgent' },
-      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ2', name: 'Remote' },
-    ],
-  },
-  {
-    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
-    position: 'Product Manager',
-    status: 'interview_scheduled',
-    priority: 'medium',
-    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
-    tags: [
-      { id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQ3', name: 'Leadership' },
-    ],
-  },
-]
-
-// Map company name to logo URL (public SVGs for demo)
-const logoSources = {
-  'Dunder Mifflin': 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Dunder_Mifflin%2C_Inc.svg',
-  'Initech': 'https://static.wikia.nocookie.net/officespace/images/d/df/Initech.png',
-  'Sabre': 'https://static.wikia.nocookie.net/theoffice/images/5/5b/Sabre_Company_Logo.jpg'
-}
-
 async function downloadLogoIfMissing(company) {
   if (!company.logo) return;
   const logoPath = path.join(__dirname, '../public', company.logo)
@@ -309,13 +287,18 @@ async function downloadLogoIfMissing(company) {
   }
 }
 
-async function seedJobApplications() {
+async function seedJobApplications(userId, tagsByName) {
   for (const application of jobApplicationsData) {
     await prisma.jobApplication.create({
       data: {
-        ...application,
+        id: application.id,
+        position: application.position,
+        status: application.status,
+        priority: application.priority,
+        userId,
+        companyId: application.companyId,
         tags: {
-          connect: application.tags.map((tag) => ({ id: tag.id })),
+          connect: (application.tagNames || []).map((name) => ({ id: tagsByName[name].id })),
         },
       },
     })
@@ -521,8 +504,8 @@ async function main() {
     }
   }
 
-  // Seed job applications
-  await seedJobApplications()
+  // Seed job applications (moved after tags and tag assignments)
+  await seedJobApplications(user.id, tags)
 
   console.log('Database seeding completed.')
 }

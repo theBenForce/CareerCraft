@@ -3,7 +3,10 @@ import { prisma } from "@/lib/db";
 import { getSessionUser, unauthorizedResponse } from "@/lib/auth-helpers";
 
 // PATCH /api/activities/[id]/files - Add or remove file associations
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getSessionUser(request);
     if (!user) return unauthorizedResponse();
@@ -12,8 +15,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { addFileIds = [], removeFileIds = [] } = body;
 
     // Check ownership
-    const activity = await prisma.activity.findFirst({ where: { id: activityId, userId: user.id } });
-    if (!activity) return NextResponse.json({ error: "Activity not found" }, { status: 404 });
+    const activity = await prisma.activity.findFirst({
+      where: { id: activityId, userId: user.id },
+    });
+    if (!activity)
+      return NextResponse.json(
+        { error: "Activity not found" },
+        { status: 404 }
+      );
 
     // Update associations
     await prisma.activity.update({
@@ -28,6 +37,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating activity files:", error);
-    return NextResponse.json({ error: "Failed to update activity files" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update activity files" },
+      { status: 500 }
+    );
   }
 }

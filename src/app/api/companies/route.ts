@@ -54,7 +54,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, industry, description, location, size, logo, notes, fileIds } = body;
+    const {
+      name,
+      industry,
+      description,
+      location,
+      size,
+      logo,
+      notes,
+      fileIds,
+    } = body;
 
     // Validate required fields
     if (!name || !name.trim()) {
@@ -76,9 +85,10 @@ export async function POST(request: NextRequest) {
         logo,
         notes,
         userId,
-        files: fileIds && Array.isArray(fileIds) && fileIds.length > 0
-          ? { connect: fileIds.map((id: string) => ({ id })) }
-          : undefined,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
       },
       include: {
         jobApplications: {
