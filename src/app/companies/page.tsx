@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button'
 import Header from '@/components/layout/Header'
 import { CompaniesList } from '@/components/CompaniesList'
 import { prisma } from '@/lib/db'
-import { Company } from '@prisma/client'
+// import { Company } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 60 // Revalidate every 60 seconds
 
-type CompanyListProp = Company & {
+type CompanyListProp = any & {
   jobApplications: Array<{ id: string; status: string }>,
   contacts: Array<{ id: string }>
 };

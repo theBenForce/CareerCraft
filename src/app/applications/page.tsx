@@ -119,7 +119,7 @@ export default async function ApplicationsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {applications.map((application) => (
+            {applications.map((application: any) => (
               <Card key={application.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <Link href={`/applications/${application.id}`} className="block">
