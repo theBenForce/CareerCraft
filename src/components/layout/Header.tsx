@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import {
@@ -13,11 +14,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
+import { 
+  UserCircleIcon, 
+  ArrowRightOnRectangleIcon,
+  Bars3Icon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 
 export default function Header() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navigationItems = [
     { href: '/contacts', label: 'Contacts' },
@@ -40,20 +47,31 @@ export default function Header() {
     })
   }
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
+
   return (
     <header className="bg-background border-b border-border shadow-sm">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-foreground hover:text-muted-foreground">
+          {/* Logo */}
+          <Link href="/" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground hover:text-muted-foreground">
             Career Craft
           </Link>
-          <div className="flex items-center space-x-6">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
             <nav className="flex space-x-4">
               {navigationItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`transition-colors pb-1 ${isActivePage(item.href)
+                  className={`transition-colors pb-1 px-2 py-1 rounded hover:bg-accent ${isActivePage(item.href)
                     ? 'text-foreground font-medium border-b-2 border-primary'
                     : 'text-muted-foreground hover:text-foreground'
                     }`}
@@ -86,7 +104,70 @@ export default function Header() {
               )}
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMobileMenu}
+              className="p-2"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-border">
+            <nav className="flex flex-col space-y-2 pt-4">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMobileMenu}
+                  className={`transition-colors px-3 py-2 rounded-lg text-base font-medium ${isActivePage(item.href)
+                    ? 'text-foreground bg-primary/10 border-l-4 border-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {session && (
+                <>
+                  <div className="border-t border-border my-2"></div>
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <UserCircleIcon className="h-8 w-8 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {session.user.firstName} {session.user.lastName}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="w-full justify-start space-x-2"
+                    >
+                      <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                      <span>Sign out</span>
+                    </Button>
+                  </div>
+                </>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   )
