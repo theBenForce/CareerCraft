@@ -120,9 +120,9 @@ export default function Header() {
               aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" />
+                <XMarkIcon className="h-6 w-6" data-testid="x-mark-icon" />
               ) : (
-                <Bars3Icon className="h-6 w-6" />
+                <Bars3Icon className="h-6 w-6" data-testid="bars-3-icon" />
               )}
             </Button>
           </div>
