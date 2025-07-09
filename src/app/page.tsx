@@ -224,7 +224,7 @@ export default async function Dashboard() {
             <CardContent>
               <div className="space-y-3">
                 {recentApplications.length > 0 ? (
-                  recentApplications.map((application) => (
+                  recentApplications.map((application: any) => (
                     <div key={application.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
                         <p className="font-medium text-foreground">{application.position}</p>
@@ -236,7 +236,7 @@ export default async function Dashboard() {
                             application.status === 'offer' ? 'default' :
                               'outline'
                       }>
-                        {application.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        {application.status.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
                       </Badge>
                     </div>
                   ))
@@ -261,7 +261,7 @@ export default async function Dashboard() {
             <CardContent>
               <div className="space-y-3">
                 {upcomingActivities.length > 0 ? (
-                  upcomingActivities.map((activity) => (
+                  upcomingActivities.map((activity: any) => (
                     <div key={activity.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
                         <p className="font-medium text-foreground">{activity.subject}</p>
