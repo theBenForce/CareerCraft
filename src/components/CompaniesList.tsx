@@ -7,7 +7,7 @@ import { EntityCard } from '@/components/EntityCard'
 interface Company {
   id: string
   name: string
-  description: string | null
+  description?: string | null
   website?: string | null
   location?: string | null
   industry?: string | null

@@ -3,6 +3,40 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 import { existsSync } from "fs";
+import { firebaseStorageService } from "@/lib/firebase-storage";
+
+// Helper function for local file system upload (fallback)
+async function uploadToLocalStorage(file: File, category: string) {
+  // Generate unique filename
+  const fileExtension = file.name.split(".").pop();
+  const fileName = `${randomUUID()}.${fileExtension}`;
+
+  // Convert file to buffer
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  // Save file to appropriate directory based on category
+  const uploadsBaseDir =
+    process.env.UPLOADS_DIR || join(process.cwd(), "public/uploads");
+  const uploadDir = join(uploadsBaseDir, category);
+  const filePath = join(uploadDir, fileName);
+
+  // Ensure upload directory exists
+  if (!existsSync(uploadDir)) {
+    await mkdir(uploadDir, { recursive: true });
+  }
+
+  await writeFile(filePath, buffer);
+
+  // Return the file path that can be used in img src
+  const publicPath = `/uploads/${category}/${fileName}`;
+
+  return {
+    success: true,
+    filePath: publicPath,
+    fileName,
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,35 +83,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `${randomUUID()}.${fileExtension}`;
-
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Save file to appropriate directory based on category
-    const uploadsBaseDir =
-      process.env.UPLOADS_DIR || join(process.cwd(), "public/uploads");
-    const uploadDir = join(uploadsBaseDir, category);
-    const filePath = join(uploadDir, fileName);
+    // Check if Firebase is enabled
+    const useFirebase = process.env.USE_FIREBASE === 'true' || process.env.FIREBASE_PROJECT_ID;
 
-    // Ensure upload directory exists
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
+    let result;
+    if (useFirebase) {
+      try {
+        // Upload to Firebase Storage
+        result = await firebaseStorageService.uploadFile({
+          buffer,
+          originalName: file.name,
+          mimeType: file.type,
+          category
+        });
+      } catch (firebaseError) {
+        console.error("Firebase Storage upload failed, falling back to local storage:", firebaseError);
+        // Fallback to local storage
+        result = await uploadToLocalStorage(file, category);
+      }
+    } else {
+      // Use local storage
+      result = await uploadToLocalStorage(file, category);
     }
 
-    await writeFile(filePath, buffer);
-
-    // Return the file path that can be used in img src
-    const publicPath = `/uploads/${category}/${fileName}`;
-
-    return NextResponse.json({
-      success: true,
-      filePath: publicPath,
-      fileName,
-    });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(

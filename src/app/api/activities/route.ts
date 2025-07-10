@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Manually fetch activity contacts for each activity
     const activitiesWithContacts = await Promise.all(
-      activities.map(async (activity) => {
+      activities.map(async (activity: any) => {
         const activityContacts = await (prisma as any).activityContact.findMany(
           {
             where: { activityId: activity.id },
