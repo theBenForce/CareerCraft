@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { notFound, useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -31,55 +30,20 @@ import {
 import DetailsLayout from '@/components/layout/DetailsLayout'
 import { EntityCard } from '@/components/EntityCard'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
+import { CompanyWithTags } from '@/types'
+import { JobApplication, Contact, Link as CompanyLink } from '@prisma/client'
+import { useState, useEffect } from 'react'
 
-interface Company {
-  id: string
-  name: string
-  industry?: string
-  website?: string
-  location?: string
-  size?: string
-  description?: string
-  notes?: string
-  logo?: string
-  createdAt: string
-  updatedAt: string
-  links?: Array<{
-    id: string
-    url: string
-    label?: string
-    createdAt: string
-    updatedAt: string
-  }>
-  jobApplications: Array<{
-    id: string
-    position: string
-    status: string
-    jobDescription?: string
-    createdAt: string
-    company: {
-      name: string
-    }
-  }>
-  contacts: Array<{
-    id: string
-    firstName: string
-    lastName: string
-    email?: string
-    position?: string
-  }>
-  activities: Array<{
-    id: string
-    type: string
-    subject: string
-    createdAt: string
-  }>
+interface CompanyPageData extends CompanyWithTags {
+  jobApplications: JobApplication[]
+  contacts: Contact[]
+  links: CompanyLink[]
 }
 
 export default function CompanyPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [company, setCompany] = useState<Company | null>(null)
+  const [company, setCompany] = useState<CompanyPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'applications' | 'contacts' | 'timeline'>('applications')
 
@@ -114,15 +78,6 @@ export default function CompanyPage() {
 
     // Default to LinkIcon for other URLs
     return <LinkIcon className="w-4 h-4 text-muted-foreground" />
-  }
-
-  const handleLinksChange = (updatedLinks: any[]) => {
-    if (company) {
-      setCompany({
-        ...company,
-        links: updatedLinks
-      })
-    }
   }
 
   useEffect(() => {
@@ -193,15 +148,9 @@ export default function CompanyPage() {
         rightColumn={
           <div className="animate-pulse">
             <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
-            <div className="space-y-4">
-              <div className="h-20 bg-muted rounded"></div>
-              <div className="h-20 bg-muted rounded"></div>
-              <div className="h-20 bg-muted rounded"></div>
-            </div>
           </div>
-        }
-      />
-    )
+        } />
+    );
   }
 
   if (!company) {
@@ -263,7 +212,7 @@ export default function CompanyPage() {
       <EntityCard
         id={company.id}
         name={company.name}
-        subtitle={company.industry}
+        subtitle={company.industry ?? undefined}
         image={(company as any).logo}
         imageAlt={`${company.name} logo`}
         fallbackIcon={<BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />}
@@ -273,11 +222,6 @@ export default function CompanyPage() {
         createdAt={company.createdAt}
         updatedAt={company.updatedAt}
         properties={[
-          ...(company.website ? [{
-            icon: <GlobeAltIcon className="w-5 h-5" />,
-            text: company.website,
-            href: company.website
-          }] : []),
           ...(company.location ? [{
             icon: <MapPinIcon className="w-5 h-5" />,
             text: company.location
@@ -419,7 +363,7 @@ export default function CompanyPage() {
                     key={application.id}
                     id={application.id}
                     name={application.position}
-                    subtitle={application.jobDescription}
+                    subtitle={application.jobDescription ?? undefined}
                     fallbackIcon={<BriefcaseIcon className="w-6 h-6 text-muted-foreground" />}
                     properties={[
                       {

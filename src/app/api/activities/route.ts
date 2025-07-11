@@ -27,9 +27,11 @@ export async function GET(request: NextRequest) {
             position: true,
           },
         },
-        activityTags: {
-          include: {
-            tag: true,
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
           },
         },
       },
@@ -41,26 +43,24 @@ export async function GET(request: NextRequest) {
     // Manually fetch activity contacts for each activity
     const activitiesWithContacts = await Promise.all(
       activities.map(async (activity) => {
-        const activityContacts = await (prisma as any).activityContact.findMany(
-          {
-            where: { activityId: activity.id },
-            include: {
-              contact: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  position: true,
-                },
-              },
+        // Fetch contacts for this activity (implicit many-to-many)
+        const activityContacts = await prisma.contact.findMany({
+          where: {
+            activities: {
+              some: { id: activity.id },
             },
-          }
-        );
-
+          },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            position: true,
+          },
+        });
         return {
           ...activity,
-          contacts: activityContacts.map((ac: any) => ac.contact),
+          contacts: activityContacts,
         };
       })
     );
@@ -94,6 +94,8 @@ export async function POST(request: NextRequest) {
       companyId,
       jobApplicationId,
       contactIds, // Array of contact IDs
+      tagIds, // Array of tag IDs (optional)
+      fileIds, // Array of File ULIDs to associate
     } = body;
 
     // Validate required fields
@@ -117,39 +119,23 @@ export async function POST(request: NextRequest) {
         companyId: companyId ?? null,
         jobApplicationId: jobApplicationId ?? null,
         userId: user.id,
+        tags:
+          tagIds && Array.isArray(tagIds) && tagIds.length > 0
+            ? {
+                connect: tagIds.map((id: string) => ({ id })),
+              }
+            : undefined,
+        contacts:
+          contactIds && Array.isArray(contactIds) && contactIds.length > 0
+            ? {
+                connect: contactIds.map((id: string) => ({ id })),
+              }
+            : undefined,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
       },
-    });
-
-    // Create activity-contact relationships if contactIds provided
-    if (contactIds && Array.isArray(contactIds) && contactIds.length > 0) {
-      const activityContacts = contactIds.map((contactId: string) => ({
-        activityId: activity.id,
-        contactId,
-      }));
-
-      await (prisma as any).activityContact.createMany({
-        data: activityContacts,
-      });
-    }
-
-    // Fetch the created activity with contacts
-    const activityContacts = await (prisma as any).activityContact.findMany({
-      where: { activityId: activity.id },
-      include: {
-        contact: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            position: true,
-          },
-        },
-      },
-    });
-
-    const activityWithRelations = await prisma.activity.findUnique({
-      where: { id: activity.id },
       include: {
         company: {
           select: {
@@ -163,13 +149,31 @@ export async function POST(request: NextRequest) {
             position: true,
           },
         },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+        contacts: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            position: true,
+          },
+        },
+        // files: true, // Not directly includable, fetch separately if needed
       },
     });
 
     // Transform the response
     const transformedActivity = {
-      ...activityWithRelations,
-      contacts: activityContacts.map((ac: any) => ac.contact),
+      ...activity,
+      contacts: activity.contacts,
+      tags: activity.tags,
     };
 
     return NextResponse.json(transformedActivity, { status: 201 });

@@ -20,11 +20,7 @@ export async function GET(request: NextRequest) {
             name: true,
           },
         },
-        contactTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
         links: {
           orderBy: {
             createdAt: "desc",
@@ -65,6 +61,7 @@ export async function POST(request: NextRequest) {
       summary,
       notes,
       companyId,
+      fileIds, // Array of File ULIDs to associate
     } = body;
 
     // Validate required fields
@@ -75,10 +72,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
     const userId = user.id;
 
-    const contact = await (prisma as any).contact.create({
+    const contact = await prisma.contact.create({
       data: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -91,7 +87,11 @@ export async function POST(request: NextRequest) {
         notes,
         companyId: companyId || null,
         userId,
-      } as any,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
+      },
       include: {
         company: {
           select: {
@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
             name: true,
           },
         },
+        // files: true, // REMOVE: not supported in include, fetch files separately if needed
       },
     });
 

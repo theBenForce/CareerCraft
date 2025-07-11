@@ -9,51 +9,10 @@ import {
 import { TagList } from './TagComponent'
 import { EntityCard } from './EntityCard'
 import ActivityIcon from './ActivityIcon'
-import { Tag } from '@/types'
+import { ActivityWithTags } from '@/types'
 
-interface Contact {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  position?: string
-}
-
-interface Company {
-  id: string
-  name: string
-}
-
-interface JobApplication {
-  id: string
-  position: string
-}
-interface ActivityTag {
-  id: string
-  activityId: string
-  tagId: string
-  tag: Tag
-}
-
-interface Activity {
-  id: string
-  type: string
-  title?: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  note?: string
-  followUpDate?: string
-  company?: Company
-  jobApplication?: JobApplication
-  contacts?: Contact[]
-  activityTags?: ActivityTag[]
-  createdAt: string
-  updatedAt: string
-}
 interface ActivityCardProps {
-  item: Activity
+  item: ActivityWithTags
   showTimeline?: boolean
   isLast?: boolean
 }
@@ -80,8 +39,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     }
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
+  const formatDate = (date: Date) => {
     const now = new Date()
     const diffTime = Math.abs(now.getTime() - date.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -97,7 +55,7 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
 
   // Get display properties based on item type
   const isNote = item.type === 'NOTE'
-  const displayDate = isNote ? item.createdAt! : item.date!
+  const displayDate: Date = new Date(isNote ? item.createdAt : item.date)
   const displayType = isNote ? 'NOTE' : item.type!
   const displaySubject = isNote ? item.title! : item.subject!
   const displayDescription = isNote ? item.note! : item.description
@@ -177,17 +135,17 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
                     ))}
                   </div>
                 )}
-                {!isNote && item.activityTags && item.activityTags.length > 0 && (
+                {!isNote && item.tags && item.tags.length > 0 && (
                   <div className="mt-2">
                     <TagList
-                      tags={item.activityTags.map(at => at.tag)}
+                      tags={item.tags}
                       maxDisplay={3}
                     />
                   </div>
                 )}
               </div>
               <div className="text-right text-sm whitespace-nowrap text-muted-foreground">
-                <time dateTime={displayDate}>
+                <time dateTime={displayDate.toISOString()}>
                   {formatDate(displayDate)}
                 </time>
                 <p className="mt-1">
@@ -269,11 +227,11 @@ export default function ActivityCard({ item, showTimeline = false, isLast = fals
     <EntityCard
       id={item.id!}
       name={displaySubject}
-      subtitle={displayDescription}
+      subtitle={displayDescription ?? undefined}
       fallbackIcon={<ActivityIcon type={displayType} size="md" />}
       fallbackText={formatActivityType(displayType)}
       properties={properties}
-      tags={item.activityTags?.map(at => at.tag) || []}
+      tags={item.tags || []}
       onView={() => router.push(`/activities/${item.id}`)}
       onEdit={() => router.push(`/activities/${item.id}/edit`)}
       imageType="logo"

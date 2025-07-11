@@ -54,7 +54,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, industry, description, location, size, logo, notes } = body;
+    const {
+      name,
+      industry,
+      description,
+      location,
+      size,
+      logo,
+      notes,
+      fileIds,
+    } = body;
 
     // Validate required fields
     if (!name || !name.trim()) {
@@ -64,10 +73,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, we'll use a hardcoded userId. In a real app, you'd get this from authentication
     const userId = user.id;
 
-    const company = await (prisma as any).company.create({
+    const company = await prisma.company.create({
       data: {
         name: name.trim(),
         industry,
@@ -77,6 +85,10 @@ export async function POST(request: NextRequest) {
         logo,
         notes,
         userId,
+        files:
+          fileIds && Array.isArray(fileIds) && fileIds.length > 0
+            ? { connect: fileIds.map((id: string) => ({ id })) }
+            : undefined,
       },
       include: {
         jobApplications: {
@@ -90,6 +102,7 @@ export async function POST(request: NextRequest) {
             id: true,
           },
         },
+        // files: true, // Not directly includable, fetch separately if needed
       },
     });
 

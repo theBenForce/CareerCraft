@@ -1,909 +1,577 @@
 const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
+const fs = require('fs')
+const path = require('path')
+const https = require('https')
+const fileSeedData = require('./fileSeedData')
 
 const prisma = new PrismaClient()
 
-// Hardcoded ULIDs for demo data
-const DEMO_USER_ID = '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK';
-const COMPANY_IDS = [
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQJ', // TechCorp
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH', // StartupXYZ
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQG', // Digital Agency
-];
-const CONTACT_IDS = [
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQI', // John Doe
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQF', // Jane Smith
-  '01HZYX6JQK7ZQK7ZQK7ZQK7ZQE', // Mike Johnson
-];
+const DEMO_USER_ID = '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK'
+
+const companiesData = [
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQJ',
+    name: 'Dunder Mifflin',
+    industry: 'Paper Sales',
+    description: 'Regional paper and office supply distributor',
+    location: 'Scranton, PA',
+    size: '50-200',
+    logo: '/uploads/logos/dunder-mifflin-logo.svg',
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH',
+    name: 'Initech',
+    industry: 'Software Development',
+    description: 'Software company specializing in enterprise solutions',
+    location: 'Austin, TX',
+    size: '200-500',
+    logo: '/uploads/logos/initech-logo.png',
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    name: 'Sabre',
+    industry: 'Technology',
+    description: 'Parent company of Dunder Mifflin',
+    location: 'Tallahassee, FL',
+    size: '500-1000',
+    logo: '/uploads/logos/sabre-logo.png',
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQM',
+    name: 'Initrode',
+    industry: 'Software Development',
+    description: 'Competitor to Initech',
+    location: 'Austin, TX',
+    size: '200-500',
+  },
+]
+
+const contactsData = [
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQI',
+    firstName: 'Dwight',
+    lastName: 'Schrute',
+    email: 'dwight.schrute@dundermifflin.com',
+    phone: '+1-555-0123',
+    position: 'Assistant to the Regional Manager',
+    department: 'Sales',
+    summary: '**Key Salesperson** at Dunder Mifflin\n\n- Expert in paper products\n- Competitive and ambitious\n- Interested in *expanding client base*\n\n> "I am ready to sell more paper than anyone else."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQF',
+    firstName: 'Peter',
+    lastName: 'Gibbons',
+    email: 'peter.gibbons@initech.com',
+    phone: '+1-555-0456',
+    position: 'Software Engineer',
+    department: 'Engineering',
+    summary: '**Disillusioned Engineer**\n\n- Skilled in enterprise software\n- Prefers minimal supervision\n- Interested in *streamlining processes*\n\n> "I just want to do my job and go home."',
+    companyId: companiesData[1].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    firstName: 'Jim',
+    lastName: 'Halpert',
+    email: 'jim.halpert@dundermifflin.com',
+    phone: '+1-555-0789',
+    position: 'Sales Representative',
+    department: 'Sales',
+    summary: '**Friendly Salesperson**\n\n- Skilled in client relations\n- Known for pranks and humor\n- Interested in *building long-term relationships*\n\n> "I love working with people and making deals."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQP',
+    firstName: 'Milton',
+    lastName: 'Waddams',
+    email: 'milton.waddams@initech.com',
+    phone: '+1-555-0457',
+    position: 'Office Worker',
+    department: 'Administration',
+    summary: '**Quiet Worker**\n\n- Known for his red stapler\n- Prefers a quiet workspace\n- Interested in *job stability*\n\n> "I just want my stapler back."',
+    companyId: companiesData[1].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqs',
+    firstName: 'Stanley',
+    lastName: 'Hudson',
+    email: 'stanley.hudson@dundermifflin.com',
+    phone: '+1-555-0125',
+    position: 'Sales Representative',
+    department: 'Sales',
+    summary: '**Experienced Salesperson**\n\n- Focused on retirement\n- Prefers minimal drama\n- Interested in *steady sales performance*\n\n> "I do my job and go home."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqt',
+    firstName: 'Ryan',
+    lastName: 'Howard',
+    email: 'ryan.howard@dundermifflin.com',
+    phone: '+1-555-0126',
+    position: 'Temp',
+    department: 'Sales',
+    summary: '**Ambitious Temp**\n\n- Interested in climbing the corporate ladder\n- Prefers innovative ideas\n- Interested in *modernizing sales techniques*\n\n> "I have big plans for my career."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqu',
+    firstName: 'Kelly',
+    lastName: 'Kapoor',
+    email: 'kelly.kapoor@dundermifflin.com',
+    phone: '+1-555-0127',
+    position: 'Customer Service Representative',
+    department: 'Customer Service',
+    summary: '**Fashionable and Talkative**\n\n- Skilled in customer relations\n- Loves pop culture\n- Interested in *building client relationships*\n\n> "I know how to make people happy."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqv',
+    firstName: 'Toby',
+    lastName: 'Flenderson',
+    email: 'toby.flenderson@dundermifflin.com',
+    phone: '+1-555-0128',
+    position: 'HR Representative',
+    department: 'Human Resources',
+    summary: '**Calm and Reserved**\n\n- Skilled in conflict resolution\n- Prefers peaceful environments\n- Interested in *maintaining workplace harmony*\n\n> "I just want everyone to get along."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqw',
+    firstName: 'Angela',
+    lastName: 'Martin',
+    email: 'angela.martin@dundermifflin.com',
+    phone: '+1-555-0129',
+    position: 'Accountant',
+    department: 'Accounting',
+    summary: '**Strict and Organized**\n\n- Skilled in financial management\n- Prefers order and structure\n- Interested in *ensuring financial accuracy*\n\n> "I keep the office running smoothly."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqx',
+    firstName: 'Oscar',
+    lastName: 'Martinez',
+    email: 'oscar.martinez@dundermifflin.com',
+    phone: '+1-555-0130',
+    position: 'Accountant',
+    department: 'Accounting',
+    summary: '**Smart and Analytical**\n\n- Skilled in financial analysis\n- Prefers logical solutions\n- Interested in *improving efficiency*\n\n> "I like solving problems."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqy',
+    firstName: 'Creed',
+    lastName: 'Bratton',
+    email: 'creed.bratton@dundermifflin.com',
+    phone: '+1-555-0131',
+    position: 'Quality Assurance',
+    department: 'Quality Assurance',
+    summary: '**Mysterious and Quirky**\n\n- Skilled in improvisation\n- Prefers unconventional methods\n- Interested in *keeping things interesting*\n\n> "I do what needs to be done."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqz',
+    firstName: 'Kevin',
+    lastName: 'Malone',
+    email: 'kevin.malone@dundermifflin.com',
+    phone: '+1-555-0132',
+    position: 'Accountant',
+    department: 'Accounting',
+    summary: '**Funny and Easygoing**\n\n- Skilled in basic accounting\n- Prefers a relaxed atmosphere\n- Interested in *making work fun*\n\n> "I like to keep things simple."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqa',
+    firstName: 'Phyllis',
+    lastName: 'Vance',
+    email: 'phyllis.vance@dundermifflin.com',
+    phone: '+1-555-0133',
+    position: 'Sales Representative',
+    department: 'Sales',
+    summary: '**Kind and Experienced**\n\n- Skilled in client relations\n- Prefers a supportive environment\n- Interested in *helping others succeed*\n\n> "I like to make people feel valued."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqb',
+    firstName: 'Jan',
+    lastName: 'Levinson',
+    email: 'jan.levinson@sabre.com',
+    phone: '+1-555-0134',
+    position: 'Executive',
+    department: 'Management',
+    summary: '**Ambitious and Driven**\n\n- Skilled in corporate strategy\n- Prefers high-level decision making\n- Interested in *expanding market share*\n\n> "I know how to get results."',
+    companyId: companiesData[2].id,
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7zqc',
+    firstName: 'Bob',
+    lastName: 'Vance',
+    email: 'bob.vance@vance-refrigeration.com',
+    phone: '+1-555-0135',
+    position: 'Owner',
+    department: 'Management',
+    summary: '**Entrepreneurial and Hardworking**\n\n- Skilled in refrigeration systems\n- Prefers hands-on management\n- Interested in *growing his business*\n\n> "I take pride in my work."',
+    companyId: companiesData[0].id,
+  },
+  {
+    id: '11HZYX6JQK7ZQK7ZQK7ZQK7zqc',
+    firstName: 'Bill',
+    lastName: 'Lumberg',
+    email: 'bill.lumberg@initech.com',
+    position: 'Vice President',
+    department: 'Management',
+    summary: 'Office manager and notorious for TPS reports.',
+    companyId: companiesData[1].id,
+  }
+]
+
+// Update jobApplicationsData to use tag names instead of IDs
+const jobApplicationsData = [
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQK',
+    position: 'Software Engineer',
+    status: 'applied',
+    priority: 'high',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQH',
+    tagNames: ['Engineering', 'TPS Report Expert'],
+  },
+  {
+    id: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    position: 'Product Manager',
+    status: 'interview_scheduled',
+    priority: 'medium',
+    companyId: '01HZYX6JQK7ZQK7ZQK7ZQK7ZQL',
+    tagNames: ['Sales'],
+  },
+]
+
+const tagsData = [
+  { name: 'Sales', color: '#3b82f6', description: 'Sales-related activities and contacts' },
+  { name: 'Engineering', color: '#10b981', description: 'Engineering roles and contacts' },
+  { name: "World's Best Boss", color: '#f59e0b', description: 'For exceptional leadership qualities' },
+  { name: 'Printer Expert', color: '#8b5cf6', description: 'Knows everything about printers' },
+  { name: 'Bears, Beets, Battlestar Galactica', color: '#ef4444', description: 'For fans of Dwight Schrute' },
+  { name: 'Flair Enthusiast', color: '#f59e0b', description: 'For those who love wearing flair' },
+  { name: 'Stapler in Jello', color: '#3b82f6', description: 'For pranksters like Jim Halpert' },
+  { name: 'TPS Report Expert', color: '#8b5cf6', description: 'Knows everything about TPS reports' },
+  { name: 'Assistant to the Regional Manager', color: '#10b981', description: 'For those who aspire to be Dwight Schrute' },
+  { name: 'Likes Stapler', color: '#f59e0b', description: 'For those who have a special fondness for staplers' },
+]
+
+const tagAssignments = [
+  // contact assignments
+  { type: 'contact', contactName: 'Dwight', tag: 'Printer Expert' },
+  { type: 'contact', contactName: 'Pam', tag: "World's Best Boss" },
+  { type: 'contact', contactName: 'Dwight', tag: 'Bears, Beets, Battlestar Galactica' },
+  { type: 'contact', contactName: 'Ryan', tag: 'Stapler in Jello' },
+  { type: 'contact', contactName: 'Milton', tag: 'TPS Report Expert' },
+  { type: 'contact', contactName: 'Dwight', tag: 'Assistant to the Regional Manager' },
+  { type: 'contact', contactName: 'Dwight', tag: 'Likes Stapler' },
+  { type: 'contact', contactName: 'Milton', tag: 'Likes Stapler' },
+  // company assignments
+  { type: 'company', companyName: 'Dunder Mifflin', tag: 'Printer Expert' },
+  { type: 'company', companyName: 'Initech', tag: 'TPS Report Expert' },
+]
+
+async function downloadLogoIfMissing(company) {
+  if (!company.logo) return;
+  const logoPath = path.join(__dirname, '../public', company.logo)
+  if (!fs.existsSync(logoPath)) {
+    const url = logoSources[company.name]
+    if (!url) return
+    await new Promise((resolve, reject) => {
+      const file = fs.createWriteStream(logoPath)
+      https.get(url, (response) => {
+        if (response.statusCode !== 200) {
+          file.close()
+          fs.unlinkSync(logoPath)
+          return reject(new Error(`Failed to download ${url}`))
+        }
+        response.pipe(file)
+        file.on('finish', () => file.close(resolve))
+      }).on('error', (err) => {
+        fs.unlinkSync(logoPath)
+        reject(err)
+      })
+    })
+    console.log(`Downloaded logo for ${company.name}`)
+  }
+}
+
+async function seedJobApplications(userId, tagsByName) {
+  for (const application of jobApplicationsData) {
+    await prisma.jobApplication.upsert({
+      where: { id: application.id },
+      update: {},
+      create: {
+        id: application.id,
+        position: application.position,
+        status: application.status,
+        priority: application.priority,
+        userId,
+        companyId: application.companyId,
+        tags: {
+          connect: (application.tagNames || []).map((name) => ({ id: tagsByName[name].id })),
+        },
+      },
+    })
+  }
+}
 
 async function main() {
   console.log('Starting database seeding...')
-
-  // Create a demo user
   const hashedPassword = await bcrypt.hash('demo123', 10)
-
   const user = await prisma.user.upsert({
     where: { id: DEMO_USER_ID },
     update: {},
     create: {
       id: DEMO_USER_ID,
-      email: 'demo@example.com',
+      email: 'michael.scott@dundermifflin.com',
       password: hashedPassword,
-      firstName: 'Demo',
-      lastName: 'User',
+      firstName: 'Michael',
+      lastName: 'Scott',
     },
   })
 
-  console.log('Created/found demo user')
+  // Companies
+  const companies = {}
+  for (const c of companiesData) {
+    companies[c.name] = await prisma.company.upsert({
+      where: { id: c.id },
+      update: {},
+      create: { ...c, userId: user.id },
+    })
+  }
 
-  // Create demo companies
-  const companies = []
+  // Contacts
+  const contacts = {}
+  for (const c of contactsData) {
+    contacts[c.firstName] = await prisma.contact.upsert({
+      where: { id: c.id },
+      update: {},
+      create: { ...c, userId: user.id },
+    })
+  }
 
-  // TechCorp Inc.
-  let techCorp = await prisma.company.upsert({
-    where: { id: COMPANY_IDS[0] },
-    update: {},
-    create: {
-      id: COMPANY_IDS[0],
-      name: 'TechCorp Inc.',
-      industry: 'Technology',
-      description: 'Leading software development company',
-      location: 'San Francisco, CA',
-      size: '1000-5000',
-      logo: '/uploads/logos/techcorp-logo.svg',
-      userId: DEMO_USER_ID,
-    },
-  })
-  companies.push(techCorp)
-
-  // StartupXYZ
-  let startupXyz = await prisma.company.upsert({
-    where: { id: COMPANY_IDS[1] },
-    update: {},
-    create: {
-      id: COMPANY_IDS[1],
-      name: 'StartupXYZ',
-      industry: 'SaaS',
-      description: 'Innovative SaaS platform for businesses',
-      location: 'Austin, TX',
-      size: '50-200',
-      logo: '/uploads/logos/startupxyz-logo.svg',
-      userId: DEMO_USER_ID,
-    },
-  })
-  companies.push(startupXyz)
-
-  // Digital Agency
-  let digitalAgency = await prisma.company.upsert({
-    where: { id: COMPANY_IDS[2] },
-    update: {},
-    create: {
-      id: COMPANY_IDS[2],
-      name: 'Digital Agency',
-      industry: 'Marketing',
-      description: 'Full-service digital marketing agency',
-      location: 'New York, NY',
-      size: '200-500',
-      userId: DEMO_USER_ID,
-    },
-  })
-  companies.push(digitalAgency)
-
-  console.log('Created/found demo companies')
-
-  // Create demo contacts
-  const contacts = []
-
-  // John Doe
-  let johnDoe = await prisma.contact.upsert({
-    where: { id: CONTACT_IDS[0] },
-    update: {},
-    create: {
-      id: CONTACT_IDS[0],
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@techcorp.com',
-      phone: '+1-555-0123',
-      position: 'Engineering Manager',
-      department: 'Engineering',
-      image: '/uploads/contacts/john-smith.svg',
-      summary: '**Key Contact** at TechCorp\n\n- 8+ years of engineering experience\n- Decision maker for technical hiring\n- Very responsive to emails\n- Interested in *full-stack developers* with React expertise\n\n> "Always looking for talented engineers who can scale our platform"',
-      userId: DEMO_USER_ID,
-      companyId: COMPANY_IDS[0],
-    },
-  })
-  contacts.push(johnDoe)
-
-  // Jane Smith
-  let janeSmith = await prisma.contact.upsert({
-    where: { id: CONTACT_IDS[1] },
-    update: {},
-    create: {
-      id: CONTACT_IDS[1],
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@startupxyz.com',
-      phone: '+1-555-0456',
-      position: 'Product Manager',
-      department: 'Product',
-      image: '/uploads/contacts/sarah-johnson.svg',
-      summary: '**Product Strategy Leader**\n\n- Former Google PM with 6 years experience\n- Leading StartupXYZ\'s product roadmap\n- **Hot connection** - referred by mutual friend Sarah\n- Scheduled follow-up for *next quarter*\n\n*Next steps:* Send quarterly product updates',
-      userId: DEMO_USER_ID,
-      companyId: COMPANY_IDS[1],
-    },
-  })
-  contacts.push(janeSmith)
-
-  // Mike Johnson
-  let mikeJohnson = await prisma.contact.upsert({
-    where: { id: CONTACT_IDS[2] },
-    update: {},
-    create: {
-      id: CONTACT_IDS[2],
-      firstName: 'Mike',
-      lastName: 'Johnson',
-      email: 'mike.johnson@digitalagency.com',
-      phone: '+1-555-0789',
-      position: 'Creative Director',
-      department: 'Creative',
-      image: '/uploads/contacts/mike-wilson.svg',
-      summary: '**Creative Visionary** at Digital Agency\n\n- Award-winning designer (Webby Awards 2023)\n- Looking for **freelance developers** for client projects\n- Prefers weekend communication\n- Interested in:\n  - Modern web technologies\n  - UX/UI collaboration\n  - Long-term partnerships\n\n📅 *Next meeting: July 15th*',
-      userId: DEMO_USER_ID,
-      companyId: COMPANY_IDS[2],
-    },
-  })
-  contacts.push(mikeJohnson)
-
-  console.log('Created/found demo contacts')
-
-  // Create demo job applications
+  // Job Applications (same as before)
   const jobApplications = []
-
-  // Check and create each job application individually
-  const seniorDevApp = await prisma.jobApplication.findFirst({
-    where: {
-      position: 'Senior Developer',
-      userId: user.id,
-      companyId: companies[0].id
-    }
+  const regionalManagerApp = await prisma.jobApplication.findFirst({
+    where: { position: 'Regional Manager', userId: user.id, companyId: companies['Dunder Mifflin'].id }
   })
-
-  if (!seniorDevApp) {
-    const app = await prisma.jobApplication.create({
+  let regionalManagerAppRecord
+  if (!regionalManagerApp) {
+    regionalManagerAppRecord = await prisma.jobApplication.create({
       data: {
-        position: 'Senior Developer',
+        position: 'Regional Manager',
         status: 'interview_scheduled',
         priority: 'high',
-        jobDescription: 'Senior full-stack developer position with React and Node.js',
-        salary: '$120,000 - $150,000',
-        appliedDate: new Date('2024-06-25'),
-        interviewDate: new Date('2024-07-02'),
+        jobDescription: 'Leadership role overseeing sales and operations',
+        salary: '$80,000 - $100,000',
         source: 'LinkedIn',
         userId: user.id,
-        companyId: companies[0].id,
+        companyId: companies['Dunder Mifflin'].id,
       },
     })
-    jobApplications.push(app)
+    jobApplications.push(regionalManagerAppRecord)
   } else {
-    jobApplications.push(seniorDevApp)
+    regionalManagerAppRecord = regionalManagerApp
+    jobApplications.push(regionalManagerApp)
   }
-
-  const productManagerApp = await prisma.jobApplication.findFirst({
-    where: {
-      position: 'Product Manager',
+  // Add activities for application process
+  await prisma.activity.create({
+    data: {
+      type: 'APPLICATION',
+      subject: 'Applied for Regional Manager',
+      date: new Date('2025-06-25'),
       userId: user.id,
-      companyId: companies[1].id
-    }
+      companyId: companies['Dunder Mifflin'].id,
+      jobApplicationId: regionalManagerAppRecord.id,
+    },
+  })
+  await prisma.activity.create({
+    data: {
+      type: 'INTERVIEW',
+      subject: 'Interview for Regional Manager',
+      date: new Date('2025-07-02'),
+      userId: user.id,
+      companyId: companies['Dunder Mifflin'].id,
+      jobApplicationId: regionalManagerAppRecord.id,
+    },
   })
 
-  if (!productManagerApp) {
-    const app = await prisma.jobApplication.create({
+  const softwareEngineerApp = await prisma.jobApplication.findFirst({
+    where: { position: 'Software Engineer', userId: user.id, companyId: companies['Initech'].id }
+  })
+  let softwareEngineerAppRecord
+  if (!softwareEngineerApp) {
+    softwareEngineerAppRecord = await prisma.jobApplication.create({
       data: {
-        position: 'Product Manager',
+        position: 'Software Engineer',
         status: 'applied',
         priority: 'medium',
-        jobDescription: 'Product Manager role focusing on SaaS platform development',
-        salary: '$100,000 - $130,000',
-        appliedDate: new Date('2024-06-20'),
+        jobDescription: 'Develop and maintain enterprise software solutions',
+        salary: '$90,000 - $120,000',
         source: 'Company Website',
         userId: user.id,
-        companyId: companies[1].id,
+        companyId: companies['Initech'].id,
       },
     })
-    jobApplications.push(app)
+    jobApplications.push(softwareEngineerAppRecord)
   } else {
-    jobApplications.push(productManagerApp)
+    softwareEngineerAppRecord = softwareEngineerApp
+    jobApplications.push(softwareEngineerApp)
   }
-
-  const fullStackApp = await prisma.jobApplication.findFirst({
-    where: {
-      position: 'Full Stack Engineer',
+  await prisma.activity.create({
+    data: {
+      type: 'APPLICATION',
+      subject: 'Applied for Software Engineer',
+      date: new Date('2025-06-20'),
       userId: user.id,
-      companyId: companies[2].id
-    }
+      companyId: companies['Initech'].id,
+      jobApplicationId: softwareEngineerAppRecord.id,
+    },
   })
 
-  if (!fullStackApp) {
-    const app = await prisma.jobApplication.create({
-      data: {
-        position: 'Full Stack Engineer',
-        status: 'rejected',
-        priority: 'low',
-        jobDescription: 'Full stack developer for client projects',
-        salary: '$90,000 - $110,000',
-        appliedDate: new Date('2024-06-15'),
-        responseDate: new Date('2024-06-22'),
-        source: 'Referral',
-        userId: user.id,
-        companyId: companies[2].id,
-      },
-    })
-    jobApplications.push(app)
-  } else {
-    jobApplications.push(fullStackApp)
-  }
-
-  console.log('Created/found demo job applications')
-
-  // Create demo activities with multiple contacts
+  // Activities (same as before)
   const activities = []
-
-  // Activity 1: Product Strategy Webinar
-  let activity1 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Product Strategy Webinar',
-      userId: user.id
-    }
-  })
-
+  let activity1 = await prisma.activity.findFirst({ where: { subject: 'Sales Strategy Meeting', userId: user.id } })
   if (!activity1) {
     activity1 = await prisma.activity.create({
       data: {
         type: 'MEETING',
-        subject: 'Product Strategy Webinar',
-        description: 'Webinar discussing product strategy and roadmap for Q4',
-        date: new Date('2024-07-02T14:00:00Z'),
+        subject: 'Sales Strategy Meeting',
+        description: 'Discussing sales goals and strategies for Q3',
+        date: new Date('2025-07-02T14:00:00Z'),
         duration: 90,
         userId: user.id,
-        companyId: companies[1].id,
+        companyId: companies['Dunder Mifflin'].id,
       },
     })
   }
   activities.push(activity1)
-
-  // Activity 2: Technical Interview Panel
-  let activity2 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Technical Interview Panel',
-      userId: user.id
-    }
-  })
-
+  let activity2 = await prisma.activity.findFirst({ where: { subject: 'Code Review Session', userId: user.id } })
   if (!activity2) {
     activity2 = await prisma.activity.create({
       data: {
-        type: 'INTERVIEW',
-        subject: 'Technical Interview Panel',
-        description: 'Technical interview with multiple team members',
-        date: new Date('2024-07-05T10:00:00Z'),
+        type: 'MEETING',
+        subject: 'Code Review Session',
+        description: 'Reviewing code quality and best practices',
+        date: new Date('2025-07-05T10:00:00Z'),
         duration: 60,
         userId: user.id,
-        companyId: companies[0].id,
+        companyId: companies['Initech'].id,
       },
     })
   }
   activities.push(activity2)
 
-  // Activity 3: Creative Review Meeting
-  let activity3 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Creative Review Meeting',
-      userId: user.id
-    }
-  })
-
-  if (!activity3) {
-    activity3 = await prisma.activity.create({
-      data: {
-        type: 'PHONE_CALL',
-        subject: 'Creative Review Meeting',
-        description: 'Review of creative concepts with the team',
-        date: new Date('2024-07-08T15:30:00Z'),
-        duration: 45,
-        userId: user.id,
-        companyId: companies[2].id,
-      },
+  // Tags
+  const tags = {}
+  for (const t of tagsData) {
+    tags[t.name] = await prisma.tag.upsert({
+      where: { name: t.name },
+      update: {},
+      create: { ...t, userId: user.id },
     })
   }
-  activities.push(activity3)
 
-  // Activity 4: Follow-up Email
-  let activity4 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Follow-up on Partnership Discussion',
-      userId: user.id
-    }
-  })
-
-  if (!activity4) {
-    activity4 = await prisma.activity.create({
-      data: {
-        type: 'EMAIL',
-        subject: 'Follow-up on Partnership Discussion',
-        description: 'Email follow-up after yesterday\'s partnership meeting to clarify next steps',
-        date: new Date('2024-07-02T09:30:00Z'),
-        duration: 15,
-        note: 'Sent proposal document and timeline',
-        followUpDate: new Date('2024-07-09'),
-        userId: user.id,
-        companyId: companies[1].id,
-      },
-    })
-  }
-  activities.push(activity4)
-
-  console.log('Created/found demo activities')
-
-  // Connect activities to multiple contacts (using upsert to avoid duplicates)
-  const activityContactConnections = [
-    // Activity 1 (Product Strategy Webinar) with Jane and John
-    { activityId: activity1.id, contactId: contacts[1].id }, // Jane Smith
-    { activityId: activity1.id, contactId: contacts[0].id }, // John Doe
-    // Activity 2 (Technical Interview) with John only
-    { activityId: activity2.id, contactId: contacts[0].id }, // John Doe
-    // Activity 3 (Creative Review) with Mike and Jane
-    { activityId: activity3.id, contactId: contacts[2].id }, // Mike Johnson
-    { activityId: activity3.id, contactId: contacts[1].id }, // Jane Smith
-    // Activity 4 (Follow-up Email) with Jane only
-    { activityId: activity4.id, contactId: contacts[1].id }, // Jane Smith
-  ]
-
-  for (const connection of activityContactConnections) {
+  // Tag assignments
+  for (const rel of tagAssignments) {
     try {
-      await prisma.activityContact.upsert({
-        where: {
-          activityId_contactId: {
-            activityId: connection.activityId,
-            contactId: connection.contactId
-          }
-        },
-        update: {},
-        create: connection
-      })
-    } catch (error) {
-      // Connection might already exist, continue
-      console.log(`Activity-Contact connection already exists: Activity ${connection.activityId} - Contact ${connection.contactId}`)
-    }
-  }
-
-  console.log('Created/found activity-contact connections')
-
-  // Create demo note activities (using the NOTE activity type)
-  const noteActivities = []
-
-  // Note 1: Interview Preparation Notes
-  let noteActivity1 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Interview Preparation Notes',
-      type: 'NOTE',
-      userId: user.id
-    }
-  })
-
-  if (!noteActivity1) {
-    noteActivity1 = await prisma.activity.create({
-      data: {
-        type: 'NOTE',
-        title: 'Interview Preparation',
-        subject: 'Interview Preparation Notes',
-        description: 'Key points to remember for upcoming interviews',
-        note: `**Technical Interview Checklist:**
-- Review React hooks and state management
-- Prepare system design examples (scaling, databases)
-- Research company background and recent news
-- Practice coding problems on LeetCode
-- Prepare questions about team structure and tech stack
-
-**Companies to focus on:**
-- TechCorp Inc. - React/Node.js focus
-- StartupXYZ - Product thinking important`,
-        date: new Date('2024-06-28T09:00:00Z'),
-        userId: user.id,
-      },
-    })
-  }
-  noteActivities.push(noteActivity1)
-
-  // Note 2: Networking Strategy
-  let noteActivity2 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Q3 Networking Strategy',
-      type: 'NOTE',
-      userId: user.id
-    }
-  })
-
-  if (!noteActivity2) {
-    noteActivity2 = await prisma.activity.create({
-      data: {
-        type: 'NOTE',
-        title: 'Networking Goals',
-        subject: 'Q3 Networking Strategy',
-        description: 'Strategic plan for networking and job search activities for Q3 2024',
-        note: `**Q3 Networking Goals:**
-
-*Primary Targets:*
-- Attend 2 tech meetups per month
-- Connect with 5 new people per week on LinkedIn
-- Schedule 1 coffee chat per week with industry contacts
-
-*Events to Attend:*
-- React Conf (July 15-16)
-- StartupXYZ Product Showcase (August 3)
-- Tech Leaders Meetup (monthly)
-
-*Follow-up Strategy:*
-- Send personalized connection requests within 24 hours
-- Share relevant articles and insights
-- Offer help before asking for anything
-
-**Key Metrics:**
-- Target: 60 new connections by end of Q3
-- Goal: 3 informational interviews per month`,
-        date: new Date('2024-06-30T08:00:00Z'),
-        followUpDate: new Date('2024-07-15'),
-        userId: user.id,
-      },
-    })
-  }
-  noteActivities.push(noteActivity2)
-
-  // Note 3: Company Research Notes
-  let noteActivity3 = await prisma.activity.findFirst({
-    where: {
-      subject: 'TechCorp Research Notes',
-      type: 'NOTE',
-      userId: user.id
-    }
-  })
-
-  if (!noteActivity3) {
-    noteActivity3 = await prisma.activity.create({
-      data: {
-        type: 'NOTE',
-        title: 'Company Research',
-        subject: 'TechCorp Research Notes',
-        description: 'Detailed research on TechCorp Inc. for interview preparation',
-        note: `**TechCorp Inc. - Company Research**
-
-*Company Overview:*
-- Founded: 2015
-- Employees: ~3,000 globally
-- Revenue: $500M+ (2023)
-- Recent funding: Series D ($100M) in 2023
-
-*Tech Stack:*
-- Frontend: React, TypeScript, Next.js
-- Backend: Node.js, Python, Go
-- Database: PostgreSQL, Redis
-- Cloud: AWS, Kubernetes
-- CI/CD: GitHub Actions, Docker
-
-*Recent News:*
-- Launched AI-powered analytics platform (Q1 2024)
-- Expanded to European market
-- Hiring 200+ engineers this year
-
-*Culture & Values:*
-- Remote-first company
-- Strong emphasis on work-life balance
-- Engineering-driven culture
-- Focus on mentorship and growth
-
-*Interview Process:*
-1. Phone screen with recruiter (30 min)
-2. Technical interview with engineer (60 min)
-3. System design interview (45 min)
-4. Behavioral interview with manager (45 min)
-5. Final round with team lead (30 min)`,
-        date: new Date('2024-06-29T14:00:00Z'),
-        userId: user.id,
-        companyId: companies[0].id, // Link to TechCorp
-      },
-    })
-  }
-  noteActivities.push(noteActivity3)
-
-  // Note 4: Contact Follow-up Reminders
-  let noteActivity4 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Weekly Contact Follow-ups',
-      type: 'NOTE',
-      userId: user.id
-    }
-  })
-
-  if (!noteActivity4) {
-    noteActivity4 = await prisma.activity.create({
-      data: {
-        type: 'NOTE',
-        title: 'Follow-up Reminders',
-        subject: 'Weekly Contact Follow-ups',
-        description: 'Weekly reminders for staying in touch with key contacts',
-        note: `**Weekly Follow-up Schedule:**
-
-*Monday:*
-- Check LinkedIn for contact updates
-- Send connection requests to new contacts
-
-*Wednesday:*
-- Follow up with recent coffee chat connections
-- Share interesting articles with relevant contacts
-
-*Friday:*
-- Review and update CRM notes
-- Plan next week's outreach activities
-
-**Current Priority Contacts:**
-1. **Jane Smith** (StartupXYZ) - Send quarterly update
-2. **John Doe** (TechCorp) - Follow up post-interview
-3. **Mike Johnson** (Digital Agency) - Schedule next meeting
-
-**Template Messages:**
-- "Hope you're doing well! Thought you'd find this article interesting..."
-- "Quick update on my job search progress..."
-- "Would love to catch up over coffee if you have time"`,
-        date: new Date('2024-06-30T10:00:00Z'),
-        followUpDate: new Date('2024-07-07'),
-        userId: user.id,
-      },
-    })
-  }
-  noteActivities.push(noteActivity4)
-
-  // Note 5: Salary Negotiation Research
-  let noteActivity5 = await prisma.activity.findFirst({
-    where: {
-      subject: 'Salary Research & Negotiation Strategy',
-      type: 'NOTE',
-      userId: user.id
-    }
-  })
-
-  if (!noteActivity5) {
-    noteActivity5 = await prisma.activity.create({
-      data: {
-        type: 'NOTE',
-        title: 'Salary Strategy',
-        subject: 'Salary Research & Negotiation Strategy',
-        description: 'Market research and negotiation strategy for job offers',
-        note: `**Market Salary Research (Senior Developer):**
-
-*San Francisco Bay Area:*
-- Base: $140K - $180K
-- Total comp: $180K - $250K
-- Equity: 0.1% - 0.5% at startups
-
-*Austin, TX:*
-- Base: $120K - $150K
-- Total comp: $150K - $200K
-- Lower cost of living adjustment
-
-*New York, NY:*
-- Base: $130K - $170K
-- Total comp: $170K - $230K
-
-**Negotiation Strategy:**
-1. Always ask for 10-20% above initial offer
-2. Focus on total compensation package
-3. Consider: salary, equity, benefits, PTO, remote work
-4. Research company's typical equity grants
-5. Get everything in writing
-
-**My Target Range:**
-- Minimum acceptable: $130K base
-- Target: $150K base + equity
-- Stretch goal: $170K+ total comp
-
-**Non-salary negotiations:**
-- Additional PTO days
-- Professional development budget
-- Home office stipend
-- Flexible working hours`,
-        date: new Date('2024-06-27T16:00:00Z'),
-        userId: user.id,
-      },
-    })
-  }
-  noteActivities.push(noteActivity5)
-
-  console.log('Created/found demo note activities')
-
-  // Create demo notes (legacy - will be removed after migration)
-  // This section can be removed once the Note model is fully migrated to Activity
-  try {
-    const existingNote = await prisma.note.findFirst({
-      where: {
-        title: 'Interview Preparation Notes',
-        userId: user.id
-      }
-    })
-
-    if (!existingNote) {
-      await prisma.note.create({
-        data: {
-          title: 'Interview Preparation Notes',
-          content: 'Key points to remember for upcoming interviews:\n- Review React hooks\n- Prepare system design examples\n- Research company background',
-          tags: JSON.stringify(['interview', 'preparation']),
-          userId: user.id,
-        },
-      })
-    }
-
-    console.log('Created/found demo notes (legacy)')
-  } catch (error) {
-    console.log('Note model not available (already migrated to Activity)')
-  }
-
-  // Create demo tags
-  const tags = await Promise.all([
-    prisma.tag.upsert({
-      where: { name: 'Hot Lead' },
-      update: {},
-      create: {
-        name: 'Hot Lead',
-        color: '#ef4444', // red
-        description: 'High priority contact or company',
-        userId: user.id,
-      },
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Technical' },
-      update: {},
-      create: {
-        name: 'Technical',
-        color: '#3b82f6', // blue
-        description: 'Technical roles and contacts',
-        userId: user.id,
-      },
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Decision Maker' },
-      update: {},
-      create: {
-        name: 'Decision Maker',
-        color: '#8b5cf6', // purple
-        description: 'Key decision makers',
-        userId: user.id,
-      },
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Follow Up' },
-      update: {},
-      create: {
-        name: 'Follow Up',
-        color: '#f59e0b', // amber
-        description: 'Requires follow up',
-        userId: user.id,
-      },
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Startup' },
-      update: {},
-      create: {
-        name: 'Startup',
-        color: '#10b981', // green
-        description: 'Startup companies',
-        userId: user.id,
-      },
-    }),
-    prisma.tag.upsert({
-      where: { name: 'Interview' },
-      update: {},
-      create: {
-        name: 'Interview',
-        color: '#ec4899', // pink
-        description: 'Interview related activities',
-        userId: user.id,
-      },
-    }),
-  ])
-
-  console.log('Created/found demo tags')
-
-  // Create tag relationships (handle duplicates)
-  const tagRelationships = [
-    // Contact tags
-    { type: 'contact', entityId: contacts[0].id, tagId: tags[1].id }, // John Doe - Technical
-    { type: 'contact', entityId: contacts[0].id, tagId: tags[2].id }, // John Doe - Decision Maker
-    { type: 'contact', entityId: contacts[1].id, tagId: tags[0].id }, // Jane Smith - Hot Lead
-    { type: 'contact', entityId: contacts[2].id, tagId: tags[3].id }, // Mike Johnson - Follow Up
-    // Company tags
-    { type: 'company', entityId: companies[1].id, tagId: tags[4].id }, // StartupXYZ - Startup
-    { type: 'company', entityId: companies[1].id, tagId: tags[0].id }, // StartupXYZ - Hot Lead
-    { type: 'company', entityId: companies[0].id, tagId: tags[1].id }, // TechCorp - Technical
-    // Activity tags
-    { type: 'activity', entityId: activity2.id, tagId: tags[5].id }, // Technical Interview - Interview
-    { type: 'activity', entityId: activity2.id, tagId: tags[1].id }, // Technical Interview - Technical
-    { type: 'activity', entityId: activity1.id, tagId: tags[3].id }, // Product Strategy Webinar - Follow Up
-    { type: 'activity', entityId: activity4.id, tagId: tags[3].id }, // Follow-up Email - Follow Up
-    // Note activity tags
-    { type: 'activity', entityId: noteActivities[0].id, tagId: tags[5].id }, // Interview Preparation - Interview
-    { type: 'activity', entityId: noteActivities[1].id, tagId: tags[3].id }, // Networking Strategy - Follow Up
-    { type: 'activity', entityId: noteActivities[2].id, tagId: tags[1].id }, // Company Research - Technical
-    { type: 'activity', entityId: noteActivities[3].id, tagId: tags[3].id }, // Contact Follow-ups - Follow Up
-  ]
-
-  for (const relation of tagRelationships) {
-    try {
-      if (relation.type === 'contact') {
+      if (rel.type === 'contact') {
         await prisma.contactTag.upsert({
           where: {
             contactId_tagId: {
-              contactId: relation.entityId,
-              tagId: relation.tagId
-            }
+              contactId: contacts[rel.contactName].id,
+              tagId: tags[rel.tag].id,
+            },
           },
           update: {},
           create: {
-            contactId: relation.entityId,
-            tagId: relation.tagId
-          }
+            contactId: contacts[rel.contactName].id,
+            tagId: tags[rel.tag].id,
+          },
         })
-      } else if (relation.type === 'company') {
+      } else if (rel.type === 'company') {
         await prisma.companyTag.upsert({
           where: {
             companyId_tagId: {
-              companyId: relation.entityId,
-              tagId: relation.tagId
-            }
+              companyId: companies[rel.companyName].id,
+              tagId: tags[rel.tag].id,
+            },
           },
           update: {},
           create: {
-            companyId: relation.entityId,
-            tagId: relation.tagId
-          }
-        })
-      } else if (relation.type === 'activity') {
-        await prisma.activityTag.upsert({
-          where: {
-            activityId_tagId: {
-              activityId: relation.entityId,
-              tagId: relation.tagId
-            }
+            companyId: companies[rel.companyName].id,
+            tagId: tags[rel.tag].id,
           },
-          update: {},
-          create: {
-            activityId: relation.entityId,
-            tagId: relation.tagId
-          }
         })
       }
     } catch (error) {
-      console.log(`Tag relationship already exists: ${relation.type} ${relation.entityId} - Tag ${relation.tagId}`)
+      console.log(`Tag relationship already exists: ${rel.type} ${rel.contactName || rel.companyName} - Tag ${rel.tag}`)
     }
   }
 
-  console.log('Created/found demo tag relationships')
-
-  // Create demo links
-  const links = []
-
-  // Company links
-  const companyLinks = [
-    // TechCorp links
-    { url: 'https://techcorp.com', label: 'Website', companyId: companies[0].id },
-    { url: 'https://linkedin.com/company/techcorp', label: 'LinkedIn', companyId: companies[0].id },
-    { url: 'https://techcorp.com/careers', label: 'Careers Page', companyId: companies[0].id },
-    { url: 'https://techcorp.com/blog', label: 'Tech Blog', companyId: companies[0].id },
-    { url: 'https://github.com/techcorp', label: 'GitHub', companyId: companies[0].id },
-
-    // StartupXYZ links
-    { url: 'https://startupxyz.com', label: 'Website', companyId: companies[1].id },
-    { url: 'https://linkedin.com/company/startupxyz', label: 'LinkedIn', companyId: companies[1].id },
-    { url: 'https://startupxyz.com/careers', label: 'Careers Page', companyId: companies[1].id },
-    { url: 'https://twitter.com/startupxyz', label: 'Twitter', companyId: companies[1].id },
-    { url: 'https://startupxyz.com/product-demo', label: 'Product Demo', companyId: companies[1].id },
-
-    // Digital Agency links
-    { url: 'https://digitalagency.com', label: 'Website', companyId: companies[2].id },
-    { url: 'https://linkedin.com/company/digital-agency', label: 'LinkedIn', companyId: companies[2].id },
-    { url: 'https://digitalagency.com/portfolio', label: 'Portfolio', companyId: companies[2].id },
-    { url: 'https://instagram.com/digitalagency', label: 'Instagram', companyId: companies[2].id },
-  ]
-
-  for (const linkData of companyLinks) {
-    const existingLink = await prisma.link.findFirst({
-      where: {
-        url: linkData.url,
-        companyId: linkData.companyId
-      }
+  // File seeding: create File records for every file in fileSeedData
+  for (const file of fileSeedData) {
+    // Rename the file to use the static ID as filename
+    const absPath = path.join(__dirname, '../public', file.relPath)
+    const newFileName = `${file.id}${path.extname(file.fileName)}`
+    const newAbsPath = path.join(path.dirname(absPath), newFileName)
+    if (fs.existsSync(absPath) && absPath !== newAbsPath) {
+      fs.renameSync(absPath, newAbsPath)
+    }
+    await prisma.file.upsert({
+      where: { id: file.id },
+      update: {},
+      create: {
+        id: file.id,
+        fileName: newFileName,
+        mimeType: file.mimeType,
+        userId: user.id,
+      },
     })
-
-    if (!existingLink) {
-      const link = await prisma.link.create({
-        data: linkData
-      })
-      links.push(link)
-    } else {
-      links.push(existingLink)
-    }
   }
 
-  // Contact links
-  const contactLinks = [
-    // John Doe links
-    { url: 'https://linkedin.com/in/johndoe', label: 'LinkedIn', contactId: contacts[0].id },
-    { url: 'https://github.com/johndoe', label: 'GitHub', contactId: contacts[0].id },
-    { url: 'https://johndoe.dev', label: 'Personal Website', contactId: contacts[0].id },
+  // Seed job applications (moved after tags and tag assignments)
+  await seedJobApplications(user.id, tags)
 
-    // Jane Smith links
-    { url: 'https://linkedin.com/in/janesmith', label: 'LinkedIn', contactId: contacts[1].id },
-    { url: 'https://twitter.com/janesmith_pm', label: 'Twitter', contactId: contacts[1].id },
-    { url: 'https://medium.com/@janesmith', label: 'Medium Blog', contactId: contacts[1].id },
-
-    // Mike Johnson links
-    { url: 'https://linkedin.com/in/mikejohnson', label: 'LinkedIn', contactId: contacts[2].id },
-    { url: 'https://dribbble.com/mikejohnson', label: 'Dribbble', contactId: contacts[2].id },
-    { url: 'https://mikejohnson.design', label: 'Portfolio', contactId: contacts[2].id },
-    { url: 'https://behance.net/mikejohnson', label: 'Behance', contactId: contacts[2].id },
-  ]
-
-  for (const linkData of contactLinks) {
-    const existingLink = await prisma.link.findFirst({
-      where: {
-        url: linkData.url,
-        contactId: linkData.contactId
-      }
-    })
-
-    if (!existingLink) {
-      const link = await prisma.link.create({
-        data: linkData
-      })
-      links.push(link)
-    } else {
-      links.push(existingLink)
-    }
+  // Add a "Don't Jump to Conclusions" activity (note) to the Initech Software Engineer application
+  if (typeof softwareEngineerAppRecord !== 'undefined') {
+    await prisma.activity.upsert({
+      where: { id: 'NOTE_DONT_JUMP_TO_CONCLUSIONS' },
+      update: {},
+      create: {
+        id: 'NOTE_DONT_JUMP_TO_CONCLUSIONS',
+        type: 'RESEARCH', // Use enum or string as defined in your schema
+        subject: "Don't Jump to Conclusions",
+        description: null,
+        date: new Date('2025-06-19'), // before application date (2025-06-20)
+        userId: user.id,
+        jobApplicationId: softwareEngineerAppRecord.id,
+        companyId: companies['Initech'].id,
+      },
+    });
+    await prisma.activity.upsert({
+      where: { id: 'LUMBERG_INTERVIEW' },
+      update: {},
+      create: {
+        id: 'LUMBERG_INTERVIEW',
+        type: 'INTERVIEW', // Use enum or string as defined in your schema
+        subject: "Culture Fit",
+        description: null,
+        date: new Date('2025-06-22'), // before application date (2025-06-20)
+        userId: user.id,
+        jobApplicationId: softwareEngineerAppRecord.id,
+        companyId: companies['Initech'].id,
+        contacts: {
+          connect: [{ id: '11HZYX6JQK7ZQK7ZQK7ZQK7zqc' }],
+        },
+      },
+    });
   }
 
-  // Job application links
-  const jobApplicationLinks = [
-    // Senior Developer at TechCorp
-    { url: 'https://techcorp.com/jobs/senior-developer', label: 'Job Posting', jobApplicationId: jobApplications[0].id },
-    { url: 'https://glassdoor.com/jobs/techcorp-senior-developer', label: 'Glassdoor', jobApplicationId: jobApplications[0].id },
-    { url: 'https://levels.fyi/companies/techcorp', label: 'Levels.fyi', jobApplicationId: jobApplications[0].id },
-
-    // Product Manager at StartupXYZ
-    { url: 'https://startupxyz.com/careers/product-manager', label: 'Job Posting', jobApplicationId: jobApplications[1].id },
-    { url: 'https://glassdoor.com/jobs/startupxyz-product-manager', label: 'Glassdoor', jobApplicationId: jobApplications[1].id },
-    { url: 'https://startupxyz.com/team', label: 'Team Page', jobApplicationId: jobApplications[1].id },
-
-    // Full Stack Engineer at Digital Agency
-    { url: 'https://digitalagency.com/jobs/fullstack', label: 'Job Posting', jobApplicationId: jobApplications[2].id },
-    { url: 'https://glassdoor.com/jobs/digital-agency-fullstack', label: 'Glassdoor', jobApplicationId: jobApplications[2].id },
-  ]
-
-  for (const linkData of jobApplicationLinks) {
-    const existingLink = await prisma.link.findFirst({
-      where: {
-        url: linkData.url,
-        jobApplicationId: linkData.jobApplicationId
-      }
-    })
-
-    if (!existingLink) {
-      const link = await prisma.link.create({
-        data: linkData
-      })
-      links.push(link)
-    } else {
-      links.push(existingLink)
-    }
-  }
-
-  console.log('Created/found demo links')
-  console.log('Database seeded successfully!')
+  console.log('Database seeding completed.')
 }
 
 main()

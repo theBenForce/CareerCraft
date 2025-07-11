@@ -13,73 +13,25 @@ import {
   CalendarDaysIcon,
   BuildingOfficeIcon,
   UserGroupIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  BriefcaseIcon
 } from '@heroicons/react/24/outline'
 import Header from '@/components/layout/Header'
-import { TagList } from '@/components/TagComponent'
-import ActivityIcon from '@/components/ActivityIcon'
 import { EntityCard } from '@/components/EntityCard'
 import DetailsLayout from '@/components/layout/DetailsLayout'
+import { Contact, Company, JobApplication, Tag, Activity } from '@prisma/client'
 
-interface Contact {
-  id: number
-  firstName: string
-  lastName: string
-  email: string
-  position?: string
-}
-
-interface Company {
-  id: number
-  name: string
-  logo?: string
-}
-
-interface JobApplication {
-  id: number
-  position: string
-}
-
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
-}
-
-interface ActivityTag {
-  id: number
-  activityId: number
-  tagId: number
-  tag: Tag
-}
-
-interface Activity {
-  id: number
-  type: string
-  title?: string
-  subject: string
-  description?: string
-  date: string
-  duration?: number
-  note?: string
-  outcome?: string
-  followUpDate?: string
-  company?: Company
-  jobApplication?: JobApplication
-  contacts?: Contact[]
-  activityTags?: ActivityTag[]
-  createdAt: string
-  updatedAt: string
+interface ActivityWithRelations extends Activity {
+  company?: Company | null
+  jobApplication?: JobApplication | null
+  contacts?: Contact[] | null
+  tags?: Tag[] | null
 }
 
 export default function ActivityDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [activity, setActivity] = useState<Activity | null>(null)
+  const [activity, setActivity] = useState<ActivityWithRelations | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
@@ -271,9 +223,14 @@ export default function ActivityDetailPage() {
         ...(activity.followUpDate ? [{
           icon: <CalendarDaysIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />,
           text: `Follow-up: ${new Date(activity.followUpDate).toLocaleDateString()}`
+        }] : []),
+        ...(activity.jobApplication ? [{
+          icon: <BriefcaseIcon className="w-4 h-4" />,
+          text: activity.jobApplication.position,
+          href: `/applications/${activity.jobApplication.id}`
         }] : [])
       ]}
-      tags={activity.activityTags?.map(at => at.tag) || []}
+      tags={activity.tags || []}
       createdAt={activity.createdAt}
       updatedAt={activity.updatedAt}
       imageType='icon'
@@ -290,14 +247,14 @@ export default function ActivityDetailPage() {
   // Right column: Main Content
   const rightColumn = (
     <div className="flex flex-col gap-6">
-      {/* Outcome Section */}
-      {activity.outcome && (
+      {/* Note Section */}
+      {activity.note && (
         <div className="bg-card shadow rounded-lg">
           <div className="px-6 py-4 border-b border-border">
-            <h2 className="text-lg font-semibold text-foreground">Outcome</h2>
+            <h2 className="text-lg font-semibold text-foreground">Note</h2>
           </div>
           <div className="p-6">
-            <p className="text-muted-foreground whitespace-pre-wrap">{activity.outcome}</p>
+            <p className="text-muted-foreground whitespace-pre-wrap">{activity.note}</p>
           </div>
         </div>
       )}
@@ -309,14 +266,6 @@ export default function ActivityDetailPage() {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {/* Job Application */}
-            {activity.jobApplication && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-1">Related Job Application</h4>
-                <p className="text-muted-foreground">{activity.jobApplication.position}</p>
-              </div>
-            )}
-
             {/* Notes Section */}
             {activity.note && (
               <div>
@@ -328,7 +277,7 @@ export default function ActivityDetailPage() {
             )}
 
             {/* Show message if no additional details */}
-            {!activity.jobApplication && !activity.note && (!activity.activityTags || activity.activityTags.length === 0) && (
+            {!activity.note && !Boolean(activity.tags?.length) && (
               <p className="text-muted-foreground text-sm">No additional details available.</p>
             )}
           </div>

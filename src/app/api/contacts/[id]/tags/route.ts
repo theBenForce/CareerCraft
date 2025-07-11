@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 // POST /api/contacts/[id]/tags - Add a tag to a contact
 export async function POST(
@@ -20,20 +18,27 @@ export async function POST(
       );
     }
 
-    const contactTag = await prisma.contactTag.create({
+    // Use connect for many-to-many relation
+    const updatedContact = await prisma.contact.update({
+      where: { id: contactId },
       data: {
-        contactId,
-        tagId,
+        tags: {
+          connect: { id: tagId },
+        },
       },
       include: {
-        tag: true,
+        tags: true,
       },
     });
 
-    return NextResponse.json(contactTag, { status: 201 });
+    return NextResponse.json(updatedContact, { status: 201 });
   } catch (error) {
     console.error("Error adding tag to contact:", error);
-    if (error instanceof Error && "code" in error && error.code === "P2002") {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as any).code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "This tag is already assigned to this contact" },
         { status: 409 }
@@ -63,11 +68,12 @@ export async function DELETE(
       );
     }
 
-    await prisma.contactTag.delete({
-      where: {
-        contactId_tagId: {
-          contactId,
-          tagId: tagId,
+    // Use disconnect for many-to-many relation
+    await prisma.contact.update({
+      where: { id: contactId },
+      data: {
+        tags: {
+          disconnect: { id: tagId },
         },
       },
     });
@@ -90,16 +96,18 @@ export async function GET(
   try {
     const contactId = params.id;
 
-    const contactTags = await prisma.contactTag.findMany({
-      where: {
-        contactId,
-      },
+    const contact = await prisma.contact.findUnique({
+      where: { id: contactId },
       include: {
-        tag: true,
+        tags: true,
       },
     });
 
-    return NextResponse.json(contactTags);
+    if (!contact) {
+      return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(contact.tags);
   } catch (error) {
     console.error("Error fetching contact tags:", error);
     return NextResponse.json(

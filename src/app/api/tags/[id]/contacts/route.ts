@@ -15,23 +15,17 @@ export async function GET(
       return NextResponse.json({ error: "Invalid tag ID" }, { status: 400 });
     }
 
-    const contactTags = await (prisma as any).contactTag.findMany({
-      where: { tagId },
+    const contacts = await prisma.contact.findMany({
+      where: { tags: { some: { id: tagId } } },
       include: {
-        contact: {
-          include: {
-            company: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+        company: {
+          select: {
+            id: true,
+            name: true,
           },
         },
       },
     });
-
-    const contacts = contactTags.map((ct: any) => ct.contact);
 
     return NextResponse.json(contacts);
   } catch (error) {

@@ -31,22 +31,14 @@ export async function GET(
             position: true,
           },
         },
-        activityContacts: {
-          include: {
-            contact: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
+        contacts: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
           },
         },
-        activityTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
       },
       orderBy: {
         date: "desc",
@@ -56,7 +48,6 @@ export async function GET(
     // Transform the response to include contact information
     const transformedActivities = activities.map((activity: any) => ({
       ...activity,
-      contacts: activity.activityContacts.map((ac: any) => ac.contact),
     }));
 
     return NextResponse.json(transformedActivities);

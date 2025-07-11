@@ -26,11 +26,7 @@ export async function GET(
             name: true,
           },
         },
-        contactTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
         links: {
           orderBy: {
             createdAt: "desc",

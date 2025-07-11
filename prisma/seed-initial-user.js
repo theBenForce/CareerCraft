@@ -18,7 +18,8 @@ async function main() {
   if (!password) {
     password = Math.random().toString(36).slice(-16);
     console.log('=========================================');
-    console.log('  Generated temporary random password:');
+    console.log('  Creating User:');
+    console.log(`  Username: ${email}`);
     console.log(`  Password: ${password}`);
     console.log('=========================================');
   }

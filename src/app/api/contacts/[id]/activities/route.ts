@@ -8,11 +8,11 @@ export async function GET(
   try {
     const contactId = params.id;
 
-    // Get all activities for this contact
-    const activityContacts = await (prisma as any).activityContact.findMany({
-      where: { contactId },
+    // Fetch the contact and include related activities
+    const contact = await prisma.contact.findUnique({
+      where: { id: contactId },
       include: {
-        activity: {
+        activities: {
           include: {
             company: {
               select: {
@@ -26,25 +26,21 @@ export async function GET(
                 position: true,
               },
             },
-            activityTags: {
-              include: {
-                tag: true,
-              },
-            },
+            tags: true,
           },
-        },
-      },
-      orderBy: {
-        activity: {
-          date: "desc",
+          orderBy: {
+            date: "desc",
+          },
         },
       },
     });
 
-    // Transform the response to return activities with metadata
-    const activities = activityContacts.map((ac: any) => ac.activity);
+    if (!contact) {
+      return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+    }
 
-    return NextResponse.json(activities);
+    // Return the activities array
+    return NextResponse.json(contact.activities);
   } catch (error) {
     console.error("Error fetching contact activities:", error);
     return NextResponse.json(

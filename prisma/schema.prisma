@@ -20,6 +20,7 @@ model User {
   contacts        Contact[]
   jobApplications JobApplication[]
   tags            Tag[]
+  files            File[]
 }
 
 model Company {
@@ -38,8 +39,9 @@ model Company {
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts        Contact[]
   jobApplications JobApplication[]
-  companyTags     CompanyTag[]
+  tags            Tag[]
   links           Link[]
+  files            File[]
 }
 
 model Contact {
@@ -58,11 +60,13 @@ model Contact {
   updatedAt        DateTime         @updatedAt
   userId           String
   companyId        String?
-  activityContacts ActivityContact[]
+  activities       Activity[]
   company          Company?         @relation(fields: [companyId], references: [id])
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactTags      ContactTag[]
+  tags             Tag[]
   links            Link[]
+  jobApplications   JobApplication[] // Many-to-many relationship with JobApplication
+  files            File[]
 }
 
 model JobApplication {
@@ -72,10 +76,6 @@ model JobApplication {
   priority       String     @default("medium")
   jobDescription String?
   salary         String?
-  appliedDate    DateTime
-  responseDate   DateTime?
-  interviewDate  DateTime?
-  offerDate      DateTime?
   notes          String?
   source         String?
   createdAt      DateTime   @default(now())
@@ -86,6 +86,9 @@ model JobApplication {
   company        Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   links          Link[]
+  contacts       Contact[]   // Many-to-many relationship with Contact
+  tags           Tag[]      // Many-to-many relationship with Tag
+  files            File[]
 }
 
 model Activity {
@@ -106,19 +109,10 @@ model Activity {
   jobApplication   JobApplication?   @relation(fields: [jobApplicationId], references: [id])
   company          Company?          @relation(fields: [companyId], references: [id])
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activityContacts ActivityContact[]
-  activityTags     ActivityTag[]
-}
-
-model ActivityContact {
-  id         String   @id @default(ulid()) // ULID
-  activityId String
-  contactId  String
-  createdAt  DateTime @default(now())
-  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, contactId])
+  contacts         Contact[]
+  tags             Tag[]
+  links           Link[]
+  files            File[]
 }
 
 model Tag {
@@ -130,42 +124,10 @@ model Tag {
   updatedAt    DateTime      @updatedAt
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactTags  ContactTag[]
-  companyTags  CompanyTag[]
-  activityTags ActivityTag[]
-}
-
-model ContactTag {
-  id        String   @id @default(ulid()) // ULID
-  contactId String
-  tagId     String
-  createdAt DateTime @default(now())
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([contactId, tagId])
-}
-
-model CompanyTag {
-  id        String   @id @default(ulid()) // ULID
-  companyId String
-  tagId     String
-  createdAt DateTime @default(now())
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([companyId, tagId])
-}
-
-model ActivityTag {
-  id         String   @id @default(ulid()) // ULID
-  activityId String
-  tagId      String
-  createdAt  DateTime @default(now())
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, tagId])
+  contacts     Contact[]
+  company      Company[]
+  activity     Activity[]
+  jobApplication JobApplication[]
 }
 
 model Link {
@@ -175,9 +137,25 @@ model Link {
   companyId        String?
   contactId        String?
   jobApplicationId String?
+  activityId       String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   company          Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
   contact          Contact?        @relation(fields: [contactId], references: [id], onDelete: Cascade)
   jobApplication   JobApplication? @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  activity         Activity?       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+}
+
+model File {
+  id         String   @id @default(ulid()) // ULID
+  fileName   String
+  mimeType   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts   Contact[]
+  companies  Company[]
+  jobApplications JobApplication[]
+  activities Activity[]
 }

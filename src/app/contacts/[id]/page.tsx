@@ -1,53 +1,35 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
-import rehypeSanitize from 'rehype-sanitize'
-import { toast } from 'react-hot-toast'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { ActivityTimeline } from '@/components/ActivityTimeline'
+import { EntityCard } from '@/components/EntityCard'
+import DetailsLayout from '@/components/layout/DetailsLayout'
 import {
-  faLinkedin,
-  faTwitter,
   faFacebook,
-  faInstagram,
   faGithub,
+  faInstagram,
+  faLinkedin,
   faXTwitter
 } from '@fortawesome/free-brands-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  PencilIcon,
-  TrashIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  UserIcon,
   BuildingOfficeIcon,
   CheckIcon,
-  XMarkIcon,
-  LinkIcon
+  EnvelopeIcon,
+  LinkIcon,
+  PencilIcon,
+  PhoneIcon,
+  TrashIcon,
+  UserIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
-import DetailsLayout from '@/components/layout/DetailsLayout'
-import { TagList } from '@/components/TagComponent'
-import { ActivityTimeline } from '@/components/ActivityTimeline'
-import LinksManager from '@/components/LinksManager'
-import { EntityCard } from '@/components/EntityCard'
+import { Tag } from '@prisma/client'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-hot-toast'
+import ReactMarkdown from 'react-markdown'
+import rehypeSanitize from 'rehype-sanitize'
 
-interface Tag {
-  id: number
-  name: string
-  color?: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-  userId: number
-}
-
-interface ContactTag {
-  id: number
-  contactId: number
-  tagId: number
-  tag: Tag
-}
 
 interface Contact {
   id: string
@@ -63,7 +45,7 @@ interface Contact {
     id: string
     name: string
   }
-  contactTags?: ContactTag[]
+  tags?: Tag[]
   links?: Array<{
     id: number
     url: string
@@ -352,7 +334,7 @@ export default function ContactDetailPage() {
           href: link.url
         }))
       ]}
-      tags={contact.contactTags?.map(ct => ct.tag) || []}
+      tags={contact.tags || []}
     />
   )
 

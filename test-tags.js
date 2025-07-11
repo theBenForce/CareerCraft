@@ -12,9 +12,9 @@ async function testTagModels() {
       include: {
         _count: {
           select: {
-            contactTags: true,
-            companyTags: true,
-            activityTags: true,
+            contacts: true,
+            company: true,
+            activity: true,
           },
         },
       },
@@ -26,15 +26,11 @@ async function testTagModels() {
     // Test fetching contact with tags
     const contactWithTags = await prisma.contact.findFirst({
       include: {
-        contactTags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: true,
       },
     })
 
-    console.log('Contact with tags:', contactWithTags?.firstName, 'has', contactWithTags?.contactTags.length, 'tags')
+    console.log('Contact with tags:', contactWithTags?.firstName, 'has', contactWithTags?.tags.length, 'tags')
 
     console.log('✅ All tag models working correctly!')
   } catch (error) {
